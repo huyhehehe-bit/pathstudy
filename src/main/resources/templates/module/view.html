@@ -1,0 +1,94 @@
+﻿<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${detail.lesson != null ? detail.lesson.title : detail.module.title})}"></head>
+<body>
+<div class="shell">
+    <aside th:replace="~{fragments/layout :: sidebar('path')}"></aside>
+    <main class="main">
+        <header th:replace="~{fragments/layout :: topbar('Bài học')}"></header>
+        <div class="content stack" style="max-width:860px">
+
+            <a th:href="@{'/path?subject=' + ${detail.module.subject.code}}" class="chip" style="align-self:flex-start">
+                <span th:insert="~{fragments/icons :: ic('arrow')}" style="transform:rotate(180deg)"></span> Quay lại lộ trình</a>
+
+            <!-- Lesson hero -->
+            <div class="lesson-hero" th:if="${detail.lesson != null}">
+                <div class="between" style="align-items:flex-start">
+                    <div>
+                        <span class="chip" style="background:rgba(255,255,255,.18);color:#fff;border:none"
+                              th:text="${detail.module.title}">Phân tích tác phẩm</span>
+                        <h2 style="font-size:26px;margin:12px 0 6px" th:text="${detail.lesson.title}">Sóng – Xuân Quỳnh</h2>
+                        <div class="center" style="gap:8px;flex-wrap:wrap;font-size:13px;opacity:.9">
+                            <span th:if="${detail.lesson.genre}" th:text="${detail.lesson.genre}">Thơ</span>
+                            <span th:if="${detail.lesson.author}">· <span th:text="${detail.lesson.author}">Xuân Quỳnh</span></span>
+                            <span th:if="${detail.lesson.durationMinutes > 0}">· <span th:text="${detail.lesson.durationMinutes} + ' phút'">45 phút</span></span>
+                        </div>
+                    </div>
+                    <span class="pill" style="background:rgba(255,255,255,.2);color:#fff"
+                          th:text="${detail.status.label}">Đang học</span>
+                </div>
+                <div class="excerpt" style="margin-top:18px" th:if="${detail.lesson.heroExcerpt}" th:text="${detail.lesson.heroExcerpt}">...</div>
+            </div>
+
+            <!-- Support tools -->
+            <div class="stack-sm">
+                <div class="section-head"><h3 style="font-size:16px">Công cụ hỗ trợ</h3>
+                    <p class="muted" style="font-size:13px">Tập trung vào tác phẩm trung tâm, dùng các công cụ dưới đây để hiểu và phân tích.</p></div>
+                <div class="tool-grid">
+                    <a th:each="s : ${detail.sections}" th:href="'#s' + ${s.id}" class="tool">
+                        <span class="tile tile-indigo" th:insert="~{fragments/icons :: ic(${s.type.icon})}"></span>
+                        <span th:text="${s.title != null ? s.title : s.type.label}">Đọc & hiểu</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Sections -->
+            <div class="stack" style="gap:14px">
+                <div class="sec" th:each="s : ${detail.sections}" th:id="'s' + ${s.id}">
+                    <div class="sec-head">
+                        <span class="tile tile-indigo" th:insert="~{fragments/icons :: ic(${s.type.icon})}"></span>
+                        <h3 th:text="${s.title != null ? s.title : s.type.label}">Đọc & hiểu tác phẩm</h3>
+                        <form th:if="${s.bookmarkable}" th:action="@{'/module/' + ${detail.module.id} + '/bookmark/' + ${s.id}}" method="post">
+                            <button type="submit" class="bm-btn"
+                                    th:classappend="${detail.bookmarkedIds.contains(s.id)} ? 'saved' : ''"
+                                    th:disabled="${detail.bookmarkedIds.contains(s.id)}">
+                                <span th:insert="~{fragments/icons :: ic('bookmark')}"></span>
+                                <span th:text="${detail.bookmarkedIds.contains(s.id)} ? 'Đã lưu' : 'Lưu'">Lưu</span>
+                            </button>
+                        </form>
+                    </div>
+                    <div class="sec-body" th:text="${s.body}">Nội dung...</div>
+                </div>
+            </div>
+
+            <!-- Notes -->
+            <div class="card card-pad stack-sm">
+                <h3 style="font-size:15px">Bảng ghi chú của bạn</h3>
+                <form th:action="@{'/module/' + ${detail.module.id} + '/note'}" method="post" class="stack-sm">
+                    <input type="hidden" name="sourceLabel" th:value="${detail.lesson != null ? detail.lesson.title : detail.module.title}"/>
+                    <textarea class="textarea" name="note" rows="3" placeholder="Nhập ghi chú... (sẽ lưu vào Kho lưu trữ của bạn)"></textarea>
+                    <button type="submit" class="btn btn-soft" style="align-self:flex-end">Lưu ghi chú</button>
+                </form>
+            </div>
+
+            <!-- Estimate CTA -->
+            <div class="card card-pad between" th:if="${detail.hasEstimate}" style="flex-wrap:wrap;gap:14px">
+                <div class="center" style="gap:14px">
+                    <span class="tile tile-green" th:insert="~{fragments/icons :: ic('award')}"></span>
+                    <div>
+                        <strong>Sẵn sàng kiểm tra?</strong>
+                        <div class="muted" style="font-size:13px">Làm Estimate Test để đánh giá và điều chỉnh lộ trình.</div>
+                        <div class="faint" style="font-size:12px" th:if="${detail.lastEstimate != null}"
+                             th:text="'Lần gần nhất: ' + ${detail.lastEstimate.total} + '% · ' + (${detail.lastEstimate.passed} ? 'Đạt' : 'Cần ôn lại')">Lần gần nhất: 73%</div>
+                    </div>
+                </div>
+                <a th:href="@{'/module/' + ${detail.module.id} + '/estimate'}" class="btn btn-primary">
+                    Làm bài kiểm tra <span th:insert="~{fragments/icons :: ic('arrow')}"></span></a>
+            </div>
+        </div>
+    </main>
+</div>
+<div th:replace="~{fragments/layout :: toast}"></div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

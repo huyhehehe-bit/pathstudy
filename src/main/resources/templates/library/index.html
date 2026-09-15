@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Kho lưu trữ của tôi')}"></head>
+<body>
+<div class="shell">
+    <aside th:replace="~{fragments/layout :: sidebar('library')}"></aside>
+    <main class="main">
+        <header th:replace="~{fragments/layout :: topbar('Thư viện')}"></header>
+        <div class="content stack">
+            <div class="section-head">
+                <h2 style="font-size:24px">Kho lưu trữ của tôi</h2>
+                <p class="muted">Những nội dung bạn đã bookmark trong quá trình học.</p>
+            </div>
+
+            <div class="row-wrap">
+                <span class="chip" style="background:var(--primary-soft);color:var(--primary-700);border:none"
+                      th:text="'Tất cả (' + ${total} + ')'">Tất cả (12)</span>
+                <span class="chip" th:each="c : ${counts}" th:text="${c.key} + ' (' + ${c.value} + ')'">Tác phẩm (8)</span>
+            </div>
+
+            <div th:if="${total == 0}" class="card card-pad" style="text-align:center;color:var(--ink-2)">
+                <p style="font-weight:600">Chưa có mục nào được lưu.</p>
+                <p style="font-size:14px">Trong khi học, bấm <strong>Lưu</strong> ở mỗi công cụ để cất vào đây.</p>
+                <a th:href="@{/path}" class="btn btn-soft" style="margin-top:8px">Đi tới lộ trình</a>
+            </div>
+
+            <div class="stack" style="gap:12px">
+                <div class="card card-pad between" th:each="b : ${bookmarks}" style="align-items:flex-start;gap:16px">
+                    <div class="grow stack-sm" style="gap:6px">
+                        <div class="center" style="gap:8px;flex-wrap:wrap">
+                            <span class="pill pill-doing" th:text="${b.category}">Tác phẩm</span>
+                            <strong th:text="${b.title}">Hình ảnh & biểu tượng</strong>
+                        </div>
+                        <p class="muted" style="font-size:14px" th:text="${b.snippet}">Trích đoạn...</p>
+                        <div class="faint" style="font-size:12px">
+                            <span th:if="${b.sourceLabel}" th:text="${b.sourceLabel}">Sóng – Xuân Quỳnh</span>
+                            <span th:if="${b.sourceLabel}"> · </span>
+                            <span th:text="${b.createdAt.toLocalDate()}">2026-04-05</span>
+                        </div>
+                    </div>
+                    <div class="stack-sm" style="align-items:flex-end;gap:8px">
+                        <a th:if="${b.moduleId != null}" th:href="@{'/module/' + ${b.moduleId}}" class="chip">Mở</a>
+                        <form th:action="@{'/library/' + ${b.id} + '/delete'}" method="post">
+                            <button type="submit" class="bm-btn" style="border-color:var(--danger-soft);color:var(--danger)">Xoá</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+<div th:replace="~{fragments/layout :: toast}"></div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

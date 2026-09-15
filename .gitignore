@@ -1,0 +1,34 @@
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+### Local data (H2) ###
+data/
+*.mv.db
+*.trace.db
+*.lock.db
+
+### Local toolchain (downloaded JDK/Maven) ###
+.tools/
+
+### Nested unrelated git repo (kept separate) ###
+EXE2/
+
+### IDE ###
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.settings/
+.project
+.classpath
+bin/
+
+### OS ###
+.DS_Store
+Thumbs.db
+
+### Logs ###
+*.log

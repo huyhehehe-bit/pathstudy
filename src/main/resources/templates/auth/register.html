@@ -1,0 +1,44 @@
+﻿<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Đăng ký')}"></head>
+<body>
+<div class="auth-wrap">
+    <div class="auth-card stack">
+        <a class="brand" th:href="@{/}" style="justify-content:center">
+            <span class="logo" th:insert="~{fragments/icons :: ic('route')}"></span>
+            <span>PathStudy</span>
+        </a>
+        <div class="card card-pad stack">
+            <div class="section-head" style="text-align:center;align-items:center">
+                <h2>Tạo tài khoản</h2>
+                <p class="muted">Miễn phí · Bắt đầu với bài kiểm tra đầu vào.</p>
+            </div>
+
+            <form th:action="@{/register}" th:object="${form}" method="post" class="stack">
+                <div class="field">
+                    <label for="fullName">Họ và tên</label>
+                    <input id="fullName" th:field="*{fullName}" type="text" required placeholder="Nguyễn Văn A"/>
+                    <span class="err" th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}"></span>
+                </div>
+                <div class="field">
+                    <label for="email">Email</label>
+                    <input id="email" th:field="*{email}" type="email" required placeholder="ban@email.com"/>
+                    <span class="err" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></span>
+                </div>
+                <div class="field">
+                    <label for="password">Mật khẩu</label>
+                    <input id="password" th:field="*{password}" type="password" required placeholder="Tối thiểu 6 ký tự"/>
+                    <span class="err" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></span>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block btn-lg">Đăng ký & bắt đầu</button>
+            </form>
+
+            <p class="muted" style="text-align:center;font-size:14px">
+                Đã có tài khoản? <a th:href="@{/login}" style="color:var(--primary);font-weight:600">Đăng nhập</a>
+            </p>
+        </div>
+    </div>
+</div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

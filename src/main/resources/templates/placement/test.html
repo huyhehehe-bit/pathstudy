@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Làm bài kiểm tra')}"></head>
+<body>
+<div class="shell">
+    <aside th:replace="~{fragments/layout :: sidebar('path')}"></aside>
+    <main class="main">
+        <header th:replace="~{fragments/layout :: topbar('Bài kiểm tra đầu vào')}"></header>
+        <div class="content">
+            <form th:action="@{'/placement/' + ${subject.code} + '/submit'}" method="post"
+                  class="stack" style="max-width:720px;margin:0 auto">
+                <div class="between">
+                    <div>
+                        <span class="eyebrow">Kiểm tra đầu vào · <span th:text="${subject.name}">Ngữ văn</span></span>
+                        <h2 style="font-size:22px;margin-top:4px">Chọn đáp án đúng nhất</h2>
+                    </div>
+                    <span class="pill pill-doing" th:text="'Lần ' + ${attemptNo}">Lần 1</span>
+                </div>
+
+                <div class="q-card" th:each="q, qi : ${questions}">
+                    <div class="q-num" th:text="'Câu ' + ${qi.count} + ' / ' + ${#lists.size(questions)}">Câu 1 / 6</div>
+                    <div class="q-text" th:text="${q.text}">Câu hỏi?</div>
+                    <div class="options">
+                        <label class="option" th:each="opt, oi : ${q.options}">
+                            <input type="radio" th:name="'q_' + ${q.id}" th:value="${oi.index}" th:required="${oi.first}"/>
+                            <span class="key" th:text="${#strings.substring('ABCD', oi.index, oi.index + 1)}">A</span>
+                            <span th:text="${opt}">Đáp án</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="between">
+                    <a th:href="@{'/placement/' + ${subject.code}}" class="btn btn-ghost">Quay lại</a>
+                    <button type="submit" class="btn btn-primary btn-lg">Nộp bài & xem kết quả</button>
+                </div>
+            </form>
+        </div>
+    </main>
+</div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

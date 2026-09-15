@@ -1,0 +1,61 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(title)">
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title th:text="${title} + ' · PathStudy'">PathStudy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Lora:ital,wght@0,400;0,500;1,400;1,500&display=swap"/>
+    <link rel="stylesheet" th:href="@{/css/app.css}"/>
+    <link rel="icon"
+          href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232f4bde'/%3E%3Cpath d='M8 20c4 0 4-8 8-8s4 8 8 8' stroke='white' stroke-width='2.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"/>
+</head>
+<body>
+
+<!-- ===== Sidebar ===== -->
+<aside th:fragment="sidebar(active)" class="sidebar">
+    <a class="brand" th:href="@{/path}">
+        <span class="logo" th:insert="~{fragments/icons :: ic('route')}"></span>
+        <span>PathStudy</span>
+    </a>
+    <nav class="nav">
+        <a th:href="@{/path}" class="nav-item" th:classappend="${active=='path'} ? 'active'">
+            <span th:insert="~{fragments/icons :: ic('home')}"></span><span class="lbl">Trang chủ</span>
+        </a>
+        <a th:href="@{/progress}" class="nav-item" th:classappend="${active=='progress'} ? 'active'">
+            <span th:insert="~{fragments/icons :: ic('chart')}"></span><span class="lbl">Tiến độ</span>
+        </a>
+        <a th:href="@{/library}" class="nav-item" th:classappend="${active=='library'} ? 'active'">
+            <span th:insert="~{fragments/icons :: ic('library')}"></span><span class="lbl">Thư viện</span>
+            <span class="nav-badge" th:if="${bookmarkCount > 0}" th:text="${bookmarkCount}">0</span>
+        </a>
+        <a th:href="@{/subjects/add}" class="nav-item" th:classappend="${active=='add'} ? 'active'">
+            <span th:insert="~{fragments/icons :: ic('plus')}"></span><span class="lbl">Thêm môn</span>
+        </a>
+    </nav>
+    <div class="sidebar-foot">
+        <form th:action="@{/logout}" method="post">
+            <button type="submit" class="nav-item" style="width:100%;background:none;border:none;cursor:pointer">
+                <span th:insert="~{fragments/icons :: ic('logout')}"></span><span class="lbl">Đăng xuất</span>
+            </button>
+        </form>
+    </div>
+</aside>
+
+<!-- ===== Topbar ===== -->
+<header th:fragment="topbar(title)" class="topbar">
+    <h1 th:text="${title}">Trang</h1>
+    <span class="spacer"></span>
+    <span class="avatar">
+        <span class="dot" th:text="${currentUser != null ? #strings.substring(currentUser.fullName,0,1) : 'A'}">A</span>
+        <span th:text="${currentUser != null ? currentUser.fullName : 'Học sinh'}">Nguyễn An</span>
+    </span>
+</header>
+
+<!-- ===== Toast ===== -->
+<div th:fragment="toast" th:if="${toast}" class="toast" th:text="${toast}"></div>
+
+</body>
+</html>

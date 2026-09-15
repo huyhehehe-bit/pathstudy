@@ -1,0 +1,48 @@
+﻿<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Kiểm tra ước lượng')}"></head>
+<body>
+<div class="shell">
+    <aside th:replace="~{fragments/layout :: sidebar('path')}"></aside>
+    <main class="main">
+        <header th:replace="~{fragments/layout :: topbar('Estimate Test')}"></header>
+        <div class="content">
+            <div class="card card-pad stack" style="max-width:640px;margin:10px auto">
+                <span class="eyebrow">Estimate Test</span>
+                <h2 style="font-size:23px">Kiểm tra ước lượng – <span th:text="${module.title}">Phân tích tác phẩm</span></h2>
+                <p class="muted">Kiểm tra kiến thức, khả năng phân tích và vận dụng sau khi học xong module.</p>
+
+                <div class="grid-3" style="gap:12px">
+                    <div class="stat-tile" style="flex-direction:column;align-items:flex-start;gap:6px">
+                        <span class="tile tile-indigo" th:insert="~{fragments/icons :: ic('clipboard')}"></span>
+                        <div class="v" th:text="${questionCount} + ' câu'">6 câu</div><div class="k">Trắc nghiệm</div>
+                    </div>
+                    <div class="stat-tile" style="flex-direction:column;align-items:flex-start;gap:6px">
+                        <span class="tile tile-sky" th:insert="~{fragments/icons :: ic('target')}"></span>
+                        <div class="v" th:text="'Đạt ≥ ' + ${module.passThreshold} + '%'">Đạt ≥ 70%</div><div class="k">Ngưỡng qua module</div>
+                    </div>
+                    <div class="stat-tile" style="flex-direction:column;align-items:flex-start;gap:6px">
+                        <span class="tile tile-green" th:insert="~{fragments/icons :: ic('chart')}"></span>
+                        <div class="v">3 kỹ năng</div><div class="k">Kiến thức · Phân tích · Vận dụng</div>
+                    </div>
+                </div>
+
+                <div class="panel" style="padding:14px 16px">
+                    <div class="eyebrow" style="margin-bottom:8px">Cấu trúc bài kiểm tra</div>
+                    <div class="stack-sm" style="gap:6px;font-size:14px">
+                        <div class="center"><span th:insert="~{fragments/icons :: ic('check')}" style="color:var(--success)"></span> Kiến thức — nhận biết, ghi nhớ</div>
+                        <div class="center"><span th:insert="~{fragments/icons :: ic('check')}" style="color:var(--success)"></span> Phân tích — hình ảnh, biện pháp nghệ thuật</div>
+                        <div class="center"><span th:insert="~{fragments/icons :: ic('check')}" style="color:var(--success)"></span> Vận dụng — viết đoạn, dẫn chứng</div>
+                    </div>
+                </div>
+
+                <a th:href="@{'/module/' + ${module.id} + '/estimate/test'}" class="btn btn-primary btn-lg btn-block">Bắt đầu làm bài</a>
+                <a th:href="@{'/module/' + ${module.id}}" class="btn btn-ghost btn-block">Quay lại bài học</a>
+            </div>
+        </div>
+    </main>
+</div>
+<div th:replace="~{fragments/layout :: toast}"></div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

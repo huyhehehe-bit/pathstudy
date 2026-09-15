@@ -1,0 +1,44 @@
+﻿<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Đăng nhập')}"></head>
+<body>
+<div class="auth-wrap">
+    <div class="auth-card stack">
+        <a class="brand" th:href="@{/}" style="justify-content:center">
+            <span class="logo" th:insert="~{fragments/icons :: ic('route')}"></span>
+            <span>PathStudy</span>
+        </a>
+        <div class="card card-pad stack">
+            <div class="section-head" style="text-align:center;align-items:center">
+                <h2>Đăng nhập</h2>
+                <p class="muted">Tiếp tục lộ trình học của bạn.</p>
+            </div>
+
+            <div th:if="${param.error}" class="banner banner-warn">Email hoặc mật khẩu không đúng.</div>
+
+            <form th:action="@{/login}" method="post" class="stack">
+                <div class="field">
+                    <label for="username">Email</label>
+                    <input id="username" name="username" type="email" required autofocus
+                           placeholder="ban@email.com"/>
+                </div>
+                <div class="field">
+                    <label for="password">Mật khẩu</label>
+                    <input id="password" name="password" type="password" required placeholder="••••••••"/>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block btn-lg">Đăng nhập</button>
+            </form>
+
+            <div class="panel muted" style="padding:12px 14px;font-size:13px">
+                <strong>Tài khoản demo:</strong> demo@pathstudy.vn · mật khẩu <strong>123456</strong>
+            </div>
+
+            <p class="muted" style="text-align:center;font-size:14px">
+                Chưa có tài khoản? <a th:href="@{/register}" style="color:var(--primary);font-weight:600">Đăng ký</a>
+            </p>
+        </div>
+    </div>
+</div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

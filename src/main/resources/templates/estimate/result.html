@@ -1,0 +1,80 @@
+﻿<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Kết quả Estimate Test')}"></head>
+<body>
+<div class="shell">
+    <aside th:replace="~{fragments/layout :: sidebar('path')}"></aside>
+    <main class="main">
+        <header th:replace="~{fragments/layout :: topbar('Đánh giá & điều chỉnh lộ trình')}"></header>
+        <div class="content">
+            <div class="card card-pad stack" style="max-width:720px;margin:10px auto">
+                <div class="between">
+                    <h2 style="font-size:22px">Kết quả bài kiểm tra ước lượng</h2>
+                    <span th:if="${outcome.passed}" class="pill pill-done">Đạt</span>
+                    <span th:unless="${outcome.passed}" class="pill pill-warn">Cần ôn lại</span>
+                </div>
+
+                <div class="row" style="align-items:center;gap:26px;flex-wrap:wrap">
+                    <div class="ring" th:style="'--p:' + ${outcome.result.total} + ';--fill:' + (${outcome.passed} ? 'var(--success)' : 'var(--warn)')">
+                        <div class="ring-label">
+                            <div class="ring-value tnum" th:text="${outcome.result.total} + '%'">73%</div>
+                            <div class="ring-cap">Tổng điểm</div>
+                        </div>
+                    </div>
+                    <div class="grow stack-sm" style="gap:12px;min-width:260px">
+                        <div class="metric"><span class="lab">Kiến thức</span>
+                            <span class="bar green"><span th:style="'width:' + ${outcome.result.knowledge} + '%'"></span></span>
+                            <span class="val tnum" th:text="${outcome.result.knowledge} + '%'">86%</span></div>
+                        <div class="metric"><span class="lab">Phân tích</span>
+                            <span class="bar"><span th:style="'width:' + ${outcome.result.analysis} + '%'"></span></span>
+                            <span class="val tnum" th:text="${outcome.result.analysis} + '%'">72%</span></div>
+                        <div class="metric"><span class="lab">Vận dụng</span>
+                            <span class="bar warn"><span th:style="'width:' + ${outcome.result.application} + '%'"></span></span>
+                            <span class="val tnum" th:text="${outcome.result.application} + '%'">61%</span></div>
+                    </div>
+                </div>
+
+                <hr class="sep"/>
+
+                <!-- PASS branch -->
+                <div th:if="${outcome.passed}" class="stack-sm">
+                    <div class="banner banner-success">
+                        <span th:insert="~{fragments/icons :: ic('check')}"></span>
+                        Bạn đã đạt yêu cầu! Có thể tiếp tục sang module tiếp theo.
+                    </div>
+                    <p class="muted" style="font-size:14px">Hệ thống sẽ tự động điều chỉnh lộ trình và mở phần học phù hợp tiếp theo với bạn.</p>
+                    <a th:if="${outcome.nextModule != null and outcome.nextModule.hasContent}"
+                       th:href="@{'/module/' + ${outcome.nextModule.id}}" class="btn btn-primary btn-lg btn-block">
+                        Tiếp tục: <span th:text="${outcome.nextModule.title}">Nghị luận</span>
+                        <span th:insert="~{fragments/icons :: ic('arrow')}"></span></a>
+                    <a th:unless="${outcome.nextModule != null and outcome.nextModule.hasContent}"
+                       th:href="@{'/path?subject=' + ${outcome.module.subject.code}}" class="btn btn-primary btn-lg btn-block">
+                        Tiếp tục lộ trình <span th:insert="~{fragments/icons :: ic('arrow')}"></span></a>
+                </div>
+
+                <!-- WEAK branch -->
+                <div th:unless="${outcome.passed}" class="stack-sm">
+                    <div class="banner banner-warn">
+                        <span th:insert="~{fragments/icons :: ic('target')}"></span>
+                        Chưa đạt ngưỡng <span th:text="${outcome.threshold} + '%'">70%</span> — hãy ôn lại phần còn yếu.
+                    </div>
+                    <div class="branch weak stack-sm" style="gap:6px">
+                        <div class="eyebrow" style="color:var(--warn)">Phần cần ôn lại</div>
+                        <div class="row-wrap">
+                            <span class="chip" th:each="w : ${outcome.weakAreas}"
+                                  style="background:var(--warn-soft);color:var(--warn);border:none" th:text="${w}">Vận dụng</span>
+                            <span class="chip" th:if="${outcome.weakAreas.isEmpty()}">Ôn lại tổng thể module</span>
+                        </div>
+                    </div>
+                    <p class="muted" style="font-size:14px">Học lại phần cần cải thiện, sau đó làm lại Estimate Test. Lộ trình chỉ mở module tiếp theo khi bạn đạt ngưỡng.</p>
+                    <a th:href="@{'/module/' + ${outcome.module.id}}" class="btn btn-primary btn-lg btn-block">
+                        Ôn lại module <span th:insert="~{fragments/icons :: ic('arrow')}"></span></a>
+                    <a th:href="@{'/module/' + ${outcome.module.id} + '/estimate'}" class="btn btn-ghost btn-block">Làm lại bài kiểm tra</a>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>
