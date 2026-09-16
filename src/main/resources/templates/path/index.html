@@ -31,7 +31,11 @@
             </div>
 
             <div class="path" style="margin-top:6px">
-                <div class="pnode" th:each="card : ${summary.modules}"
+              <th:block th:each="card, stat : ${summary.modules}">
+                <div class="grade-header"
+                     th:if="${card.module.grade != null and (stat.first or card.module.grade != summary.modules[stat.index - 1].module.grade)}"
+                     th:text="${card.module.grade}">Lớp 10</div>
+                <div class="pnode"
                      th:classappend="${card.status.name() == 'COMPLETED'} ? 'done' : (${card.current} ? 'doing' : '')">
                     <div class="rail">
                         <div class="marker">
@@ -48,7 +52,7 @@
                                           th:insert="~{fragments/icons :: ic(${card.module.iconKey})}"></span>
                                     <div>
                                         <strong th:text="${card.module.title}">Phân tích tác phẩm</strong>
-                                        <div class="faint" style="font-size:12px" th:if="${card.lessonTitle}" th:text="${card.lessonTitle}">Sóng – Xuân Quỳnh</div>
+                                        <div class="faint" style="font-size:12px" th:if="${card.lessonTitle != null and card.lessonTitle != card.module.title}" th:text="${card.lessonTitle}">Sóng – Xuân Quỳnh</div>
                                     </div>
                                 </div>
                                 <span th:if="${card.status.name() == 'COMPLETED'}" class="pill pill-done">Hoàn thành</span>
@@ -74,6 +78,7 @@
                         </div>
                     </div>
                 </div>
+              </th:block>
             </div>
         </div>
     </main>

@@ -26,6 +26,11 @@ public class CourseModule {
     @Column(nullable = false)
     private int orderIndex;
 
+    /** Group label in the study path: "Nền tảng", "Lớp 10", "Lớp 11", "Lớp 12".
+     *  Nullable at the DB level so ddl-auto=update can add it to existing tables. */
+    @Column(length = 32)
+    private String grade;
+
     @Column(nullable = false)
     private String title;
 
