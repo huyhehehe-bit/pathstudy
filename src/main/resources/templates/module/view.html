@@ -61,6 +61,34 @@
                 </div>
             </div>
 
+            <!-- Materials (added by teachers/admin) -->
+            <div class="card card-pad stack-sm" th:if="${!detail.materials.isEmpty()}">
+                <h3 style="font-size:15px">Tài liệu tham khảo</h3>
+                <div class="stack-sm" style="gap:12px">
+                    <div th:each="mt : ${detail.materials}">
+                        <div th:if="${mt.embedUrl != null}" class="stack-sm" style="gap:6px">
+                            <div style="font-weight:600;font-size:14px" th:text="${mt.title}">Video</div>
+                            <div style="position:relative;padding-bottom:56.25%;height:0;border-radius:12px;overflow:hidden;background:#000">
+                                <iframe th:src="${mt.embedUrl}" style="position:absolute;inset:0;width:100%;height:100%;border:0"
+                                        allowfullscreen loading="lazy"></iframe>
+                            </div>
+                        </div>
+                        <a th:unless="${mt.embedUrl != null}" th:href="${mt.url}" target="_blank" rel="noopener"
+                           class="between" style="border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;gap:12px">
+                            <span class="center" style="gap:10px">
+                                <span class="tile tile-indigo" style="width:34px;height:34px;border-radius:10px"
+                                      th:insert="~{fragments/icons :: ic(${mt.type.icon})}"></span>
+                                <span>
+                                    <span style="font-weight:600;display:block" th:text="${mt.title}">Tài liệu</span>
+                                    <span class="faint" style="font-size:12px" th:text="${mt.type.label}">Tài liệu</span>
+                                </span>
+                            </span>
+                            <span class="chip">Mở</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
             <!-- Notes -->
             <div class="card card-pad stack-sm">
                 <h3 style="font-size:15px">Bảng ghi chú của bạn</h3>

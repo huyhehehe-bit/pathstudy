@@ -4,6 +4,7 @@ import com.pathstudy.domain.CourseModule;
 import com.pathstudy.domain.EstimateResult;
 import com.pathstudy.domain.Lesson;
 import com.pathstudy.domain.LessonSection;
+import com.pathstudy.domain.Material;
 import com.pathstudy.domain.ProgressStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,4 +23,5 @@ public class ModuleDetail {
     private ProgressStatus status;
     private EstimateResult lastEstimate;
     private CourseModule nextModule;
+    private List<Material> materials;
 }

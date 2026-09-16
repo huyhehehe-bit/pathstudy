@@ -34,6 +34,12 @@
         <a th:href="@{/subjects/add}" class="nav-item" th:classappend="${active=='add'} ? 'active'">
             <span th:insert="~{fragments/icons :: ic('plus')}"></span><span class="lbl">Thêm môn</span>
         </a>
+        <a th:if="${isTeacher}" th:href="@{/teacher}" class="nav-item" th:classappend="${active=='teacher'} ? 'active'">
+            <span th:insert="~{fragments/icons :: ic('file')}"></span><span class="lbl">Quản lý nội dung</span>
+        </a>
+        <a th:if="${isAdmin}" th:href="@{/admin/users}" class="nav-item" th:classappend="${active=='admin'} ? 'active'">
+            <span th:insert="~{fragments/icons :: ic('shield')}"></span><span class="lbl">Quản trị</span>
+        </a>
     </nav>
     <div class="sidebar-foot">
         <form th:action="@{/logout}" method="post">

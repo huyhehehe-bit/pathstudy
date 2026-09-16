@@ -38,6 +38,8 @@ public class SecurityConfig {
                         .requestMatchers("/", "/register", "/login",
                                 "/css/**", "/js/**", "/images/**", "/favicon.ico",
                                 "/h2-console/**", "/error").permitAll()
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/teacher/**").hasAnyRole("TEACHER", "ADMIN")
                         .anyRequest().authenticated())
                 .formLogin(form -> form
                         .loginPage("/login")

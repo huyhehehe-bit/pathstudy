@@ -32,10 +32,16 @@ public class HomeController {
         return "landing";
     }
 
-    /** Post-login dispatcher: new students choose a subject, returning ones see their path. */
+    /** Post-login dispatcher: staff go to their tools, students to their path. */
     @GetMapping("/start")
     public String start() {
         User user = currentUser.require();
+        if ("ADMIN".equals(user.getRole())) {
+            return "redirect:/admin/users";
+        }
+        if ("TEACHER".equals(user.getRole())) {
+            return "redirect:/teacher";
+        }
         long count = enrollments.countByUser(user);
         return count == 0 ? "redirect:/subjects" : "redirect:/path";
     }

@@ -21,11 +21,12 @@ public class LearningService {
     private final ModuleProgressRepository progress;
     private final EstimateService estimateService;
     private final StudyPathService studyPath;
+    private final MaterialService materialService;
 
     public LearningService(CourseModuleRepository modules, LessonRepository lessons,
                            LessonSectionRepository sections, BookmarkRepository bookmarks,
                            ModuleProgressRepository progress, EstimateService estimateService,
-                           StudyPathService studyPath) {
+                           StudyPathService studyPath, MaterialService materialService) {
         this.modules = modules;
         this.lessons = lessons;
         this.sections = sections;
@@ -33,6 +34,7 @@ public class LearningService {
         this.progress = progress;
         this.estimateService = estimateService;
         this.studyPath = studyPath;
+        this.materialService = materialService;
     }
 
     @Transactional(readOnly = true)
@@ -64,8 +66,9 @@ public class LearningService {
         boolean hasEstimate = estimateService.hasEstimate(module);
         EstimateResult last = estimateService.latest(user, module).orElse(null);
         CourseModule next = studyPath.nextModule(module);
+        List<Material> mats = lessonOpt.map(materialService::listForLesson).orElseGet(List::of);
 
         return new ModuleDetail(module, lessonOpt.orElse(null), secs, bookmarkedIds,
-                hasEstimate, status, last, next);
+                hasEstimate, status, last, next, mats);
     }
 }

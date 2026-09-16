@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Tài liệu bài học')}"></head>
+<body>
+<div class="shell">
+    <aside th:replace="~{fragments/layout :: sidebar('teacher')}"></aside>
+    <main class="main">
+        <header th:replace="~{fragments/layout :: topbar('Tài liệu bài học')}"></header>
+        <div class="content stack" style="max-width:760px">
+            <a th:href="@{/teacher}" class="chip" style="align-self:flex-start">
+                <span th:insert="~{fragments/icons :: ic('arrow')}"></span> Quay lại danh sách</a>
+
+            <div class="section-head">
+                <h2 style="font-size:22px" th:text="${module.title}">Sóng</h2>
+                <p class="muted" th:text="${module.subtitle}">Xuân Quỳnh · Thơ</p>
+            </div>
+
+            <!-- Add material -->
+            <div class="card card-pad stack-sm">
+                <h3 style="font-size:15px">Thêm tài liệu</h3>
+                <form th:action="@{'/teacher/module/' + ${module.id} + '/material'}" method="post" class="stack-sm">
+                    <div class="row" style="gap:12px;flex-wrap:wrap">
+                        <div class="field" style="flex:1;min-width:140px">
+                            <label for="type">Loại</label>
+                            <select id="type" name="type" class="textarea">
+                                <option th:each="t : ${types}" th:value="${t.name()}" th:text="${t.label}">Video</option>
+                            </select>
+                        </div>
+                        <div class="field" style="flex:2;min-width:200px">
+                            <label for="title">Tiêu đề</label>
+                            <input id="title" name="title" type="text" required placeholder="VD: Bài giảng Sóng"/>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label for="url">Đường dẫn (YouTube / Google Drive / PDF...)</label>
+                        <input id="url" name="url" type="url" required placeholder="https://..."/>
+                    </div>
+                    <p class="faint" style="font-size:12px">Mẹo: dán link YouTube để tự động nhúng video cho học sinh xem ngay trong bài.</p>
+                    <button type="submit" class="btn btn-primary" style="align-self:flex-start">
+                        <span th:insert="~{fragments/icons :: ic('plus')}"></span> Thêm tài liệu</button>
+                </form>
+            </div>
+
+            <!-- Existing materials -->
+            <div class="stack-sm">
+                <h3 style="font-size:15px">Tài liệu hiện có (<span th:text="${#lists.size(materials)}">0</span>)</h3>
+                <div class="faint" th:if="${#lists.isEmpty(materials)}" style="font-size:14px">Chưa có tài liệu nào. Hãy thêm ở trên.</div>
+                <div class="card card-pad between" th:each="mt : ${materials}" style="gap:12px">
+                    <div class="center" style="gap:10px">
+                        <span class="tile tile-indigo" style="width:34px;height:34px;border-radius:10px"
+                              th:insert="~{fragments/icons :: ic(${mt.type.icon})}"></span>
+                        <div>
+                            <strong th:text="${mt.title}">Tài liệu</strong>
+                            <div class="faint" style="font-size:12px">
+                                <span th:text="${mt.type.label}">Video</span> ·
+                                <a th:href="${mt.url}" target="_blank" rel="noopener" th:text="${mt.url}" style="color:var(--primary-700)">link</a>
+                            </div>
+                        </div>
+                    </div>
+                    <form th:action="@{'/teacher/material/' + ${mt.id} + '/delete'}" method="post">
+                        <input type="hidden" name="moduleId" th:value="${module.id}"/>
+                        <button type="submit" class="bm-btn" style="border-color:var(--danger-soft);color:var(--danger)">Xoá</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+<div th:replace="~{fragments/layout :: toast}"></div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

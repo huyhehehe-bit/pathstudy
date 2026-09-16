@@ -39,6 +39,18 @@ public class GlobalModelAdvice {
         return currentUser.current().orElse(null);
     }
 
+    @ModelAttribute("isAdmin")
+    public boolean isAdmin() {
+        return currentUser.current().map(u -> "ADMIN".equals(u.getRole())).orElse(false);
+    }
+
+    @ModelAttribute("isTeacher")
+    public boolean isTeacher() {
+        return currentUser.current()
+                .map(u -> "TEACHER".equals(u.getRole()) || "ADMIN".equals(u.getRole()))
+                .orElse(false);
+    }
+
     @ModelAttribute("bookmarkCount")
     public long bookmarkCount() {
         return currentUser.current().map(bookmarks::count).orElse(0L);

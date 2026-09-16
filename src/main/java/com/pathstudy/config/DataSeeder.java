@@ -21,7 +21,7 @@ import java.util.Arrays;
 @Component
 public class DataSeeder implements CommandLineRunner {
 
-    private static final String SEED_VERSION = "2026-09-16-grades-v1";
+    private static final String SEED_VERSION = "2026-09-16-roles-cms-v2";
 
     private final SubjectRepository subjects;
     private final CourseModuleRepository modules;
@@ -36,6 +36,7 @@ public class DataSeeder implements CommandLineRunner {
     private final PlacementResultRepository placementResults;
     private final EstimateResultRepository estimateResults;
     private final BookmarkRepository bookmarks;
+    private final MaterialRepository materials;
 
     private int order = 0; // running module order within a subject
 
@@ -45,7 +46,7 @@ public class DataSeeder implements CommandLineRunner {
                       PasswordEncoder passwordEncoder, AppSettingRepository appSettings,
                       EnrollmentRepository enrollments, ModuleProgressRepository moduleProgress,
                       PlacementResultRepository placementResults, EstimateResultRepository estimateResults,
-                      BookmarkRepository bookmarks) {
+                      BookmarkRepository bookmarks, MaterialRepository materials) {
         this.subjects = subjects;
         this.modules = modules;
         this.lessons = lessons;
@@ -59,6 +60,7 @@ public class DataSeeder implements CommandLineRunner {
         this.placementResults = placementResults;
         this.estimateResults = estimateResults;
         this.bookmarks = bookmarks;
+        this.materials = materials;
     }
 
     @Override
@@ -70,7 +72,7 @@ public class DataSeeder implements CommandLineRunner {
         }
         wipeContent();
         seedSubjects();
-        seedDemoUser();
+        seedUsers();
         seedVanContent(subjects.findByCode("van").orElseThrow());
         appSettings.save(new AppSetting("seedVersion", SEED_VERSION));
     }
@@ -82,6 +84,7 @@ public class DataSeeder implements CommandLineRunner {
         placementResults.deleteAll();
         moduleProgress.deleteAll();
         enrollments.deleteAll();
+        materials.deleteAll();
         questions.deleteAll();
         sections.deleteAll();
         lessons.deleteAll();
@@ -99,14 +102,21 @@ public class DataSeeder implements CommandLineRunner {
         subject("sinh", "Sinh học", "leaf", "green", 6, false, "Di truyền, sinh thái và luyện đề. Sắp ra mắt.");
     }
 
-    private void seedDemoUser() {
-        if (users.existsByEmail("demo@pathstudy.vn")) {
+    private void seedUsers() {
+        user("Nguyễn An", "demo@pathstudy.vn", "123456", "STUDENT");
+        user("Cô Lan (Giáo viên)", "teacher@pathstudy.vn", "teacher123", "TEACHER");
+        user("Quản trị viên", "admin@pathstudy.vn", "admin123", "ADMIN");
+    }
+
+    private void user(String name, String email, String rawPassword, String role) {
+        if (users.existsByEmail(email)) {
             return;
         }
         User u = new User();
-        u.setFullName("Nguyễn An");
-        u.setEmail("demo@pathstudy.vn");
-        u.setPasswordHash(passwordEncoder.encode("123456"));
+        u.setFullName(name);
+        u.setEmail(email);
+        u.setPasswordHash(passwordEncoder.encode(rawPassword));
+        u.setRole(role);
         users.save(u);
     }
 
@@ -404,6 +414,8 @@ public class DataSeeder implements CommandLineRunner {
                 "Chép lại khổ thơ", "Câu chủ đề khái quát nội dung khổ", "Tiểu sử tác giả", "Cảm nghĩ cá nhân");
         eq(m9, 6, "Dẫn chứng thuyết phục khi phân tích thơ cần:", Competency.APPLICATION, 0,
                 "Trích đúng câu thơ và phân tích từ ngữ, hình ảnh", "Chỉ nêu cảm xúc", "Kể lại nội dung", "Chép văn mẫu");
+        material(song, MaterialType.DOCUMENT, "Bài thơ Sóng — Wikipedia",
+                "https://vi.wikipedia.org/wiki/Sóng_(bài_thơ)");
 
         // --- Vợ nhặt ---
         CourseModule m10 = module(van, "Lớp 12", "Vợ nhặt", "Kim Lân · Truyện ngắn", "file", 60);
@@ -509,6 +521,17 @@ public class DataSeeder implements CommandLineRunner {
         q.setCorrectIndex(correct);
         q.setOptions(Arrays.asList(opts));
         return questions.save(q);
+    }
+
+    private Material material(Lesson lesson, MaterialType type, String title, String url) {
+        Material m = new Material();
+        m.setLesson(lesson);
+        m.setType(type);
+        m.setTitle(title);
+        m.setUrl(url);
+        m.setCreatedByEmail("admin@pathstudy.vn");
+        m.setOrderIndex(0);
+        return materials.save(m);
     }
 
     private Question eq(CourseModule module, int idx, String text, Competency competency,

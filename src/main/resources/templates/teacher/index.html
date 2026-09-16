@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Quản lý nội dung')}"></head>
+<body>
+<div class="shell">
+    <aside th:replace="~{fragments/layout :: sidebar('teacher')}"></aside>
+    <main class="main">
+        <header th:replace="~{fragments/layout :: topbar('Quản lý nội dung')}"></header>
+        <div class="content stack">
+            <div class="section-head">
+                <h2 style="font-size:24px">Quản lý nội dung — <span th:text="${subject.name}">Ngữ văn</span></h2>
+                <p class="muted">Chọn một bài học để thêm tài liệu (video, tài liệu, liên kết) cho học sinh.</p>
+            </div>
+
+            <div class="stack" style="gap:10px">
+                <th:block th:each="m, stat : ${modules}">
+                    <div class="grade-header"
+                         th:if="${m.grade != null and (stat.first or m.grade != modules[stat.index - 1].grade)}"
+                         th:text="${m.grade}">Lớp 10</div>
+                    <a th:href="@{'/teacher/module/' + ${m.id}}" class="card card-pad between" style="gap:14px">
+                        <div class="center" style="gap:12px">
+                            <span class="tile tile-indigo" style="width:38px;height:38px;border-radius:11px"
+                                  th:insert="~{fragments/icons :: ic(${m.iconKey})}"></span>
+                            <div>
+                                <strong th:text="${m.title}">Tác phẩm</strong>
+                                <div class="faint" style="font-size:12px" th:text="${m.subtitle}">Tác giả · Thể loại</div>
+                            </div>
+                        </div>
+                        <div class="center" style="gap:12px">
+                            <span class="chip" th:text="${counts.get(m.id)} + ' tài liệu'">0 tài liệu</span>
+                            <span th:insert="~{fragments/icons :: ic('arrow')}"></span>
+                        </div>
+                    </a>
+                </th:block>
+            </div>
+        </div>
+    </main>
+</div>
+<div th:replace="~{fragments/layout :: toast}"></div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>
