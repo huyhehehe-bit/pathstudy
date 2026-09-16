@@ -12,7 +12,6 @@ services:
     name: pathstudy
     runtime: docker
     plan: free
-    region: singapore
     healthCheckPath: /login
     envVars:
       - key: SPRING_PROFILES_ACTIVE
