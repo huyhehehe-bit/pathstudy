@@ -2,6 +2,8 @@ package com.pathstudy.config;
 
 import com.pathstudy.domain.*;
 import com.pathstudy.repo.*;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -21,7 +23,10 @@ import java.util.Arrays;
 @Component
 public class DataSeeder implements CommandLineRunner {
 
-    private static final String SEED_VERSION = "2026-09-16-roles-cms-v2";
+    private static final String SEED_VERSION = "2026-09-16-roles-cms-v3";
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     private final SubjectRepository subjects;
     private final CourseModuleRepository modules;
@@ -90,6 +95,10 @@ public class DataSeeder implements CommandLineRunner {
         lessons.deleteAll();
         modules.deleteAll();
         subjects.deleteAll();
+        // Force the deletes to hit the DB now. Otherwise Hibernate defers them and,
+        // within one transaction, executes the seed INSERTs before these DELETEs,
+        // causing a duplicate-key error when data already exists (e.g. on redeploy).
+        entityManager.flush();
     }
 
     private void seedSubjects() {
