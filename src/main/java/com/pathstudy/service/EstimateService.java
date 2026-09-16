@@ -79,7 +79,8 @@ public class EstimateService {
         if (passed) {
             next = studyPath.completeModule(user, module);
         } else {
-            studyPath.touchModuleProgress(user, module, Math.max(total, 40));
+            // Not passed: progress reflects the real score, module stays open to review.
+            studyPath.touchModuleProgress(user, module, total);
             next = studyPath.nextModule(module);
         }
 

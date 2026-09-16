@@ -136,6 +136,12 @@ public class StudyPathService {
     }
 
     @Transactional(readOnly = true)
+    public ProgressStatus statusOf(User user, CourseModule module) {
+        return progress.findByUserAndModule(user, module)
+                .map(ModuleProgress::getStatus).orElse(ProgressStatus.LOCKED);
+    }
+
+    @Transactional(readOnly = true)
     public CourseModule nextModule(CourseModule module) {
         List<CourseModule> mods = modules.findBySubjectOrderByOrderIndexAsc(module.getSubject());
         for (int i = 0; i < mods.size(); i++) {

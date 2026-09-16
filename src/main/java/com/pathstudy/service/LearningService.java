@@ -56,13 +56,10 @@ public class LearningService {
             }
         }
 
-        // Opening a content module counts as engagement.
+        // Read-only: opening a lesson never fabricates progress.
+        // Real progress comes from the estimate test (see EstimateService).
         ProgressStatus status = progress.findByUserAndModule(user, module)
                 .map(ModuleProgress::getStatus).orElse(ProgressStatus.LOCKED);
-        if (module.isHasContent() && status != ProgressStatus.COMPLETED) {
-            studyPath.touchModuleProgress(user, module, 55);
-            status = ProgressStatus.IN_PROGRESS;
-        }
 
         boolean hasEstimate = estimateService.hasEstimate(module);
         EstimateResult last = estimateService.latest(user, module).orElse(null);

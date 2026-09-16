@@ -58,14 +58,17 @@
                             <ul class="sublist" th:if="${card.module.subtitle}">
                                 <li th:each="t : ${#strings.arraySplit(card.module.subtitle, '·')}" th:text="${#strings.trim(t)}">Thơ</li>
                             </ul>
-                            <div style="margin-top:12px" th:if="${card.module.hasContent}">
+                            <div style="margin-top:12px" th:if="${card.module.hasContent and card.status.name() != 'LOCKED'}">
                                 <a th:href="@{'/module/' + ${card.module.id}}"
                                    th:class="${card.current} ? 'btn btn-primary' : 'btn btn-soft'">
-                                    <span th:text="${card.status.name() == 'COMPLETED'} ? 'Xem lại' : (${card.current} ? 'Tiếp tục học' : 'Bắt đầu học')">Tiếp tục học</span>
+                                    <span th:text="${card.status.name() == 'COMPLETED'} ? 'Xem lại' : 'Vào học'">Vào học</span>
                                     <span th:insert="~{fragments/icons :: ic('arrow')}"></span>
                                 </a>
                             </div>
-                            <div style="margin-top:10px" th:unless="${card.module.hasContent}">
+                            <div style="margin-top:10px" th:if="${card.status.name() == 'LOCKED'}">
+                                <span class="chip"><span th:insert="~{fragments/icons :: ic('lock')}"></span>Hoàn thành phần trước để mở khoá</span>
+                            </div>
+                            <div style="margin-top:10px" th:if="${!card.module.hasContent and card.status.name() != 'LOCKED'}">
                                 <span class="chip"><span th:insert="~{fragments/icons :: ic('lock')}"></span>Nội dung đang cập nhật</span>
                             </div>
                         </div>

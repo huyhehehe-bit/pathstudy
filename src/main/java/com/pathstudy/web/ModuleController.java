@@ -1,10 +1,12 @@
 package com.pathstudy.web;
 
 import com.pathstudy.domain.CourseModule;
+import com.pathstudy.domain.ProgressStatus;
 import com.pathstudy.domain.User;
 import com.pathstudy.service.BookmarkService;
 import com.pathstudy.service.CurrentUserService;
 import com.pathstudy.service.LearningService;
+import com.pathstudy.service.StudyPathService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -17,12 +19,14 @@ public class ModuleController {
     private final LearningService learning;
     private final BookmarkService bookmarks;
     private final CurrentUserService currentUser;
+    private final StudyPathService studyPath;
 
     public ModuleController(LearningService learning, BookmarkService bookmarks,
-                            CurrentUserService currentUser) {
+                            CurrentUserService currentUser, StudyPathService studyPath) {
         this.learning = learning;
         this.bookmarks = bookmarks;
         this.currentUser = currentUser;
+        this.studyPath = studyPath;
     }
 
     @GetMapping
@@ -30,7 +34,12 @@ public class ModuleController {
         User user = currentUser.require();
         CourseModule module = learning.module(id);
         if (!module.isHasContent()) {
-            ra.addFlashAttribute("toast", "Nội dung module \"" + module.getTitle() + "\" đang được cập nhật.");
+            ra.addFlashAttribute("toast", "Nội dung \"" + module.getTitle() + "\" đang được cập nhật.");
+            return "redirect:/path?subject=" + module.getSubject().getCode();
+        }
+        // Gating: cannot open a locked module — finish the previous one first.
+        if (studyPath.statusOf(user, module) == ProgressStatus.LOCKED) {
+            ra.addFlashAttribute("toast", "Hãy hoàn thành phần trước để mở khoá bài học này.");
             return "redirect:/path?subject=" + module.getSubject().getCode();
         }
         model.addAttribute("detail", learning.openModule(user, id));
