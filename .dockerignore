@@ -1,0 +1,9 @@
+.git
+.gitignore
+.tools
+target
+data
+EXE2
+*.md
+.idea
+.vscode
