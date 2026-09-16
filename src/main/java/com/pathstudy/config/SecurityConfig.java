@@ -1,5 +1,6 @@
 package com.pathstudy.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -15,6 +16,9 @@ import org.springframework.security.web.context.SecurityContextRepository;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
+    @Value("${app.rememberme.key:pathstudy-remember-me-key}")
+    private String rememberMeKey;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -52,7 +56,13 @@ public class SecurityConfig {
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/?loggedOut")
+                        .deleteCookies("remember-me")
                         .permitAll())
+                // Keep users signed in across server restarts / free-tier spin-down.
+                .rememberMe(rm -> rm
+                        .key(rememberMeKey)
+                        .alwaysRemember(true)
+                        .tokenValiditySeconds(60 * 60 * 24 * 14))
                 // H2 console runs in a frame and posts without CSRF token.
                 .csrf(csrf -> csrf.ignoringRequestMatchers("/h2-console/**"))
                 .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()));

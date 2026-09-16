@@ -27,6 +27,10 @@ public class HomeController {
 
     @GetMapping("/")
     public String landing(Model model) {
+        // Already signed in? Go straight to the app instead of the marketing page.
+        if (currentUser.current().isPresent()) {
+            return "redirect:/start";
+        }
         List<Subject> list = subjects.findAllByOrderByOrderIndexAsc();
         model.addAttribute("subjects", list);
         return "landing";
