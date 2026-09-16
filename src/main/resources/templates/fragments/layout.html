@@ -34,6 +34,9 @@
         <a th:href="@{/subjects/add}" class="nav-item" th:classappend="${active=='add'} ? 'active'">
             <span th:insert="~{fragments/icons :: ic('plus')}"></span><span class="lbl">Thêm môn</span>
         </a>
+        <a th:if="${currentUser != null and !isTeacher and !isPremium}" th:href="@{/upgrade}" class="nav-item" th:classappend="${active=='upgrade'} ? 'active'">
+            <span th:insert="~{fragments/icons :: ic('shield')}"></span><span class="lbl">Nâng cấp</span>
+        </a>
         <a th:if="${isTeacher}" th:href="@{/teacher}" class="nav-item" th:classappend="${active=='teacher'} ? 'active'">
             <span th:insert="~{fragments/icons :: ic('file')}"></span><span class="lbl">Quản lý nội dung</span>
         </a>

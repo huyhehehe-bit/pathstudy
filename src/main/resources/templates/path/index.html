@@ -55,18 +55,26 @@
                                         <div class="faint" style="font-size:12px" th:if="${card.lessonTitle != null and card.lessonTitle != card.module.title}" th:text="${card.lessonTitle}">Sóng – Xuân Quỳnh</div>
                                     </div>
                                 </div>
-                                <span th:if="${card.status.name() == 'COMPLETED'}" class="pill pill-done">Hoàn thành</span>
-                                <span th:if="${card.status.name() == 'IN_PROGRESS'}" class="pill pill-doing" th:text="${card.percent} + '%'">55%</span>
-                                <span th:if="${card.status.name() == 'LOCKED'}" class="pill pill-todo">Chưa bắt đầu</span>
+                                <div class="center" style="gap:8px">
+                                    <span th:if="${card.module.premiumContent}" class="pill pill-warn">Premium</span>
+                                    <span th:if="${card.status.name() == 'COMPLETED'}" class="pill pill-done">Hoàn thành</span>
+                                    <span th:if="${card.status.name() == 'IN_PROGRESS'}" class="pill pill-doing" th:text="${card.percent} + '%'">55%</span>
+                                    <span th:if="${card.status.name() == 'LOCKED'}" class="pill pill-todo">Chưa bắt đầu</span>
+                                </div>
                             </div>
                             <ul class="sublist" th:if="${card.module.subtitle}">
                                 <li th:each="t : ${#strings.arraySplit(card.module.subtitle, '·')}" th:text="${#strings.trim(t)}">Thơ</li>
                             </ul>
-                            <div style="margin-top:12px" th:if="${card.module.hasContent and card.status.name() != 'LOCKED'}">
+                            <div style="margin-top:12px" th:if="${card.module.hasContent and card.status.name() != 'LOCKED' and (!card.module.premiumContent or isPremium)}">
                                 <a th:href="@{'/module/' + ${card.module.id}}"
                                    th:class="${card.current} ? 'btn btn-primary' : 'btn btn-soft'">
                                     <span th:text="${card.status.name() == 'COMPLETED'} ? 'Xem lại' : 'Vào học'">Vào học</span>
                                     <span th:insert="~{fragments/icons :: ic('arrow')}"></span>
+                                </a>
+                            </div>
+                            <div style="margin-top:12px" th:if="${card.status.name() != 'LOCKED' and card.module.premiumContent and !isPremium}">
+                                <a th:href="@{/upgrade}" class="btn btn-primary">
+                                    <span th:insert="~{fragments/icons :: ic('shield')}"></span> Nâng cấp để mở
                                 </a>
                             </div>
                             <div style="margin-top:10px" th:if="${card.status.name() == 'LOCKED'}">

@@ -41,7 +41,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/register", "/login",
                                 "/css/**", "/js/**", "/images/**", "/favicon.ico",
-                                "/h2-console/**", "/error").permitAll()
+                                "/h2-console/**", "/error", "/payment/webhook").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/teacher/**").hasAnyRole("TEACHER", "ADMIN")
                         .anyRequest().authenticated())
@@ -63,8 +63,8 @@ public class SecurityConfig {
                         .key(rememberMeKey)
                         .alwaysRemember(true)
                         .tokenValiditySeconds(60 * 60 * 24 * 14))
-                // H2 console runs in a frame and posts without CSRF token.
-                .csrf(csrf -> csrf.ignoringRequestMatchers("/h2-console/**"))
+                // H2 console and the payment webhook post without a CSRF token.
+                .csrf(csrf -> csrf.ignoringRequestMatchers("/h2-console/**", "/payment/webhook"))
                 .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()));
         return http.build();
     }

@@ -3,6 +3,7 @@ package com.pathstudy.web;
 import com.pathstudy.domain.Enrollment;
 import com.pathstudy.domain.User;
 import com.pathstudy.repo.EnrollmentRepository;
+import com.pathstudy.service.BankTransferPaymentService;
 import com.pathstudy.service.BookmarkService;
 import com.pathstudy.service.CurrentUserService;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,15 +19,22 @@ public class GlobalModelAdvice {
     private final CurrentUserService currentUser;
     private final BookmarkService bookmarks;
     private final EnrollmentRepository enrollments;
+    private final BankTransferPaymentService payments;
 
     @Value("${app.name:PathStudy}")
     private String appName;
 
     public GlobalModelAdvice(CurrentUserService currentUser, BookmarkService bookmarks,
-                             EnrollmentRepository enrollments) {
+                             EnrollmentRepository enrollments, BankTransferPaymentService payments) {
         this.currentUser = currentUser;
         this.bookmarks = bookmarks;
         this.enrollments = enrollments;
+        this.payments = payments;
+    }
+
+    @ModelAttribute("isPremium")
+    public boolean isPremium() {
+        return currentUser.current().map(payments::hasPremiumAccess).orElse(false);
     }
 
     @ModelAttribute("appName")

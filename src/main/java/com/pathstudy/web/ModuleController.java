@@ -3,6 +3,7 @@ package com.pathstudy.web;
 import com.pathstudy.domain.CourseModule;
 import com.pathstudy.domain.ProgressStatus;
 import com.pathstudy.domain.User;
+import com.pathstudy.service.BankTransferPaymentService;
 import com.pathstudy.service.BookmarkService;
 import com.pathstudy.service.CurrentUserService;
 import com.pathstudy.service.LearningService;
@@ -20,13 +21,16 @@ public class ModuleController {
     private final BookmarkService bookmarks;
     private final CurrentUserService currentUser;
     private final StudyPathService studyPath;
+    private final BankTransferPaymentService payments;
 
     public ModuleController(LearningService learning, BookmarkService bookmarks,
-                            CurrentUserService currentUser, StudyPathService studyPath) {
+                            CurrentUserService currentUser, StudyPathService studyPath,
+                            BankTransferPaymentService payments) {
         this.learning = learning;
         this.bookmarks = bookmarks;
         this.currentUser = currentUser;
         this.studyPath = studyPath;
+        this.payments = payments;
     }
 
     @GetMapping
@@ -41,6 +45,11 @@ public class ModuleController {
         if (studyPath.statusOf(user, module) == ProgressStatus.LOCKED) {
             ra.addFlashAttribute("toast", "Hãy hoàn thành phần trước để mở khoá bài học này.");
             return "redirect:/path?subject=" + module.getSubject().getCode();
+        }
+        // Premium gating: paid content requires an active subscription.
+        if (module.isPremiumContent() && !payments.hasPremiumAccess(user)) {
+            ra.addFlashAttribute("toast", "Nội dung Lớp 11 & 12 dành cho học viên Premium.");
+            return "redirect:/upgrade";
         }
         model.addAttribute("detail", learning.openModule(user, id));
         return "module/view";

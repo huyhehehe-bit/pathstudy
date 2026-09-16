@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Nâng cấp Premium')}"></head>
+<body>
+<div class="shell">
+    <aside th:replace="~{fragments/layout :: sidebar('upgrade')}"></aside>
+    <main class="main">
+        <header th:replace="~{fragments/layout :: topbar('Nâng cấp Premium')}"></header>
+        <div class="content stack" style="max-width:760px">
+
+            <div th:if="${subscription != null}" class="banner banner-success">
+                <span th:insert="~{fragments/icons :: ic('shield')}"></span>
+                Bạn đang là <strong>Premium</strong> — hiệu lực đến
+                <span th:text="${subscription.expiresAt.toLocalDate()}">2026-10-16</span>.
+            </div>
+
+            <div class="section-head">
+                <h2 style="font-size:24px">Mở khoá toàn bộ lộ trình</h2>
+                <p class="muted">Miễn phí phần Nền tảng & Lớp 10. Nâng cấp Premium để học tiếp Lớp 11 & 12.</p>
+            </div>
+
+            <div class="card card-pad stack-sm">
+                <div class="eyebrow">Quyền lợi Premium</div>
+                <div class="stack-sm" style="gap:8px;font-size:14px">
+                    <div class="center"><span th:insert="~{fragments/icons :: ic('check')}" style="color:var(--success)"></span> Toàn bộ tác phẩm Lớp 11 & Lớp 12</div>
+                    <div class="center"><span th:insert="~{fragments/icons :: ic('check')}" style="color:var(--success)"></span> Video bài giảng & tài liệu giáo viên</div>
+                    <div class="center"><span th:insert="~{fragments/icons :: ic('check')}" style="color:var(--success)"></span> Bài kiểm tra ước lượng không giới hạn</div>
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="card card-pad stack-sm" th:each="p : ${plans}">
+                    <div class="between">
+                        <strong th:text="${p.label}">Gói tháng</strong>
+                        <span class="pill pill-doing" th:text="${p.days} + ' ngày'">30 ngày</span>
+                    </div>
+                    <div style="font-size:26px;font-weight:800;color:var(--primary)">
+                        <span th:text="${#numbers.formatInteger(p.amount, 1, 'POINT')}">99.000</span><span style="font-size:15px" class="muted"> đ</span>
+                    </div>
+                    <form th:action="@{/upgrade/checkout}" method="post">
+                        <input type="hidden" name="plan" th:value="${p.name()}"/>
+                        <button type="submit" class="btn btn-primary btn-block">Chọn gói này</button>
+                    </form>
+                </div>
+            </div>
+
+            <p class="faint" style="font-size:13px">Thanh toán bằng chuyển khoản ngân hàng (quét mã QR). Tài khoản được kích hoạt tự động sau khi chuyển khoản thành công.</p>
+        </div>
+    </main>
+</div>
+<div th:replace="~{fragments/layout :: toast}"></div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

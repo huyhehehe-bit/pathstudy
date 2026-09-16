@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Thanh toán Premium')}"></head>
+<body>
+<div class="shell">
+    <aside th:replace="~{fragments/layout :: sidebar('upgrade')}"></aside>
+    <main class="main">
+        <header th:replace="~{fragments/layout :: topbar('Thanh toán Premium')}"></header>
+        <div class="content stack" style="max-width:620px">
+
+            <!-- PAID -->
+            <div th:if="${order.status.name() == 'PAID'}" class="card card-pad stack">
+                <div class="banner banner-success">
+                    <span th:insert="~{fragments/icons :: ic('check')}"></span>
+                    Thanh toán thành công! Tài khoản đã được nâng cấp Premium.
+                </div>
+                <a th:href="@{/path}" class="btn btn-primary btn-lg btn-block">
+                    Bắt đầu học Lớp 11 & 12 <span th:insert="~{fragments/icons :: ic('arrow')}"></span></a>
+            </div>
+
+            <!-- PENDING -->
+            <div th:unless="${order.status.name() == 'PAID'}" class="card card-pad stack" style="align-items:center;text-align:center">
+                <div class="between" style="width:100%">
+                    <strong th:text="${plan.label}">Gói tháng</strong>
+                    <span class="pill pill-warn">Chờ thanh toán</span>
+                </div>
+                <p class="muted" style="font-size:14px">Quét mã QR bằng app ngân hàng, hoặc chuyển khoản đúng thông tin bên dưới.</p>
+
+                <img th:src="${qrUrl}" alt="VietQR" style="width:260px;max-width:100%;border:1px solid var(--border);border-radius:var(--r)"/>
+
+                <div class="panel" style="padding:14px 16px;width:100%;text-align:left">
+                    <div class="metric" style="grid-template-columns:110px 1fr"><span class="lab">Ngân hàng</span><span th:text="${bank}">MB</span></div>
+                    <div class="metric" style="grid-template-columns:110px 1fr"><span class="lab">Số tài khoản</span><span class="tnum" th:text="${account}">0000000000</span></div>
+                    <div class="metric" style="grid-template-columns:110px 1fr"><span class="lab">Chủ tài khoản</span><span th:text="${accountName}">PATHSTUDY</span></div>
+                    <div class="metric" style="grid-template-columns:110px 1fr"><span class="lab">Số tiền</span><strong class="tnum" th:text="${#numbers.formatInteger(order.amount, 1, 'POINT')} + ' đ'">99.000 đ</strong></div>
+                    <div class="metric" style="grid-template-columns:110px 1fr"><span class="lab">Nội dung CK</span><strong style="color:var(--primary-700)" th:text="${order.memoCode}">PS12</strong></div>
+                </div>
+
+                <div class="banner banner-warn" style="width:100%;text-align:left">
+                    <span th:insert="~{fragments/icons :: ic('target')}"></span>
+                    Nhập <strong>đúng nội dung <span th:text="${order.memoCode}">PS12</span></strong> để hệ thống tự nhận diện.
+                </div>
+
+                <div class="center faint" style="font-size:13px;gap:8px">
+                    <span th:insert="~{fragments/icons :: ic('clock')}"></span> Đang chờ thanh toán… trang tự cập nhật khi nhận được tiền.
+                </div>
+                <a th:href="@{/upgrade}" class="btn btn-ghost btn-block">Chọn gói khác</a>
+            </div>
+        </div>
+    </main>
+</div>
+<div th:replace="~{fragments/layout :: toast}"></div>
+<script th:src="@{/js/app.js}"></script>
+<script th:if="${order.status.name() != 'PAID'}">
+    // Poll for payment confirmation while the order is pending.
+    setTimeout(function () { window.location.reload(); }, 8000);
+</script>
+</body>
+</html>

@@ -46,4 +46,10 @@ public class CourseModule {
     /** Whether this module contains real content or is a placeholder stage. */
     @Column(nullable = false)
     private boolean hasContent = false;
+
+    /** Free tier = "Nền tảng" + "Lớp 10"; premium = "Lớp 11" + "Lớp 12". */
+    @Transient
+    public boolean isPremiumContent() {
+        return "Lớp 11".equals(grade) || "Lớp 12".equals(grade);
+    }
 }
