@@ -18,4 +18,6 @@ public class PlacementOutcome {
     private int attemptsUsed;
     private int attemptsMax;
     private boolean bestUpdated;
+    private List<String> weakTopics;
+    private String studyPlan;
 }

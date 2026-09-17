@@ -47,6 +47,19 @@
                     </div>
                 </div>
 
+                <div th:if="${outcome.weakTopics != null and !outcome.weakTopics.isEmpty()}" class="stack-sm">
+                    <div class="eyebrow" style="color:var(--warn)">Chủ đề cần ôn (theo bài làm)</div>
+                    <div class="row-wrap">
+                        <span class="chip" th:each="t : ${outcome.weakTopics}"
+                              style="background:var(--warn-soft);color:var(--warn);border:none" th:text="${t}">Thì động từ</span>
+                    </div>
+                </div>
+
+                <div th:if="${outcome.studyPlan != null and !outcome.studyPlan.isBlank()}" class="panel" style="padding:16px 18px">
+                    <div class="eyebrow" style="margin-bottom:8px">Lộ trình & giáo trình đề xuất cho bạn</div>
+                    <div style="white-space:pre-line;font-size:14px;line-height:1.7" th:text="${outcome.studyPlan}">Lộ trình…</div>
+                </div>
+
                 <div class="banner banner-info">
                     <span th:insert="~{fragments/icons :: ic('route')}"></span>
                     Hệ thống đã tạo lộ trình cá nhân hoá dựa trên kết quả này.

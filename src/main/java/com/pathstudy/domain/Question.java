@@ -49,4 +49,9 @@ public class Question {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Competency competency;
+
+    /** Fine-grained weakness tag, e.g. "Thì động từ", "Từ vựng", "Đọc hiểu",
+     *  "Phát âm", "Câu điều kiện". Used to analyse where the learner is weak. */
+    @Column(length = 120)
+    private String topic;
 }

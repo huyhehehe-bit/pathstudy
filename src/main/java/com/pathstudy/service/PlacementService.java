@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -22,13 +23,16 @@ public class PlacementService {
     private final PlacementResultRepository results;
     private final EnrollmentRepository enrollments;
     private final StudyPathService studyPath;
+    private final AiStudyPlanService aiStudyPlan;
 
     public PlacementService(QuestionRepository questions, PlacementResultRepository results,
-                            EnrollmentRepository enrollments, StudyPathService studyPath) {
+                            EnrollmentRepository enrollments, StudyPathService studyPath,
+                            AiStudyPlanService aiStudyPlan) {
         this.questions = questions;
         this.results = results;
         this.enrollments = enrollments;
         this.studyPath = studyPath;
+        this.aiStudyPlan = aiStudyPlan;
     }
 
     @Transactional(readOnly = true)
@@ -52,13 +56,22 @@ public class PlacementService {
 
         int correct = 0;
         Map<Competency, int[]> tally = new EnumMap<>(Competency.class); // [correct, total]
+        Map<String, int[]> topicTally = new LinkedHashMap<>();          // topic -> [correct, total]
         for (Question q : qs) {
-            int[] t = tally.computeIfAbsent(q.getCompetency(), k -> new int[2]);
-            t[1]++;
             Integer a = answers.get(q.getId());
-            if (a != null && a == q.getCorrectIndex()) {
+            boolean ok = a != null && a == q.getCorrectIndex();
+            if (ok) {
                 correct++;
-                t[0]++;
+            }
+            int[] c = tally.computeIfAbsent(q.getCompetency(), k -> new int[2]);
+            c[1]++;
+            if (ok) c[0]++;
+
+            String topic = q.getTopic();
+            if (topic != null && !topic.isBlank()) {
+                int[] t = topicTally.computeIfAbsent(topic, k -> new int[2]);
+                t[1]++;
+                if (ok) t[0]++;
             }
         }
 
@@ -77,6 +90,23 @@ public class PlacementService {
             }
         }
 
+        // Fine-grained weak topics (topics answered below 60%).
+        List<String> weakTopics = new ArrayList<>();
+        for (Map.Entry<String, int[]> en : topicTally.entrySet()) {
+            int[] t = en.getValue();
+            int pct = t[1] == 0 ? 0 : Math.round(t[0] * 100f / t[1]);
+            if (pct < 60) {
+                weakTopics.add(en.getKey());
+            }
+        }
+
+        // Personalized study plan: AI (Gemini) when enabled, else rule-based.
+        String studyPlan = aiStudyPlan.isEnabled()
+                ? aiStudyPlan.generatePlan(subject.getName(), score, level, weakTopics) : null;
+        if (studyPlan == null) {
+            studyPlan = rulePlan(weakTopics);
+        }
+
         int attemptNo = attemptsUsed(user, subject) + 1;
         PlacementResult r = new PlacementResult();
         r.setUser(user);
@@ -86,6 +116,8 @@ public class PlacementService {
         r.setLevel(level);
         r.setStrengths(String.join(", ", strengths));
         r.setWeaknesses(String.join(", ", weaknesses));
+        r.setWeakTopics(String.join(", ", weakTopics));
+        r.setStudyPlan(studyPlan);
         results.save(r);
 
         // The system uses the BEST attempt to set the starting level.
@@ -101,7 +133,18 @@ public class PlacementService {
         studyPath.ensurePathInitialized(user, subject);
 
         return new PlacementOutcome(subject, score, level, strengths, weaknesses,
-                attemptNo, attemptNo, ATTEMPTS_MAX, bestUpdated);
+                attemptNo, attemptNo, ATTEMPTS_MAX, bestUpdated, weakTopics, studyPlan);
+    }
+
+    private String rulePlan(List<String> weakTopics) {
+        if (weakTopics.isEmpty()) {
+            return "Bạn khá đều các phần. Hãy luyện đề tổng hợp để nâng điểm và bổ sung 20–30 từ vựng mỗi tuần.";
+        }
+        return "Tập trung ôn các chủ đề còn yếu: " + String.join(", ", weakTopics) + ".\n"
+                + "• Ôn kỹ lý thuyết từng chủ đề trên kèm ví dụ.\n"
+                + "• Làm 15–20 câu trắc nghiệm mỗi chủ đề để củng cố.\n"
+                + "• Bổ sung 20–30 từ vựng mỗi tuần theo chủ điểm.\n"
+                + "• Làm lại đề sau 1 tuần để đo tiến bộ.";
     }
 
     public static String levelFor(int score) {

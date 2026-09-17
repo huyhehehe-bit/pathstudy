@@ -23,7 +23,7 @@ import java.util.Arrays;
 @Component
 public class DataSeeder implements CommandLineRunner {
 
-    private static final String SEED_VERSION = "2026-09-16-roles-cms-v3";
+    private static final String SEED_VERSION = "2026-09-17-english-v1";
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -79,6 +79,7 @@ public class DataSeeder implements CommandLineRunner {
         seedSubjects();
         seedUsers();
         seedVanContent(subjects.findByCode("van").orElseThrow());
+        seedEnglish(subjects.findByCode("anh").orElseThrow());
         appSettings.save(new AppSetting("seedVersion", SEED_VERSION));
     }
 
@@ -104,7 +105,8 @@ public class DataSeeder implements CommandLineRunner {
     private void seedSubjects() {
         subject("van", "Ngữ văn", "book", "indigo", 1, true,
                 "Đọc hiểu, phân tích tác phẩm và nghị luận theo chương trình THPT (lớp 10–11–12).");
-        subject("anh", "Tiếng Anh", "flag", "rose", 2, false, "Ngữ pháp, từ vựng và kỹ năng THPT. Sắp ra mắt.");
+        subject("anh", "Tiếng Anh", "flag", "rose", 2, true,
+                "Kiểm tra chẩn đoán, phân tích điểm yếu và lộ trình ôn tập cá nhân hoá (Lớp 10–11–12).");
         subject("toan", "Toán", "calculator", "sky", 3, false, "Đại số, hình học và luyện đề THPT. Sắp ra mắt.");
         subject("ly", "Vật lý", "atom", "violet", 4, false, "Cơ, điện, quang và luyện đề. Sắp ra mắt.");
         subject("hoa", "Hóa học", "flask", "amber", 5, false, "Hoá vô cơ, hữu cơ và bài tập. Sắp ra mắt.");
@@ -466,6 +468,27 @@ public class DataSeeder implements CommandLineRunner {
                 Competency.APPLICATION, 1, "Chép lại đề bài", "Xác định luận điểm và câu chủ đề", "Kể tiểu sử tác giả", "Viết kết bài trước");
     }
 
+    private void seedEnglish(Subject anh) {
+        // Đề chẩn đoán MẪU (thay bằng đề thật khi có tài liệu). Mỗi câu gắn 1 chủ đề
+        // để phân tích điểm yếu và ra lộ trình ôn tập phù hợp.
+        pqTopic(anh, 1, "She ___ to school every day.", Competency.KNOWLEDGE, "Thì động từ", 1,
+                "go", "goes", "going", "gone");
+        pqTopic(anh, 2, "They ___ football when it started to rain.", Competency.KNOWLEDGE, "Thì động từ", 2,
+                "play", "played", "were playing", "are playing");
+        pqTopic(anh, 3, "The opposite of \"difficult\" is ___.", Competency.KNOWLEDGE, "Từ vựng", 0,
+                "easy", "hard", "big", "fast");
+        pqTopic(anh, 4, "Choose the word closest in meaning to \"happy\": ___.", Competency.KNOWLEDGE, "Từ vựng", 1,
+                "sad", "glad", "angry", "tired");
+        pqTopic(anh, 5, "Which word has a different vowel sound?", Competency.KNOWLEDGE, "Phát âm", 2,
+                "cat", "hat", "car", "bat");
+        pqTopic(anh, 6, "Read: \"Tom likes apples. He eats one every morning.\" What does Tom eat every morning?",
+                Competency.COMPREHENSION, "Đọc hiểu", 0, "An apple", "A banana", "Bread", "Rice");
+        pqTopic(anh, 7, "If it ___ tomorrow, we will stay home.", Competency.APPLICATION, "Câu điều kiện", 0,
+                "rains", "rained", "will rain", "raining");
+        pqTopic(anh, 8, "I'm good ___ English.", Competency.KNOWLEDGE, "Giới từ", 1,
+                "in", "at", "on", "of");
+    }
+
     // ---------- helpers ----------
 
     private Subject subject(String code, String name, String icon, String color,
@@ -541,6 +564,20 @@ public class DataSeeder implements CommandLineRunner {
         m.setCreatedByEmail("admin@pathstudy.vn");
         m.setOrderIndex(0);
         return materials.save(m);
+    }
+
+    private Question pqTopic(Subject subject, int idx, String text, Competency competency,
+                             String topic, int correct, String... opts) {
+        Question q = new Question();
+        q.setScope(QuizScope.PLACEMENT);
+        q.setSubject(subject);
+        q.setOrderIndex(idx);
+        q.setText(text);
+        q.setCompetency(competency);
+        q.setCorrectIndex(correct);
+        q.setTopic(topic);
+        q.setOptions(Arrays.asList(opts));
+        return questions.save(q);
     }
 
     private Question eq(CourseModule module, int idx, String text, Competency competency,

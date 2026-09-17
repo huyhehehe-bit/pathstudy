@@ -39,6 +39,14 @@ public class PlacementResult {
     /** Comma-separated competency labels to improve. */
     private String weaknesses;
 
+    /** Comma-separated fine-grained weak topics (from question tags). */
+    @Column(length = 500)
+    private String weakTopics;
+
+    /** Personalized study plan text (rule-based, or AI-generated when enabled). */
+    @Column(length = 4000)
+    private String studyPlan;
+
     @Column(nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 }
