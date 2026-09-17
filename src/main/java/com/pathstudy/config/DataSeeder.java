@@ -23,7 +23,7 @@ import java.util.Arrays;
 @Component
 public class DataSeeder implements CommandLineRunner {
 
-    private static final String SEED_VERSION = "2026-09-17-english-v2";
+    private static final String SEED_VERSION = "2026-09-17-english-v3-refdoc";
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -42,6 +42,7 @@ public class DataSeeder implements CommandLineRunner {
     private final EstimateResultRepository estimateResults;
     private final BookmarkRepository bookmarks;
     private final MaterialRepository materials;
+    private final ReferenceMaterialRepository referenceMaterials;
 
     private int order = 0; // running module order within a subject
 
@@ -51,7 +52,8 @@ public class DataSeeder implements CommandLineRunner {
                       PasswordEncoder passwordEncoder, AppSettingRepository appSettings,
                       EnrollmentRepository enrollments, ModuleProgressRepository moduleProgress,
                       PlacementResultRepository placementResults, EstimateResultRepository estimateResults,
-                      BookmarkRepository bookmarks, MaterialRepository materials) {
+                      BookmarkRepository bookmarks, MaterialRepository materials,
+                      ReferenceMaterialRepository referenceMaterials) {
         this.subjects = subjects;
         this.modules = modules;
         this.lessons = lessons;
@@ -66,6 +68,7 @@ public class DataSeeder implements CommandLineRunner {
         this.estimateResults = estimateResults;
         this.bookmarks = bookmarks;
         this.materials = materials;
+        this.referenceMaterials = referenceMaterials;
     }
 
     @Override
@@ -91,6 +94,7 @@ public class DataSeeder implements CommandLineRunner {
         moduleProgress.deleteAll();
         enrollments.deleteAll();
         materials.deleteAll();
+        referenceMaterials.deleteAll();
         questions.deleteAll();
         sections.deleteAll();
         lessons.deleteAll();
@@ -487,6 +491,29 @@ public class DataSeeder implements CommandLineRunner {
                 "rains", "rained", "will rain", "raining");
         pqTopic(anh, 8, "I'm good ___ English.", Competency.KNOWLEDGE, "Giới từ", 1,
                 "in", "at", "on", "of");
+
+        // Tài liệu nguồn cho AI (giáo viên gửi) — AI dựa vào đây để soạn giáo trình + bài tập.
+        String grammar = readClasspath("materials/tieng-anh-thanh-phan-cau.txt");
+        if (grammar != null && !grammar.isBlank()) {
+            ReferenceMaterial rm = new ReferenceMaterial();
+            rm.setSubject(anh);
+            rm.setTitle("Các thành phần cơ bản trong câu tiếng Anh");
+            rm.setContent(grammar);
+            rm.setCreatedByEmail("admin@pathstudy.vn");
+            referenceMaterials.save(rm);
+        }
+    }
+
+    private String readClasspath(String path) {
+        try {
+            org.springframework.core.io.ClassPathResource res =
+                    new org.springframework.core.io.ClassPathResource(path);
+            try (java.io.InputStream in = res.getInputStream()) {
+                return new String(in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
+            }
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     // ---------- helpers ----------

@@ -11,6 +11,11 @@ public interface AiStudyPlanService {
 
     boolean isEnabled();
 
-    /** @return the plan text, or null if AI is disabled or the call failed. */
-    String generatePlan(String subjectName, int score, String level, List<String> weakTopics);
+    /**
+     * Uses the learner's result + the teacher's reference material to synthesize
+     * weaknesses, write a short lesson and generate practice questions.
+     * @return the text, or null if AI is disabled or the call failed.
+     */
+    String generatePlan(String subjectName, int score, String level, List<String> weakTopics,
+                        String referenceMaterial);
 }

@@ -31,20 +31,30 @@ public class GeminiStudyPlanService implements AiStudyPlanService {
     }
 
     @Override
-    public String generatePlan(String subjectName, int score, String level, List<String> weakTopics) {
+    public String generatePlan(String subjectName, int score, String level, List<String> weakTopics,
+                               String referenceMaterial) {
         if (!isEnabled()) {
             return null;
         }
+        String material = referenceMaterial == null ? "" : referenceMaterial;
+        if (material.length() > 24000) {
+            material = material.substring(0, 24000);
+        }
         String prompt = """
-                Bạn là gia sư %s cho học sinh THPT Việt Nam. Học sinh vừa làm bài kiểm tra
-                được %d/100 điểm (trình độ: %s). Các chủ đề còn yếu: %s.
-                Hãy soạn bằng tiếng Việt, ngắn gọn, gồm 3 phần rõ ràng:
-                1) LỘ TRÌNH ÔN TẬP: 4-6 gạch đầu dòng, TẬP TRUNG vào đúng các chủ đề yếu ở trên.
-                2) GIÁO TRÌNH NGẮN: tóm tắt lý thuyết cốt lõi của chủ đề yếu nhất (công thức/cách dùng, ví dụ).
-                3) BÀI TẬP: 4-5 câu bài tập cho chủ đề yếu nhất, KÈM ĐÁP ÁN ở cuối.
+                Bạn là gia sư %s cho học sinh THPT Việt Nam.
+                Dưới đây là TÀI LIỆU HỌC (nguồn kiến thức chính thức, hãy bám sát nó):
+                ====== TÀI LIỆU ======
+                %s
+                ====== HẾT TÀI LIỆU ======
+                Học sinh vừa làm bài kiểm tra được %d/100 điểm (trình độ: %s).
+                Các chủ đề làm sai (điểm yếu): %s.
+                Dựa vào BÀI LÀM và TÀI LIỆU trên, hãy soạn bằng tiếng Việt, ngắn gọn, gồm:
+                1) TỔNG HỢP ĐIỂM YẾU: nêu rõ học sinh yếu ở đâu (cụ thể, VD sai thì nào, cấu trúc nào).
+                2) GIÁO TRÌNH ÔN TẬP: tóm tắt lý thuyết cốt lõi cho các điểm yếu, TRÍCH TỪ TÀI LIỆU (công thức, cách dùng, ví dụ).
+                3) BÀI TẬP LUYỆN TẬP: 5 câu hỏi bám sát điểm yếu, KÈM ĐÁP ÁN ở cuối.
                 Nếu là Tiếng Anh, thêm 10 từ vựng nên học theo chủ điểm.
                 Chỉ trả về nội dung, không mở đầu dài dòng.
-                """.formatted(subjectName, score, level,
+                """.formatted(subjectName, material, score, level,
                 weakTopics.isEmpty() ? "chưa xác định" : String.join(", ", weakTopics));
 
         Map<String, Object> body = Map.of(

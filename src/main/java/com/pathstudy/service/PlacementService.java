@@ -4,7 +4,9 @@ import com.pathstudy.domain.*;
 import com.pathstudy.repo.EnrollmentRepository;
 import com.pathstudy.repo.PlacementResultRepository;
 import com.pathstudy.repo.QuestionRepository;
+import com.pathstudy.repo.ReferenceMaterialRepository;
 import com.pathstudy.web.dto.PlacementOutcome;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,15 +26,17 @@ public class PlacementService {
     private final EnrollmentRepository enrollments;
     private final StudyPathService studyPath;
     private final AiStudyPlanService aiStudyPlan;
+    private final ReferenceMaterialRepository referenceMaterials;
 
     public PlacementService(QuestionRepository questions, PlacementResultRepository results,
                             EnrollmentRepository enrollments, StudyPathService studyPath,
-                            AiStudyPlanService aiStudyPlan) {
+                            AiStudyPlanService aiStudyPlan, ReferenceMaterialRepository referenceMaterials) {
         this.questions = questions;
         this.results = results;
         this.enrollments = enrollments;
         this.studyPath = studyPath;
         this.aiStudyPlan = aiStudyPlan;
+        this.referenceMaterials = referenceMaterials;
     }
 
     @Transactional(readOnly = true)
@@ -100,9 +104,12 @@ public class PlacementService {
             }
         }
 
-        // Personalized study plan: AI (Gemini) when enabled, else rule-based.
+        // Personalized study plan: AI (Gemini) grounded in the teacher's reference
+        // material when enabled, else a rule-based plan.
+        String referenceText = referenceMaterials.findBySubjectOrderByIdAsc(subject).stream()
+                .map(ReferenceMaterial::getContent).collect(Collectors.joining("\n\n"));
         String studyPlan = aiStudyPlan.isEnabled()
-                ? aiStudyPlan.generatePlan(subject.getName(), score, level, weakTopics) : null;
+                ? aiStudyPlan.generatePlan(subject.getName(), score, level, weakTopics, referenceText) : null;
         if (studyPlan == null) {
             studyPlan = rulePlan(weakTopics);
         }

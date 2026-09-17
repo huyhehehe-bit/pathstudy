@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Tài liệu nguồn (AI)')}"></head>
+<body>
+<div class="shell">
+    <aside th:replace="~{fragments/layout :: sidebar('teacher')}"></aside>
+    <main class="main">
+        <header th:replace="~{fragments/layout :: topbar('Tài liệu nguồn cho AI')}"></header>
+        <div class="content stack" style="max-width:820px">
+
+            <div class="section-head">
+                <h2 style="font-size:24px">Tài liệu nguồn — <span th:text="${subject.name}">Tiếng Anh</span></h2>
+                <p class="muted">AI (Gemini) dựa vào các tài liệu này để <strong>tổng hợp điểm yếu</strong>, soạn <strong>giáo trình</strong> và <strong>tạo bài tập</strong> cho học sinh. Dán nội dung tài liệu (lý thuyết ngữ pháp, cấu trúc, từ vựng...).</p>
+            </div>
+
+            <div class="row-wrap">
+                <a th:each="s : ${subjects}" th:href="@{/teacher/docs(subject=${s.code})}" class="chip"
+                   th:style="${s.code == subject.code} ? 'background:var(--primary-soft);color:var(--primary-700);border:none' : ''"
+                   th:text="${s.name}">Tiếng Anh</a>
+            </div>
+
+            <div class="card card-pad stack-sm">
+                <h3 style="font-size:15px">Thêm tài liệu</h3>
+                <form th:action="@{/teacher/docs}" method="post" class="stack-sm">
+                    <input type="hidden" name="subject" th:value="${subject.code}"/>
+                    <div class="field">
+                        <label for="title">Tiêu đề</label>
+                        <input id="title" name="title" class="textarea" required placeholder="VD: Tổng hợp các thì trong tiếng Anh"/>
+                    </div>
+                    <div class="field">
+                        <label for="content">Nội dung (dán text từ tài liệu Word/PDF)</label>
+                        <textarea id="content" name="content" class="textarea" rows="10" required
+                                  placeholder="Dán lý thuyết, cấu trúc, ví dụ, từ vựng..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="align-self:flex-start">
+                        <span th:insert="~{fragments/icons :: ic('plus')}"></span> Lưu tài liệu</button>
+                </form>
+            </div>
+
+            <div class="stack-sm">
+                <h3 style="font-size:15px">Tài liệu hiện có (<span th:text="${#lists.size(docs)}">0</span>)</h3>
+                <div class="faint" th:if="${#lists.isEmpty(docs)}" style="font-size:14px">Chưa có tài liệu.</div>
+                <div class="card card-pad between" th:each="d : ${docs}" style="gap:12px">
+                    <div>
+                        <strong th:text="${d.title}">Tài liệu</strong>
+                        <div class="faint" style="font-size:12px" th:text="${#strings.length(d.content)} + ' ký tự'">0 ký tự</div>
+                    </div>
+                    <form th:action="@{'/teacher/docs/' + ${d.id} + '/delete'}" method="post">
+                        <input type="hidden" name="subject" th:value="${subject.code}"/>
+                        <button type="submit" class="bm-btn" style="border-color:var(--danger-soft);color:var(--danger)">Xoá</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+<div th:replace="~{fragments/layout :: toast}"></div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

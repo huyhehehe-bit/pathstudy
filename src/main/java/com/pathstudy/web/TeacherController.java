@@ -3,8 +3,10 @@ package com.pathstudy.web;
 import com.pathstudy.domain.Competency;
 import com.pathstudy.domain.CourseModule;
 import com.pathstudy.domain.MaterialType;
+import com.pathstudy.domain.ReferenceMaterial;
 import com.pathstudy.domain.Subject;
 import com.pathstudy.repo.CourseModuleRepository;
+import com.pathstudy.repo.ReferenceMaterialRepository;
 import com.pathstudy.repo.SubjectRepository;
 import com.pathstudy.service.CurrentUserService;
 import com.pathstudy.service.MaterialService;
@@ -27,15 +29,18 @@ public class TeacherController {
     private final MaterialService materials;
     private final CurrentUserService currentUser;
     private final QuestionBankService questionBank;
+    private final ReferenceMaterialRepository referenceMaterials;
 
     public TeacherController(SubjectRepository subjects, CourseModuleRepository modules,
                              MaterialService materials, CurrentUserService currentUser,
-                             QuestionBankService questionBank) {
+                             QuestionBankService questionBank,
+                             ReferenceMaterialRepository referenceMaterials) {
         this.subjects = subjects;
         this.modules = modules;
         this.materials = materials;
         this.currentUser = currentUser;
         this.questionBank = questionBank;
+        this.referenceMaterials = referenceMaterials;
     }
 
     @GetMapping
@@ -123,5 +128,42 @@ public class TeacherController {
         questionBank.delete(id);
         ra.addFlashAttribute("toast", "Đã xoá câu hỏi.");
         return "redirect:/teacher/questions?subject=" + subject;
+    }
+
+    // ---------- Reference documents (tài liệu nguồn cho AI) ----------
+
+    @GetMapping("/docs")
+    public String docs(@RequestParam(defaultValue = "anh") String subject, Model model) {
+        Subject subj = subjects.findByCode(subject)
+                .orElseGet(() -> subjects.findAllByOrderByOrderIndexAsc().get(0));
+        model.addAttribute("subject", subj);
+        model.addAttribute("subjects", subjects.findAllByOrderByOrderIndexAsc());
+        model.addAttribute("docs", referenceMaterials.findBySubjectOrderByIdAsc(subj));
+        return "teacher/docs";
+    }
+
+    @PostMapping("/docs")
+    public String addDoc(@RequestParam String subject, @RequestParam String title,
+                         @RequestParam String content, RedirectAttributes ra) {
+        Subject subj = subjects.findByCode(subject).orElseThrow();
+        if (title.isBlank() || content.isBlank()) {
+            ra.addFlashAttribute("toast", "Vui lòng nhập tiêu đề và nội dung tài liệu.");
+            return "redirect:/teacher/docs?subject=" + subject;
+        }
+        ReferenceMaterial rm = new ReferenceMaterial();
+        rm.setSubject(subj);
+        rm.setTitle(title.strip());
+        rm.setContent(content);
+        rm.setCreatedByEmail(currentUser.current().map(u -> u.getEmail()).orElse(null));
+        referenceMaterials.save(rm);
+        ra.addFlashAttribute("toast", "Đã thêm tài liệu nguồn cho AI.");
+        return "redirect:/teacher/docs?subject=" + subject;
+    }
+
+    @PostMapping("/docs/{id}/delete")
+    public String deleteDoc(@PathVariable Long id, @RequestParam String subject, RedirectAttributes ra) {
+        referenceMaterials.deleteById(id);
+        ra.addFlashAttribute("toast", "Đã xoá tài liệu.");
+        return "redirect:/teacher/docs?subject=" + subject;
     }
 }
