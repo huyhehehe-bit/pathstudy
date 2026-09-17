@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Ngân hàng đề')}"></head>
+<body>
+<div class="shell">
+    <aside th:replace="~{fragments/layout :: sidebar('teacher')}"></aside>
+    <main class="main">
+        <header th:replace="~{fragments/layout :: topbar('Ngân hàng đề')}"></header>
+        <div class="content stack" style="max-width:820px">
+
+            <div class="section-head">
+                <h2 style="font-size:24px">Ngân hàng đề — <span th:text="${subject.name}">Tiếng Anh</span></h2>
+                <p class="muted">Nhập câu hỏi + gắn <strong>chủ đề</strong> (VD: Thì quá khứ tiếp diễn). Bài kiểm tra đầu vào sẽ lấy câu từ đây; hệ thống phân tích điểm yếu theo chủ đề bạn gắn.</p>
+            </div>
+
+            <div class="row-wrap">
+                <a th:each="s : ${subjects}" th:href="@{/teacher/questions(subject=${s.code})}"
+                   class="chip" th:classappend="${s.code == subject.code} ? '' : ''"
+                   th:style="${s.code == subject.code} ? 'background:var(--primary-soft);color:var(--primary-700);border:none' : ''"
+                   th:text="${s.name}">Tiếng Anh</a>
+            </div>
+
+            <!-- Add question -->
+            <div class="card card-pad stack-sm">
+                <h3 style="font-size:15px">Thêm câu hỏi</h3>
+                <form th:action="@{/teacher/questions}" method="post" class="stack-sm">
+                    <input type="hidden" name="subject" th:value="${subject.code}"/>
+                    <div class="field">
+                        <label for="text">Câu hỏi</label>
+                        <textarea id="text" name="text" class="textarea" rows="2" required placeholder="VD: They ___ football when it started to rain."></textarea>
+                    </div>
+                    <div class="stack-sm" style="gap:8px">
+                        <label class="center" style="gap:10px"><input type="radio" name="correct" value="0" checked/> <span class="key">A</span>
+                            <input name="optA" class="textarea" required placeholder="Đáp án A"/></label>
+                        <label class="center" style="gap:10px"><input type="radio" name="correct" value="1"/> <span class="key">B</span>
+                            <input name="optB" class="textarea" required placeholder="Đáp án B"/></label>
+                        <label class="center" style="gap:10px"><input type="radio" name="correct" value="2"/> <span class="key">C</span>
+                            <input name="optC" class="textarea" required placeholder="Đáp án C"/></label>
+                        <label class="center" style="gap:10px"><input type="radio" name="correct" value="3"/> <span class="key">D</span>
+                            <input name="optD" class="textarea" required placeholder="Đáp án D"/></label>
+                        <p class="faint" style="font-size:12px">Chọn nút tròn bên trái = đáp án đúng.</p>
+                    </div>
+                    <div class="row" style="gap:12px;flex-wrap:wrap">
+                        <div class="field" style="flex:1;min-width:160px">
+                            <label for="topic">Chủ đề (điểm yếu)</label>
+                            <input id="topic" name="topic" class="textarea" placeholder="VD: Thì quá khứ tiếp diễn"/>
+                        </div>
+                        <div class="field" style="flex:1;min-width:160px">
+                            <label for="competency">Nhóm kỹ năng</label>
+                            <select id="competency" name="competency" class="textarea">
+                                <option th:each="c : ${competencies}" th:value="${c.name()}" th:text="${c.label}">Kiến thức</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="align-self:flex-start">
+                        <span th:insert="~{fragments/icons :: ic('plus')}"></span> Thêm vào ngân hàng đề</button>
+                </form>
+            </div>
+
+            <!-- Existing questions -->
+            <div class="stack-sm">
+                <h3 style="font-size:15px">Câu hỏi hiện có (<span th:text="${#lists.size(questions)}">0</span>)</h3>
+                <div class="faint" th:if="${#lists.isEmpty(questions)}" style="font-size:14px">Chưa có câu hỏi. Hãy thêm ở trên.</div>
+                <div class="card card-pad stack-sm" th:each="q, qi : ${questions}">
+                    <div class="between">
+                        <strong th:text="'Câu ' + ${qi.count} + '. ' + ${q.text}">Câu hỏi</strong>
+                        <form th:action="@{'/teacher/questions/' + ${q.id} + '/delete'}" method="post">
+                            <input type="hidden" name="subject" th:value="${subject.code}"/>
+                            <button type="submit" class="bm-btn" style="border-color:var(--danger-soft);color:var(--danger)">Xoá</button>
+                        </form>
+                    </div>
+                    <div class="stack-sm" style="gap:4px">
+                        <div th:each="opt, oi : ${q.options}" style="font-size:14px"
+                             th:style="${oi.index == q.correctIndex} ? 'font-weight:700;color:var(--success)' : ''">
+                            <span th:text="${#strings.substring('ABCD', oi.index, oi.index+1)}">A</span>.
+                            <span th:text="${opt}">đáp án</span>
+                            <span th:if="${oi.index == q.correctIndex}">✓</span>
+                        </div>
+                    </div>
+                    <div class="row-wrap" style="gap:6px">
+                        <span class="chip" th:if="${q.topic != null}" style="background:var(--warn-soft);color:var(--warn);border:none" th:text="${q.topic}">Chủ đề</span>
+                        <span class="chip" th:text="${q.competency.label}">Kiến thức</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+<div th:replace="~{fragments/layout :: toast}"></div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

@@ -23,7 +23,7 @@ import java.util.Arrays;
 @Component
 public class DataSeeder implements CommandLineRunner {
 
-    private static final String SEED_VERSION = "2026-09-17-english-v1";
+    private static final String SEED_VERSION = "2026-09-17-english-v2";
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -471,9 +471,9 @@ public class DataSeeder implements CommandLineRunner {
     private void seedEnglish(Subject anh) {
         // Đề chẩn đoán MẪU (thay bằng đề thật khi có tài liệu). Mỗi câu gắn 1 chủ đề
         // để phân tích điểm yếu và ra lộ trình ôn tập phù hợp.
-        pqTopic(anh, 1, "She ___ to school every day.", Competency.KNOWLEDGE, "Thì động từ", 1,
+        pqTopic(anh, 1, "She ___ to school every day.", Competency.KNOWLEDGE, "Thì hiện tại đơn", 1,
                 "go", "goes", "going", "gone");
-        pqTopic(anh, 2, "They ___ football when it started to rain.", Competency.KNOWLEDGE, "Thì động từ", 2,
+        pqTopic(anh, 2, "They ___ football when it started to rain.", Competency.KNOWLEDGE, "Thì quá khứ tiếp diễn", 2,
                 "play", "played", "were playing", "are playing");
         pqTopic(anh, 3, "The opposite of \"difficult\" is ___.", Competency.KNOWLEDGE, "Từ vựng", 0,
                 "easy", "hard", "big", "fast");

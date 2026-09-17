@@ -38,9 +38,12 @@ public class GeminiStudyPlanService implements AiStudyPlanService {
         String prompt = """
                 Bạn là gia sư %s cho học sinh THPT Việt Nam. Học sinh vừa làm bài kiểm tra
                 được %d/100 điểm (trình độ: %s). Các chủ đề còn yếu: %s.
-                Hãy đưa ra một lộ trình ôn tập ngắn gọn bằng tiếng Việt (4-6 gạch đầu dòng),
-                TẬP TRUNG vào các chủ đề yếu ở trên, kèm gợi ý bổ sung từ vựng phù hợp.
-                Chỉ trả về nội dung lộ trình, không mở đầu dài dòng.
+                Hãy soạn bằng tiếng Việt, ngắn gọn, gồm 3 phần rõ ràng:
+                1) LỘ TRÌNH ÔN TẬP: 4-6 gạch đầu dòng, TẬP TRUNG vào đúng các chủ đề yếu ở trên.
+                2) GIÁO TRÌNH NGẮN: tóm tắt lý thuyết cốt lõi của chủ đề yếu nhất (công thức/cách dùng, ví dụ).
+                3) BÀI TẬP: 4-5 câu bài tập cho chủ đề yếu nhất, KÈM ĐÁP ÁN ở cuối.
+                Nếu là Tiếng Anh, thêm 10 từ vựng nên học theo chủ điểm.
+                Chỉ trả về nội dung, không mở đầu dài dòng.
                 """.formatted(subjectName, score, level,
                 weakTopics.isEmpty() ? "chưa xác định" : String.join(", ", weakTopics));
 

@@ -142,9 +142,10 @@ public class PlacementService {
         }
         return "Tập trung ôn các chủ đề còn yếu: " + String.join(", ", weakTopics) + ".\n"
                 + "• Ôn kỹ lý thuyết từng chủ đề trên kèm ví dụ.\n"
-                + "• Làm 15–20 câu trắc nghiệm mỗi chủ đề để củng cố.\n"
+                + "• Làm 15–20 câu bài tập mỗi chủ đề để củng cố.\n"
                 + "• Bổ sung 20–30 từ vựng mỗi tuần theo chủ điểm.\n"
-                + "• Làm lại đề sau 1 tuần để đo tiến bộ.";
+                + "• Làm lại đề sau 1 tuần để đo tiến bộ.\n"
+                + "(Bật AI Gemini để nhận giáo trình + bài tập chi tiết cho từng chủ đề yếu.)";
     }
 
     public static String levelFor(int score) {

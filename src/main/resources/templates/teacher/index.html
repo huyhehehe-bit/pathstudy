@@ -12,6 +12,18 @@
                 <p class="muted">Chọn một bài học để thêm tài liệu (video, tài liệu, liên kết) cho học sinh.</p>
             </div>
 
+            <a th:href="@{/teacher/questions(subject=${subject.code})}" class="card card-pad between" style="gap:14px">
+                <div class="center" style="gap:12px">
+                    <span class="tile tile-sky" style="width:38px;height:38px;border-radius:11px"
+                          th:insert="~{fragments/icons :: ic('clipboard-check')}"></span>
+                    <div>
+                        <strong>Ngân hàng đề</strong>
+                        <div class="faint" style="font-size:12px">Nhập câu hỏi + gắn chủ đề để tạo bài kiểm tra</div>
+                    </div>
+                </div>
+                <span th:insert="~{fragments/icons :: ic('arrow')}"></span>
+            </a>
+
             <div class="stack" style="gap:10px">
                 <th:block th:each="m, stat : ${modules}">
                     <div class="grade-header"
