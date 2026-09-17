@@ -42,6 +42,11 @@ public class PathController {
                 ? subjects.findByCode(subject).orElse(myEnrollments.get(0).getSubject())
                 : myEnrollments.get(0).getSubject();
 
+        // English uses its own hub (choose: study curriculum or take exams).
+        if ("anh".equals(subj.getCode())) {
+            return "redirect:/english";
+        }
+
         model.addAttribute("summary", studyPath.getPathSummary(user, subj));
         model.addAttribute("enrollments", myEnrollments);
         return "path/index";

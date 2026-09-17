@@ -31,6 +31,10 @@ public class Question {
     @ManyToOne(fetch = FetchType.EAGER)
     private CourseModule module;
 
+    /** Set for EXAM questions (a ready-made practice exam). */
+    @ManyToOne(fetch = FetchType.EAGER)
+    private Exam exam;
+
     @Column(nullable = false)
     private int orderIndex;
 

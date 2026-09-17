@@ -23,7 +23,7 @@ import java.util.Arrays;
 @Component
 public class DataSeeder implements CommandLineRunner {
 
-    private static final String SEED_VERSION = "2026-09-17-english-v3-refdoc";
+    private static final String SEED_VERSION = "2026-09-17-english-v4-exams";
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -43,6 +43,7 @@ public class DataSeeder implements CommandLineRunner {
     private final BookmarkRepository bookmarks;
     private final MaterialRepository materials;
     private final ReferenceMaterialRepository referenceMaterials;
+    private final ExamRepository exams;
 
     private int order = 0; // running module order within a subject
 
@@ -53,7 +54,7 @@ public class DataSeeder implements CommandLineRunner {
                       EnrollmentRepository enrollments, ModuleProgressRepository moduleProgress,
                       PlacementResultRepository placementResults, EstimateResultRepository estimateResults,
                       BookmarkRepository bookmarks, MaterialRepository materials,
-                      ReferenceMaterialRepository referenceMaterials) {
+                      ReferenceMaterialRepository referenceMaterials, ExamRepository exams) {
         this.subjects = subjects;
         this.modules = modules;
         this.lessons = lessons;
@@ -69,6 +70,7 @@ public class DataSeeder implements CommandLineRunner {
         this.bookmarks = bookmarks;
         this.materials = materials;
         this.referenceMaterials = referenceMaterials;
+        this.exams = exams;
     }
 
     @Override
@@ -96,6 +98,7 @@ public class DataSeeder implements CommandLineRunner {
         materials.deleteAll();
         referenceMaterials.deleteAll();
         questions.deleteAll();
+        exams.deleteAll();
         sections.deleteAll();
         lessons.deleteAll();
         modules.deleteAll();
@@ -502,6 +505,65 @@ public class DataSeeder implements CommandLineRunner {
             rm.setCreatedByEmail("admin@pathstudy.vn");
             referenceMaterials.save(rm);
         }
+
+        // ---- Đề luyện tập (làm đề) — chấm điểm + chỉ ra điểm yếu ----
+        Exam ex1 = exam(anh, "Đề luyện tập số 1 — Ngữ pháp cơ bản", "Cơ bản",
+                "Thành phần câu, từ loại và các thì cơ bản", 1);
+        eqExam(ex1, 1, "Trong câu \"She reads books\", đâu là Chủ ngữ (Subject)?",
+                Competency.KNOWLEDGE, "Thành phần câu (Chủ ngữ)", 0, "She", "reads", "books", "a book");
+        eqExam(ex1, 2, "Đâu là Động từ (Verb) trong \"He is running fast\"?",
+                Competency.KNOWLEDGE, "Từ loại (Động từ)", 1, "He", "is running", "fast", "run");
+        eqExam(ex1, 3, "Đâu là Tính từ (Adjective) trong \"The beautiful flower bloomed\"?",
+                Competency.KNOWLEDGE, "Từ loại (Tính từ)", 1, "The", "beautiful", "flower", "bloomed");
+        eqExam(ex1, 4, "She ___ chocolate.", Competency.KNOWLEDGE, "Thì hiện tại đơn", 1,
+                "love", "loves", "loving", "loved");
+        eqExam(ex1, 5, "The book is ___ the table.", Competency.KNOWLEDGE, "Giới từ", 1,
+                "in", "on", "at", "of");
+        eqExam(ex1, 6, "I ___ Paris once.", Competency.APPLICATION, "Thì hiện tại hoàn thành", 2,
+                "visit", "visited", "have visited", "visiting");
+
+        Exam ex2 = exam(anh, "Đề luyện tập số 2 — Các thì", "Cơ bản",
+                "Ôn tập và phân biệt các thì trong tiếng Anh", 2);
+        eqExam(ex2, 1, "They ___ soccer now.", Competency.KNOWLEDGE, "Thì hiện tại tiếp diễn", 2,
+                "play", "plays", "are playing", "played");
+        eqExam(ex2, 2, "The sun ___ in the east.", Competency.KNOWLEDGE, "Thì hiện tại đơn", 1,
+                "rise", "rises", "is rising", "rose");
+        eqExam(ex2, 3, "We ___ at 5 PM tomorrow (đã sắp xếp).", Competency.APPLICATION, "Thì hiện tại tiếp diễn", 2,
+                "meet", "met", "are meeting", "will met");
+        eqExam(ex2, 4, "She ___ TV when I called.", Competency.APPLICATION, "Thì quá khứ tiếp diễn", 1,
+                "watched", "was watching", "watches", "is watching");
+        eqExam(ex2, 5, "He ___ here since 2010.", Competency.APPLICATION, "Thì hiện tại hoàn thành", 2,
+                "lives", "lived", "has lived", "living");
+        eqExam(ex2, 6, "If it ___ , we will stay home.", Competency.APPLICATION, "Câu điều kiện loại 1", 0,
+                "rains", "rained", "will rain", "raining");
+    }
+
+    private Exam exam(Subject subject, String title, String level, String description, int idx) {
+        Exam e = new Exam();
+        e.setSubject(subject);
+        e.setTitle(title);
+        e.setLevel(level);
+        e.setDescription(description);
+        e.setPremium(true);
+        e.setOrderIndex(idx);
+        return exams.save(e);
+    }
+
+    private Question eqExam(Exam exam, int idx, String text, Competency competency,
+                            String topic, int correct, String... opts) {
+        Question q = new Question();
+        // Reuse ESTIMATE scope (an allowed enum value) — exam questions are
+        // identified by their exam link, and have no module/subject, so they never
+        // leak into the placement or module-estimate queries.
+        q.setScope(QuizScope.ESTIMATE);
+        q.setExam(exam);
+        q.setOrderIndex(idx);
+        q.setText(text);
+        q.setCompetency(competency);
+        q.setCorrectIndex(correct);
+        q.setTopic(topic);
+        q.setOptions(Arrays.asList(opts));
+        return questions.save(q);
     }
 
     private String readClasspath(String path) {
@@ -509,7 +571,8 @@ public class DataSeeder implements CommandLineRunner {
             org.springframework.core.io.ClassPathResource res =
                     new org.springframework.core.io.ClassPathResource(path);
             try (java.io.InputStream in = res.getInputStream()) {
-                return new String(in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
+                String s = new String(in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
+                return s.startsWith("﻿") ? s.substring(1) : s; // strip BOM
             }
         } catch (Exception e) {
             return null;
