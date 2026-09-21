@@ -8,8 +8,8 @@
         <header th:replace="~{fragments/layout :: topbar('Tiếng Anh')}"></header>
         <div class="content stack">
             <div class="section-head">
-                <h2 style="font-size:24px">Tiếng Anh — chọn cách học của bạn</h2>
-                <p class="muted">Tự học theo giáo trình, hoặc làm đề để được <strong>chấm điểm và chỉ ra điểm yếu</strong>.</p>
+                <h2 style="font-size:24px">Tiếng Anh — Gia sư cá nhân hoá</h2>
+                <p class="muted">Kiểm tra đầu vào → chỉ ra <strong>điểm yếu cụ thể</strong> → học đúng bài trong <strong>giáo trình SGK</strong> → luyện đề để tiến bộ.</p>
             </div>
 
             <div th:unless="${isPremium}" class="banner banner-warn">
@@ -18,12 +18,84 @@
                 <a th:href="@{/upgrade}" style="margin-left:auto;font-weight:700">Nâng cấp →</a>
             </div>
 
+            <!-- Chọn lớp (mỗi lớp có giáo trình riêng) -->
+            <div class="center" style="gap:8px;flex-wrap:wrap">
+                <span class="pill faint">Lớp 10 · đang cập nhật</span>
+                <span class="pill faint">Lớp 11 · đang cập nhật</span>
+                <span class="pill" style="background:var(--primary-soft);color:var(--primary);font-weight:700">Lớp 12 · SGK Global Success</span>
+            </div>
+
+            <!-- Bước 1: Kiểm tra đầu vào / Kết quả + lộ trình gia sư -->
+            <div th:if="${placement == null}" class="card card-pad stack-sm">
+                <div class="center" style="gap:12px">
+                    <span class="tile tile-amber" th:insert="~{fragments/icons :: ic('clipboard-check')}"></span>
+                    <div>
+                        <strong style="font-size:16px">Bước 1 — Kiểm tra đầu vào</strong>
+                        <p class="muted" style="font-size:13px;margin:2px 0 0">12 câu bám sát ngữ pháp SGK 12. Chấm điểm và chỉ ra chính xác chủ đề bạn còn yếu.</p>
+                    </div>
+                </div>
+                <a th:href="@{/placement/anh}" class="btn btn-primary" style="align-self:flex-start">Bắt đầu kiểm tra →</a>
+            </div>
+
+            <div th:if="${placement != null}" class="card card-pad stack-sm">
+                <div class="between" style="gap:14px;flex-wrap:wrap">
+                    <div class="center" style="gap:14px">
+                        <span class="tile tile-green" th:insert="~{fragments/icons :: ic('clipboard-check')}"></span>
+                        <div>
+                            <strong style="font-size:16px">Kết quả kiểm tra đầu vào</strong>
+                            <p class="muted" style="font-size:13px;margin:2px 0 0">
+                                Điểm: <strong th:text="${placement.score} + '/100'">0/100</strong> ·
+                                Trình độ: <strong th:text="${placement.level}">Khá</strong>
+                            </p>
+                        </div>
+                    </div>
+                    <a th:href="@{/placement/anh}" class="btn btn-ghost">Làm lại bài test</a>
+                </div>
+
+                <div th:if="${!#lists.isEmpty(weakTopics)}" class="stack-sm">
+                    <span class="muted" style="font-size:13px">Chủ đề cần củng cố:</span>
+                    <div class="center" style="gap:8px;flex-wrap:wrap">
+                        <span th:each="t : ${weakTopics}" class="pill pill-warn" th:text="${t}">Chủ đề</span>
+                    </div>
+                </div>
+                <p th:if="${#lists.isEmpty(weakTopics)}" class="muted" style="font-size:13px">
+                    Tuyệt vời! Bạn không còn chủ đề nào dưới ngưỡng yếu. Hãy luyện đề để giữ phong độ.
+                </p>
+            </div>
+
+            <!-- Bước 2: Lộ trình gia sư — bài học đề xuất theo điểm yếu -->
+            <div th:if="${!#lists.isEmpty(recommended)}" class="stack-sm">
+                <div class="section-head">
+                    <h3 style="font-size:17px">Lộ trình gia sư của bạn</h3>
+                    <p class="muted" style="font-size:13px">Học đúng những bài trong SGK 12 giúp bạn khắc phục điểm yếu.</p>
+                </div>
+                <a th:each="l : ${recommended}" th:href="@{'/english/lesson/' + ${l.id}}"
+                   class="card card-pad between" style="gap:14px;border-left:3px solid var(--warn)">
+                    <div class="center" style="gap:12px">
+                        <span class="tile tile-amber" style="width:38px;height:38px;border-radius:11px"
+                              th:insert="~{fragments/icons :: ic('book-open')}"></span>
+                        <div>
+                            <strong th:text="${l.topic}">Chủ đề</strong>
+                            <div class="faint" style="font-size:12px">
+                                <span th:text="'Unit ' + ${l.unitNo}">Unit 1</span> ·
+                                <span th:text="${l.grammarName}">Grammar</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="center" style="gap:10px">
+                        <span class="pill pill-warn" th:if="${!isPremium}">Premium</span>
+                        <span class="pill">Học ngay</span>
+                        <span th:insert="~{fragments/icons :: ic('arrow')}"></span>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Hai chế độ học -->
             <div class="grid-2">
-                <a th:href="@{/english/study}" class="card card-pad stack-sm" style="gap:10px">
+                <a href="#curriculum" class="card card-pad stack-sm" style="gap:10px">
                     <span class="tile tile-indigo" th:insert="~{fragments/icons :: ic('book-open')}"></span>
-                    <strong style="font-size:16px">Học theo giáo trình</strong>
-                    <p class="muted" style="font-size:13px">Học lý thuyết ngữ pháp, cấu trúc câu, các thì... theo tài liệu.</p>
-                    <span class="chip" th:if="${!isPremium}" style="background:var(--warn-soft);color:var(--warn);border:none">Premium</span>
+                    <strong style="font-size:16px">Học theo giáo trình SGK 12</strong>
+                    <p class="muted" style="font-size:13px">Ngữ pháp, từ vựng, phát âm theo từng Unit — có ví dụ và giải thích tiếng Việt.</p>
                 </a>
                 <a href="#exams" class="card card-pad stack-sm" style="gap:10px">
                     <span class="tile tile-green" th:insert="~{fragments/icons :: ic('clipboard-check')}"></span>
@@ -32,6 +104,34 @@
                 </a>
             </div>
 
+            <!-- Giáo trình đầy đủ theo Unit -->
+            <div id="curriculum" class="stack-sm">
+                <h3 style="font-size:16px">Giáo trình Lớp 12 — theo Unit</h3>
+                <div class="faint" th:if="${#lists.isEmpty(lessons)}" style="font-size:14px">Chưa có bài học. Sẽ cập nhật.</div>
+                <div th:each="grp : ${unitGroups}" class="stack-sm">
+                    <span class="muted" style="font-size:13px;font-weight:700" th:text="${grp.key}">Unit 1</span>
+                    <a th:each="l : ${grp.value}" th:href="@{'/english/lesson/' + ${l.id}}"
+                       class="card card-pad between" style="gap:14px">
+                        <div class="center" style="gap:12px">
+                            <span class="tile tile-sky" style="width:34px;height:34px;border-radius:10px"
+                                  th:insert="~{fragments/icons :: ic('book-open')}"></span>
+                            <div>
+                                <strong th:text="${l.topic}">Chủ đề</strong>
+                                <div class="faint" style="font-size:12px" th:text="${l.grammarName}">Grammar</div>
+                            </div>
+                        </div>
+                        <div class="center" style="gap:10px">
+                            <span class="pill pill-warn" th:if="${!isPremium}">Premium</span>
+                            <span th:insert="~{fragments/icons :: ic('arrow')}"></span>
+                        </div>
+                    </a>
+                </div>
+                <a th:if="${hasDocs}" th:href="@{/english/study}" class="faint" style="font-size:13px;font-weight:600">
+                    Xem thêm tài liệu ngữ pháp gốc →
+                </a>
+            </div>
+
+            <!-- Đề luyện tập -->
             <div id="exams" class="stack-sm">
                 <h3 style="font-size:16px">Đề luyện tập</h3>
                 <div class="faint" th:if="${#lists.isEmpty(exams)}" style="font-size:14px">Chưa có đề. Sẽ cập nhật.</div>

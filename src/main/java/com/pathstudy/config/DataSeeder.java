@@ -23,7 +23,7 @@ import java.util.Arrays;
 @Component
 public class DataSeeder implements CommandLineRunner {
 
-    private static final String SEED_VERSION = "2026-09-17-english-v4-exams";
+    private static final String SEED_VERSION = "2026-09-21-english-sgk12-tutor-v2";
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -44,6 +44,7 @@ public class DataSeeder implements CommandLineRunner {
     private final MaterialRepository materials;
     private final ReferenceMaterialRepository referenceMaterials;
     private final ExamRepository exams;
+    private final EnglishLessonRepository englishLessons;
 
     private int order = 0; // running module order within a subject
 
@@ -54,7 +55,8 @@ public class DataSeeder implements CommandLineRunner {
                       EnrollmentRepository enrollments, ModuleProgressRepository moduleProgress,
                       PlacementResultRepository placementResults, EstimateResultRepository estimateResults,
                       BookmarkRepository bookmarks, MaterialRepository materials,
-                      ReferenceMaterialRepository referenceMaterials, ExamRepository exams) {
+                      ReferenceMaterialRepository referenceMaterials, ExamRepository exams,
+                      EnglishLessonRepository englishLessons) {
         this.subjects = subjects;
         this.modules = modules;
         this.lessons = lessons;
@@ -71,6 +73,7 @@ public class DataSeeder implements CommandLineRunner {
         this.materials = materials;
         this.referenceMaterials = referenceMaterials;
         this.exams = exams;
+        this.englishLessons = englishLessons;
     }
 
     @Override
@@ -99,6 +102,7 @@ public class DataSeeder implements CommandLineRunner {
         referenceMaterials.deleteAll();
         questions.deleteAll();
         exams.deleteAll();
+        englishLessons.deleteAll();
         sections.deleteAll();
         lessons.deleteAll();
         modules.deleteAll();
@@ -475,25 +479,45 @@ public class DataSeeder implements CommandLineRunner {
                 Competency.APPLICATION, 1, "Chép lại đề bài", "Xác định luận điểm và câu chủ đề", "Kể tiểu sử tác giả", "Viết kết bài trước");
     }
 
+    // Chủ đề ngữ pháp SGK Tiếng Anh 12 (Global Success) — dùng CHUNG cho câu hỏi
+    // chẩn đoán và bài học, để điểm yếu ánh xạ thẳng sang bài học cần ôn.
+    private static final String G12 = "Lớp 12";
+    private static final String T_PAST = "Quá khứ đơn & Quá khứ tiếp diễn";
+    private static final String T_ART = "Mạo từ a/an/the";
+    private static final String T_VPREP = "Động từ đi với giới từ";
+    private static final String T_WHICH = "Mệnh đề quan hệ với \"which\"";
+    private static final String T_PRESPERF = "Thì hiện tại hoàn thành";
+    private static final String T_DBLCOMP = "So sánh kép (càng... càng)";
+    // Không dùng dấu phẩy trong tên chủ đề: weakTopics được lưu dạng phân tách bằng dấu phẩy.
+    private static final String T_SENTENCE = "Câu đơn / câu ghép / câu phức";
+
     private void seedEnglish(Subject anh) {
-        // Đề chẩn đoán MẪU (thay bằng đề thật khi có tài liệu). Mỗi câu gắn 1 chủ đề
-        // để phân tích điểm yếu và ra lộ trình ôn tập phù hợp.
-        pqTopic(anh, 1, "She ___ to school every day.", Competency.KNOWLEDGE, "Thì hiện tại đơn", 1,
-                "go", "goes", "going", "gone");
-        pqTopic(anh, 2, "They ___ football when it started to rain.", Competency.KNOWLEDGE, "Thì quá khứ tiếp diễn", 2,
-                "play", "played", "were playing", "are playing");
-        pqTopic(anh, 3, "The opposite of \"difficult\" is ___.", Competency.KNOWLEDGE, "Từ vựng", 0,
-                "easy", "hard", "big", "fast");
-        pqTopic(anh, 4, "Choose the word closest in meaning to \"happy\": ___.", Competency.KNOWLEDGE, "Từ vựng", 1,
-                "sad", "glad", "angry", "tired");
-        pqTopic(anh, 5, "Which word has a different vowel sound?", Competency.KNOWLEDGE, "Phát âm", 2,
-                "cat", "hat", "car", "bat");
-        pqTopic(anh, 6, "Read: \"Tom likes apples. He eats one every morning.\" What does Tom eat every morning?",
-                Competency.COMPREHENSION, "Đọc hiểu", 0, "An apple", "A banana", "Bread", "Rice");
-        pqTopic(anh, 7, "If it ___ tomorrow, we will stay home.", Competency.APPLICATION, "Câu điều kiện", 0,
-                "rains", "rained", "will rain", "raining");
-        pqTopic(anh, 8, "I'm good ___ English.", Competency.KNOWLEDGE, "Giới từ", 1,
-                "in", "at", "on", "of");
+        // Đề chẩn đoán đầu vào bám sát ngữ pháp SGK Tiếng Anh 12. Mỗi câu gắn 1 chủ đề
+        // trùng với bài học, để sau khi test → chỉ ra điểm yếu → dạy đúng bài trong SGK.
+        pqTopic(anh, 1, "While I ___ dinner, the phone rang.", Competency.APPLICATION, T_PAST, 1,
+                "cooked", "was cooking", "cook", "am cooking");
+        pqTopic(anh, 2, "Steve Jobs ___ Apple in 1976.", Competency.KNOWLEDGE, T_PAST, 1,
+                "founds", "founded", "was founding", "has founded");
+        pqTopic(anh, 3, "I want to buy ___ souvenir for my friend.", Competency.KNOWLEDGE, T_ART, 0,
+                "a", "an", "the", "(không cần mạo từ)");
+        pqTopic(anh, 4, "___ Pacific is the largest of all oceans.", Competency.KNOWLEDGE, T_ART, 2,
+                "A", "An", "The", "(không cần mạo từ)");
+        pqTopic(anh, 5, "The future of our planet depends ___ how we treat it.", Competency.KNOWLEDGE, T_VPREP, 1,
+                "in", "on", "at", "for");
+        pqTopic(anh, 6, "More and more people are recycling now, ___ is good for the environment.",
+                Competency.APPLICATION, T_WHICH, 1, "that", "which", "what", "who");
+        pqTopic(anh, 7, "This is the second time I ___ this city.", Competency.APPLICATION, T_PRESPERF, 2,
+                "visit", "visited", "have visited", "am visiting");
+        pqTopic(anh, 8, "The bigger the city gets, ___ it becomes.", Competency.APPLICATION, T_DBLCOMP, 1,
+                "more crowded", "the more crowded", "the most crowded", "crowded");
+        pqTopic(anh, 9, "Cities are getting ___ every year.", Competency.KNOWLEDGE, T_DBLCOMP, 1,
+                "big and big", "bigger and bigger", "the bigger", "more big");
+        pqTopic(anh, 10, "___ my brother is often late for work, he is never promoted.",
+                Competency.APPLICATION, T_SENTENCE, 0, "Because", "But", "So", "And");
+        pqTopic(anh, 11, "The ___ of cycling among young people has increased recently.",
+                Competency.KNOWLEDGE, "Từ vựng", 1, "origin", "popularity", "identity", "trend");
+        pqTopic(anh, 12, "Which word contains the diphthong /əʊ/?", Competency.KNOWLEDGE, "Phát âm", 2,
+                "age", "saved", "wrote", "against");
 
         // Tài liệu nguồn cho AI (giáo viên gửi) — AI dựa vào đây để soạn giáo trình + bài tập.
         String grammar = readClasspath("materials/tieng-anh-thanh-phan-cau.txt");
@@ -505,6 +529,9 @@ public class DataSeeder implements CommandLineRunner {
             rm.setCreatedByEmail("admin@pathstudy.vn");
             referenceMaterials.save(rm);
         }
+
+        // ---- Giáo trình Lớp 12 (SGK Global Success) — dạy đúng điểm yếu ----
+        seedEnglish12Lessons();
 
         // ---- Đề luyện tập (làm đề) — chấm điểm + chỉ ra điểm yếu ----
         Exam ex1 = exam(anh, "Đề luyện tập số 1 — Ngữ pháp cơ bản", "Cơ bản",
@@ -564,6 +591,187 @@ public class DataSeeder implements CommandLineRunner {
         q.setTopic(topic);
         q.setOptions(Arrays.asList(opts));
         return questions.save(q);
+    }
+
+    private void seedEnglish12Lessons() {
+        englishLesson(1, 1, "Life Stories We Admire", T_PAST, "Past simple vs. Past continuous",
+                "Nguyên âm đôi /eɪ/ (age, saved) và /əʊ/ (soldier, wrote, hero, shows).",
+                """
+                • attend school/college — đi học ở trường/đại học
+                • have a happy/difficult childhood — có tuổi thơ hạnh phúc/khó khăn
+                • be admired for (something) — được ngưỡng mộ vì điều gì
+                • have a long marriage — có cuộc hôn nhân dài lâu
+                • impressive achievement — thành tựu ấn tượng""",
+                """
+                Quá khứ đơn (Past simple) dùng để diễn tả:
+                • một hành động ĐÃ HOÀN THÀNH trong quá khứ.
+                • các sự kiện chính trong một câu chuyện.
+
+                Quá khứ tiếp diễn (Past continuous — was/were + V-ing) dùng để diễn tả:
+                • một hành động ĐANG diễn ra tại một thời điểm cụ thể trong quá khứ.
+                • bối cảnh (settings) của câu chuyện.
+
+                Kết hợp hai thì:
+                • Khi một hành động xảy ra GIỮA một hành động khác: dùng quá khứ đơn cho hành động NGẮN, quá khứ tiếp diễn cho hành động DÀI.
+                • Khi hai hay nhiều hành động cùng xảy ra MỘT LÚC: dùng quá khứ tiếp diễn cho tất cả.""",
+                """
+                • I read a good book last night. (hành động đã hoàn thành)
+                • Mary read a few pages of her book and went to bed. (các sự kiện chính)
+                • I was reading a good book at 10 p.m. last night. (đang diễn ra tại một thời điểm)
+                • It was raining heavily outside. (bối cảnh câu chuyện)
+                • I was reading a book when the phone rang. (hành động dài bị hành động ngắn cắt ngang)
+                • While I was reading a book, my mother was watching TV. (hai hành động song song)""");
+
+        englishLesson(2, 2, "A Multicultural World", T_ART, "Articles (review and extension)",
+                "Nguyên âm đôi /ɔɪ/, /aɪ/ và /aʊ/.",
+                """
+                • origin (n) — nguồn gốc
+                • popularity (n) — sự phổ biến, được ưa chuộng
+                • identity (n) — bản sắc, danh tính
+                • festivities (n) — các hoạt động lễ hội
+                • trend (n) — xu hướng""",
+                """
+                Có hai loại mạo từ: không xác định (a/an) và xác định (the).
+
+                Dùng a/an trước danh từ SỐ ÍT, ĐẾM ĐƯỢC khi người nghe/đọc chưa biết cụ thể vật nào (a trước phụ âm, an trước nguyên âm).
+
+                Dùng the khi người nghe/đọc đã biết rõ vật đang nói tới, vì:
+                • chỉ có một (duy nhất nói chung, hoặc duy nhất trong ngữ cảnh đó).
+                • vật đó đã được nhắc đến trước đó.
+                • nói về một loại nhạc cụ.
+
+                Cũng dùng the với:
+                • tên nước chứa từ kingdom/state, hoặc tên nước ở dạng số nhiều: the UK, the US, the Philippines.
+                • đại dương, biển, dãy núi: the Pacific.
+
+                KHÔNG dùng mạo từ với danh từ số nhiều đếm được hoặc danh từ không đếm được mang nghĩa CHUNG CHUNG.""",
+                """
+                • I want to buy a souvenir.
+                • The sun rises in the east.
+                • A boy lost a watch. A woman found the watch and returned it to the boy.
+                • I'm learning to play the piano.
+                • the UK, the US, the Philippines — The Pacific is the largest of all oceans.
+                • Tigers are endangered animals. (nghĩa chung → không mạo từ)""");
+
+        englishLesson(3, 3, "Green Living", T_VPREP, "Verbs with prepositions",
+                "Nguyên âm đôi /ɪə/, /eə/ và /ʊə/.",
+                """
+                • waste (n) — rác thải; sự lãng phí
+                • landfill (n) — bãi chôn lấp rác
+                • reuse (v) — tái sử dụng
+                • packaging (n) — bao bì đóng gói
+                • container (n) — hộp/thùng đựng""",
+                """
+                Nhiều động từ đi kèm một GIỚI TỪ + tân ngữ; nghĩa của cụm vẫn gần với nghĩa gốc của động từ:
+                • với about: ask about, care about, talk about, think about, learn about
+                • với for: ask for, apply for, apologise for, wait for, prepare for
+                • với on: agree on, base on, depend on, rely on
+                • với to: introduce to, refer to, respond to, listen to, explain to
+
+                Đôi khi động từ kết hợp với giới từ/trạng từ tạo thành CỤM ĐỘNG TỪ (phrasal verb) có nghĩa KHÁC HẲN nghĩa gốc của động từ chính:
+                work out, carry out, turn on, turn off, look for, look after, look up.""",
+                """
+                • Many people have now started to care about the environment.
+                • The future of our planet depends on how we deal with climate change.
+                • We should work out some solutions to reducing plastic pollution.
+                • My sister is responsible for looking after the plants at home.""");
+
+        englishLesson(4, 3, "Green Living", T_WHICH, "Relative clauses referring to a whole sentence",
+                "Nguyên âm đôi /ɪə/, /eə/ và /ʊə/.",
+                "(Chung từ vựng với bài Unit 3 — Green living.)",
+                """
+                Ta có thể dùng một MỆNH ĐỀ QUAN HỆ KHÔNG XÁC ĐỊNH để nói về TOÀN BỘ thông tin ở (các) mệnh đề đứng trước.
+
+                • Mệnh đề này bắt đầu bằng đại từ quan hệ "which".
+                • Luôn thêm DẤU PHẨY trước "which".
+                • "which" ở đây mang nghĩa "điều đó / việc đó".""",
+                """
+                • More and more people are interested in recycling nowadays, which is good for the environment.
+                  (= Việc ngày càng nhiều người quan tâm tái chế là điều tốt cho môi trường.)
+                • Plastic takes hundreds of years to decompose, which is harmful to the environment.
+                • I always turn off the fans when I leave the room, which helps save energy.""");
+
+        englishLesson(5, 4, "Urbanisation", T_PRESPERF, "Present perfect (review and extension)",
+                "Lược âm của các từ không mang trọng âm trong lời nói nối (connected speech).",
+                """
+                • afford (v) — đủ khả năng chi trả
+                • housing (n) — nhà ở
+                • expand (v) — mở rộng, phát triển
+                • seek (v) — tìm kiếm
+                • unemployment (n) — tình trạng thất nghiệp""",
+                """
+                Thì hiện tại hoàn thành (have/has + V3/-ed) dùng để diễn tả việc bắt đầu trong quá khứ và VẪN đang tiếp diễn tới hiện tại, hoặc việc vừa hoàn thành trong quá khứ RẤT gần.
+
+                Nói việc gì đó xảy ra BAO NHIÊU LẦN:
+                It/This/That + be + the first/the second time + S + have/has (done)...
+
+                Nói về một TRẢI NGHIỆM DUY NHẤT:
+                It/This/That/Noun hoặc Gerund + be + the best/the worst/the only/the most... + S + have/has (ever done)...""",
+                """
+                • A lot of young people have moved to big cities to work or study.
+                • This is the second time I have visited this city.
+                • It is not the first time I have heard about urbanisation.
+                • That is the worst meal I have ever had in this city.
+                • Moving to the city is the best decision my parents have ever made in their life.""");
+
+        englishLesson(6, 4, "Urbanisation", T_DBLCOMP, "Double comparatives to show change",
+                "Lược âm của các từ không mang trọng âm trong lời nói nối (connected speech).",
+                "(Chung từ vựng với bài Unit 4 — Urban life.)",
+                """
+                Dùng SO SÁNH KÉP để diễn tả sự THAY ĐỔI (tăng/giảm dần):
+                • "...er and ...er" với tính từ ngắn (bigger and bigger).
+                • "more and more + adj" với tính từ dài (more and more polluted).
+
+                Cũng dùng so sánh kép để nói HAI điều thay đổi CÙNG nhau (càng... càng...):
+                • The + so sánh hơn..., the + so sánh hơn...""",
+                """
+                • Towns are getting bigger and bigger.
+                • The air is becoming more and more polluted.
+                • There are more and more high-rise buildings in the city.
+                • The bigger the city gets, the more crowded it becomes.
+                • The more we invest in rural areas, the more we can help people there.""");
+
+        englishLesson(7, 5, "The World of Work", T_SENTENCE,
+                "Simple, compound, and complex sentences (review and extension)",
+                "Nhấn trọng âm ở trợ động từ (auxiliary) và động từ khiếm khuyết (modal verbs).",
+                """
+                • challenging (adj) — đầy thử thách (một cách thú vị)
+                • relevant (adj) — liên quan, phù hợp
+                • bonus (n) — tiền thưởng
+                • employ (v) — thuê, tuyển dụng
+                • rewarding (adj) — đáng làm, mang lại sự hài lòng""",
+                """
+                Câu ĐƠN (simple sentence): chỉ có MỘT mệnh đề độc lập.
+
+                Câu GHÉP (compound sentence): có từ HAI mệnh đề độc lập trở lên, được nối bằng:
+                • liên từ kết hợp: and, but, or, nor, yet, so
+                • liên từ tương liên: not only ... but also
+                • trạng từ liên kết: as a result, moreover, in fact, on the other hand
+
+                Câu PHỨC (complex sentence): có MỘT mệnh đề độc lập + ít nhất MỘT mệnh đề phụ thuộc, nối bằng liên từ phụ thuộc: when, while, because, although, if, so that.""",
+                """
+                • My brother didn't apply for the job. (câu đơn)
+                • My brother didn't apply for the job, but he was offered an apprenticeship. (câu ghép)
+                • Being a nurse is a very tiring job; moreover, you don't earn a high salary. (câu ghép)
+                • When I was younger, I wanted to become a driver. (câu phức)
+                • Because my brother is often late for work, he is never promoted. (câu phức)""");
+    }
+
+    private void englishLesson(int order, int unitNo, String unitTitle, String topic,
+                               String grammarName, String pronunciation, String vocabulary,
+                               String theory, String examples) {
+        EnglishLesson l = new EnglishLesson();
+        l.setGrade(G12);
+        l.setUnitNo(unitNo);
+        l.setUnitTitle(unitTitle);
+        l.setTopic(topic);
+        l.setGrammarName(grammarName);
+        l.setPronunciation(pronunciation);
+        l.setVocabulary(vocabulary);
+        l.setTheory(theory);
+        l.setExamples(examples);
+        l.setOrderIndex(order);
+        englishLessons.save(l);
     }
 
     private String readClasspath(String path) {

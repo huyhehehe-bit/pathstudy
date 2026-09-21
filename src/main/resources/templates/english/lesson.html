@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Bài học Tiếng Anh')}"></head>
+<body>
+<div class="shell">
+    <aside th:replace="~{fragments/layout :: sidebar('path')}"></aside>
+    <main class="main">
+        <header th:replace="~{fragments/layout :: topbar('Tiếng Anh')}"></header>
+        <div class="content stack">
+            <a th:href="@{/english}" class="faint" style="font-size:13px;font-weight:600">← Quay lại Tiếng Anh</a>
+
+            <div class="section-head">
+                <span class="pill" style="background:var(--primary-soft);color:var(--primary);font-weight:700;align-self:flex-start"
+                      th:text="'Unit ' + ${lesson.unitNo} + ' · ' + ${lesson.unitTitle}">Unit 1</span>
+                <h2 style="font-size:24px;margin-top:8px" th:text="${lesson.topic}">Chủ đề</h2>
+                <p class="muted" th:text="${lesson.grammarName}">Grammar name</p>
+            </div>
+
+            <!-- Ngữ pháp (Remember!) -->
+            <div class="card card-pad stack-sm">
+                <div class="center" style="gap:10px">
+                    <span class="tile tile-amber" style="width:34px;height:34px;border-radius:10px"
+                          th:insert="~{fragments/icons :: ic('book-open')}"></span>
+                    <strong style="font-size:16px">Ghi nhớ — Ngữ pháp</strong>
+                </div>
+                <div style="white-space:pre-line;line-height:1.65;font-size:15px" th:text="${lesson.theory}">Lý thuyết</div>
+            </div>
+
+            <!-- Ví dụ -->
+            <div class="card card-pad stack-sm" th:if="${lesson.examples != null and !lesson.examples.isBlank()}">
+                <strong style="font-size:15px">Ví dụ</strong>
+                <div style="white-space:pre-line;line-height:1.7;font-size:15px" th:text="${lesson.examples}">Ví dụ</div>
+            </div>
+
+            <div class="grid-2">
+                <!-- Từ vựng -->
+                <div class="card card-pad stack-sm" th:if="${lesson.vocabulary != null and !lesson.vocabulary.isBlank()}">
+                    <strong style="font-size:15px">Từ vựng</strong>
+                    <div style="white-space:pre-line;line-height:1.7;font-size:14px" th:text="${lesson.vocabulary}">Từ vựng</div>
+                </div>
+                <!-- Phát âm -->
+                <div class="card card-pad stack-sm" th:if="${lesson.pronunciation != null and !lesson.pronunciation.isBlank()}">
+                    <strong style="font-size:15px">Phát âm</strong>
+                    <div style="line-height:1.7;font-size:14px" th:text="${lesson.pronunciation}">Phát âm</div>
+                </div>
+            </div>
+
+            <!-- Luyện tập -->
+            <div class="banner" style="background:var(--primary-soft);color:var(--ink)">
+                <span th:insert="~{fragments/icons :: ic('clipboard-check')}"></span>
+                Đã nắm bài? Hãy <strong>làm đề để kiểm tra</strong> và đo tiến bộ.
+                <a href="/english#exams" style="margin-left:auto;font-weight:700">Làm đề →</a>
+            </div>
+        </div>
+    </main>
+</div>
+<div th:replace="~{fragments/layout :: toast}"></div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>
