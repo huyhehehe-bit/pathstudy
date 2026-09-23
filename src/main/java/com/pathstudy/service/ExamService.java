@@ -39,13 +39,24 @@ public class ExamService {
         return exams.findBySubjectOrderByOrderIndexAsc(subject);
     }
 
-    /** Đề của khối {@code grade} + các đề chung (grade == null). */
+    /** Đề luyện tập của khối {@code grade} + đề chung (grade == null); KHÔNG gồm đề THPT. */
     @Transactional(readOnly = true)
     public List<Exam> listExams(Subject subject, String grade) {
-        List<Exam> all = exams.findBySubjectOrderByOrderIndexAsc(subject);
         List<Exam> result = new ArrayList<>();
-        for (Exam e : all) {
-            if (e.getGrade() == null || e.getGrade().equals(grade)) {
+        for (Exam e : exams.findBySubjectOrderByOrderIndexAsc(subject)) {
+            if (e.getCategory() == null && (e.getGrade() == null || e.getGrade().equals(grade))) {
+                result.add(e);
+            }
+        }
+        return result;
+    }
+
+    /** Đề thi THPT Quốc gia — mục riêng, mọi lớp đều xem được. */
+    @Transactional(readOnly = true)
+    public List<Exam> listNationalExams(Subject subject) {
+        List<Exam> result = new ArrayList<>();
+        for (Exam e : exams.findBySubjectOrderByOrderIndexAsc(subject)) {
+            if ("THPT".equals(e.getCategory())) {
                 result.add(e);
             }
         }

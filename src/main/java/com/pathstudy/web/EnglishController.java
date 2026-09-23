@@ -93,6 +93,7 @@ public class EnglishController {
         model.addAttribute("grade", grade);
         model.addAttribute("grades", GRADES);
         model.addAttribute("exams", examService.listExams(anh, grade));
+        model.addAttribute("nationalExams", examService.listNationalExams(anh));
         model.addAttribute("hasDocs", !referenceMaterials.findBySubjectOrderByIdAsc(anh).isEmpty());
         model.addAttribute("lessons", lessons);
         model.addAttribute("unitGroups", unitGroups);
@@ -146,7 +147,9 @@ public class EnglishController {
         if (exam == null) {
             return "redirect:/english";
         }
-        if (exam.isPremium() && !payments.hasPremiumAccess(user)) {
+        // Đề thi THPT Quốc gia: mọi lớp/mọi người đều xem được (không cần Premium).
+        boolean national = "THPT".equals(exam.getCategory());
+        if (!national && exam.isPremium() && !payments.hasPremiumAccess(user)) {
             ra.addFlashAttribute("toast", "Đề này dành cho học viên Premium.");
             return "redirect:/upgrade";
         }
@@ -163,7 +166,7 @@ public class EnglishController {
         if (exam == null) {
             return "redirect:/english";
         }
-        if (exam.isPremium() && !payments.hasPremiumAccess(user)) {
+        if (!"THPT".equals(exam.getCategory()) && exam.isPremium() && !payments.hasPremiumAccess(user)) {
             return "redirect:/upgrade";
         }
         ExamOutcome outcome = examService.grade(exam, PlacementController.parseAnswers(params));

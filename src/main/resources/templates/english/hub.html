@@ -150,6 +150,29 @@
                     </div>
                 </a>
             </div>
+
+            <!-- Đề thi THPT Quốc gia — mục riêng, mọi lớp đều xem được, miễn phí -->
+            <div id="thpt" class="stack-sm" th:if="${!#lists.isEmpty(nationalExams)}">
+                <div class="section-head">
+                    <h3 style="font-size:16px">Đề thi THPT Quốc gia</h3>
+                    <p class="muted" style="font-size:13px">Đề thi tốt nghiệp THPT chính thức — mở cho mọi lớp, miễn phí. Chấm điểm &amp; chỉ điểm yếu.</p>
+                </div>
+                <a th:each="e : ${nationalExams}" th:href="@{'/english/exam/' + ${e.id}}" class="card card-pad between"
+                   style="gap:14px;border-left:3px solid var(--primary)">
+                    <div class="center" style="gap:12px">
+                        <span class="tile tile-indigo" style="width:38px;height:38px;border-radius:11px"
+                              th:insert="~{fragments/icons :: ic('clipboard-check')}"></span>
+                        <div>
+                            <strong th:text="${e.title}">Đề thi THPT Quốc gia</strong>
+                            <div class="faint" style="font-size:12px" th:text="${e.description}">Đề chính thức</div>
+                        </div>
+                    </div>
+                    <div class="center" style="gap:10px">
+                        <span class="pill" style="background:var(--primary-soft);color:var(--primary)">Miễn phí</span>
+                        <span th:insert="~{fragments/icons :: ic('arrow')}"></span>
+                    </div>
+                </a>
+            </div>
         </div>
     </main>
 </div>

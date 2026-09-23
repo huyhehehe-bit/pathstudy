@@ -39,6 +39,10 @@ public class Exam {
     @Column(length = 20)
     private String grade;
 
+    /** Phân loại đặc biệt. "THPT" = đề thi tốt nghiệp THPT Quốc gia (mục riêng, mọi lớp xem được). */
+    @Column(length = 20)
+    private String category;
+
     @Column(nullable = false)
     private int orderIndex = 0;
 }

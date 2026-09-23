@@ -24,7 +24,7 @@ import java.util.List;
 @Component
 public class DataSeeder implements CommandLineRunner {
 
-    private static final String SEED_VERSION = "2026-09-23-exams-hk-10-11";
+    private static final String SEED_VERSION = "2026-09-23-exams-full-thpt";
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -595,6 +595,221 @@ public class DataSeeder implements CommandLineRunner {
         seedEnglish10ExamHK2(anh);
         seedEnglish11ExamHK1(anh);
         seedEnglish11ExamHK2(anh);
+        seedEnglish12ExamHK1(anh);
+        seedEnglish12ExamHK2(anh);
+        seedNationalThptExam(anh);
+    }
+
+    private void seedEnglish12ExamHK1(Subject anh) {
+        Exam ex = exam(anh, G12, "Đề tổng hợp Học kì 1 — Lớp 12", "Tổng hợp HK1",
+                "Ôn tập Unit 1–5 (các thì, mạo từ, mệnh đề quan hệ, so sánh kép, câu ghép/phức) — chấm điểm & chỉ điểm yếu.", 10);
+        eqExam(ex, 1, "When the teacher came in, the students ___ noisily.", Competency.APPLICATION, T_PAST, 2,
+                "talk", "talked", "were talking", "have talked");
+        eqExam(ex, 2, "He ___ his first novel when he was only 20.", Competency.KNOWLEDGE, T_PAST, 1,
+                "writes", "wrote", "was writing", "has written");
+        eqExam(ex, 3, "I saw ___ interesting film last night.", Competency.KNOWLEDGE, T_ART, 1,
+                "a", "an", "the", "(không cần mạo từ)");
+        eqExam(ex, 4, "___ Sun is the centre of our solar system.", Competency.KNOWLEDGE, T_ART, 2,
+                "A", "An", "The", "(không cần mạo từ)");
+        eqExam(ex, 5, "Everyone should care ___ the environment.", Competency.KNOWLEDGE, T_VPREP, 1,
+                "of", "about", "at", "for");
+        eqExam(ex, 6, "She passed the exam, ___ made her parents happy.", Competency.APPLICATION, T_WHICH, 1,
+                "that", "which", "what", "who");
+        eqExam(ex, 7, "This is the best film I ___ ever ___.", Competency.APPLICATION, T_PRESPERF, 1,
+                "did / see", "have / seen", "am / seeing", "was / seen");
+        eqExam(ex, 8, "The more you practise, ___ you become.", Competency.APPLICATION, T_DBLCOMP, 2,
+                "good", "better", "the better", "the best");
+        eqExam(ex, 9, "Prices are getting ___ these days.", Competency.KNOWLEDGE, T_DBLCOMP, 1,
+                "high and high", "higher and higher", "the higher", "more high");
+        eqExam(ex, 10, "___ she was tired, she finished all her work.", Competency.APPLICATION, T_SENTENCE, 1,
+                "Because", "Although", "So", "And");
+        eqExam(ex, 11, "He didn't study hard, ___ he failed the test.", Competency.KNOWLEDGE, T_SENTENCE, 3,
+                "but", "although", "or", "so");
+        eqExam(ex, 12, "Choose the word CLOSEST in meaning to \"multicultural\".", Competency.COMPREHENSION, "Từ vựng", 1,
+                "single-culture", "many-culture", "no-culture", "old-culture");
+        eqExam(ex, 13, "Using less plastic helps ___ the environment.", Competency.KNOWLEDGE, "Từ vựng", 0,
+                "protect", "pollute", "destroy", "waste");
+        eqExam(ex, 14, "A person who works in a company is an ___.", Competency.KNOWLEDGE, "Từ vựng", 1,
+                "employer", "employee", "employ", "employment");
+        String reading = """
+                Đọc đoạn văn sau và trả lời các câu hỏi (15–20).
+
+                Urbanisation is the movement of people from the countryside to cities. In recent decades,
+                more and more people in Viet Nam have moved to big cities such as Ha Noi and Ho Chi Minh
+                City to look for better jobs and education. As a result, cities are becoming more and more
+                crowded. On the one hand, urbanisation brings many benefits, such as more job opportunities
+                and modern services. On the other hand, it also causes serious problems, including traffic
+                jams, air pollution and a shortage of housing. To deal with these challenges, city planners
+                need to build better infrastructure and create more green spaces.""";
+        eqExam(ex, 15, reading, "What is urbanisation?", Competency.COMPREHENSION, "Đọc hiểu", 1,
+                "Moving from cities to the countryside", "The movement of people from the countryside to cities",
+                "Building factories", "Planting trees");
+        eqExam(ex, 16, reading, "Why do people move to big cities?", Competency.COMPREHENSION, "Đọc hiểu", 1,
+                "For fresh air", "For better jobs and education", "For quiet life", "For farming");
+        eqExam(ex, 17, reading, "What is a benefit of urbanisation?", Competency.COMPREHENSION, "Đọc hiểu", 2,
+                "Traffic jams", "Air pollution", "More job opportunities", "Housing shortage");
+        eqExam(ex, 18, reading, "Which is NOT a problem mentioned?", Competency.COMPREHENSION, "Đọc hiểu", 3,
+                "Traffic jams", "Air pollution", "Housing shortage", "Better weather");
+        eqExam(ex, 19, reading, "What should city planners do?", Competency.COMPREHENSION, "Đọc hiểu", 1,
+                "Stop building anything", "Build better infrastructure and create green spaces", "Ban all cars", "Close the cities");
+        eqExam(ex, 20, reading, "The word \"crowded\" is closest in meaning to ___.", Competency.COMPREHENSION, "Từ vựng", 1,
+                "empty", "full of people", "quiet", "clean");
+    }
+
+    private void seedEnglish12ExamHK2(Subject anh) {
+        Exam ex = exam(anh, G12, "Đề tổng hợp Học kì 2 — Lớp 12", "Tổng hợp HK2",
+                "Ôn tập Unit 6–10 (causative, mệnh đề trạng ngữ, phrasal verb, câu tường thuật) — chấm điểm & chỉ điểm yếu.", 11);
+        eqExam(ex, 1, "I had my hair ___ yesterday.", Competency.APPLICATION, T12_CAUSATIVE, 1,
+                "cut", "cutting", "to cut", "cuts");
+        eqExam(ex, 2, "She got the mechanic ___ her car.", Competency.APPLICATION, T12_CAUSATIVE, 2,
+                "fix", "fixed", "to fix", "fixing");
+        eqExam(ex, 3, "The lecture was ___ boring that many students fell asleep.", Competency.APPLICATION, T12_ADVMANNER, 0,
+                "so", "such", "very", "too");
+        eqExam(ex, 4, "He talks ___ he knew everything about AI.", Competency.APPLICATION, T12_ADVMANNER, 2,
+                "as", "so", "as if", "such");
+        eqExam(ex, 5, "___ we protect wildlife, many species will become extinct.", Competency.APPLICATION, T12_ADVCOND, 1,
+                "If", "Unless", "Because", "Although");
+        eqExam(ex, 6, "The more forests we destroy, ___ animals lose their homes.", Competency.APPLICATION, T12_ADVCOND, 2,
+                "much", "the much", "the more", "more");
+        eqExam(ex, 7, "I really look ___ to starting my new job.", Competency.KNOWLEDGE, T12_PHRASAL3, 0,
+                "forward", "after", "up", "for");
+        eqExam(ex, 8, "Scientists have come ___ with a new solution.", Competency.APPLICATION, T12_PHRASAL3, 1,
+                "in", "up", "off", "over");
+        eqExam(ex, 9, "The manager told the staff ___ harder.", Competency.APPLICATION, T12_REPORTED, 1,
+                "work", "to work", "working", "worked");
+        eqExam(ex, 10, "She asked me ___ I had finished the report.", Competency.APPLICATION, T12_REPORTED, 2,
+                "that", "what", "if", "which");
+        eqExam(ex, 11, "Choose the word CLOSEST in meaning to \"artificial\".", Competency.COMPREHENSION, "Từ vựng", 1,
+                "natural", "man-made", "real", "living");
+        eqExam(ex, 12, "The mass ___ influence public opinion strongly.", Competency.KNOWLEDGE, "Từ vựng", 0,
+                "media", "medium", "median", "medias");
+        eqExam(ex, 13, "Choosing a suitable career ___ is very important.", Competency.KNOWLEDGE, "Từ vựng", 0,
+                "path", "road", "street", "way");
+        eqExam(ex, 14, "Lifelong learning helps us improve our ___ and knowledge.", Competency.KNOWLEDGE, "Từ vựng", 0,
+                "skills", "money", "houses", "cars");
+        String reading = """
+                Đọc đoạn văn sau và trả lời các câu hỏi (15–20).
+
+                Artificial intelligence (AI) is transforming the world of work. Many routine tasks that
+                were once done by humans are now performed by machines and computer programs. For example,
+                in factories, robots can assemble products quickly and accurately, while in offices,
+                software can handle data and answer customer questions. Although some people are afraid
+                that AI will take away their jobs, experts believe that it will also create new kinds of
+                work that require creativity and problem-solving. To succeed in the future, workers will
+                need to keep learning and developing new skills throughout their lives.""";
+        eqExam(ex, 15, reading, "What is AI doing to the world of work?", Competency.COMPREHENSION, "Đọc hiểu", 1,
+                "Ending all jobs", "Transforming it", "Making it slower", "Stopping factories");
+        eqExam(ex, 16, reading, "What can robots do in factories?", Competency.COMPREHENSION, "Đọc hiểu", 1,
+                "Cook meals", "Assemble products quickly and accurately", "Teach students", "Drive cars");
+        eqExam(ex, 17, reading, "What are some people afraid of?", Competency.COMPREHENSION, "Đọc hiểu", 2,
+                "AI is too slow", "AI is too expensive", "AI will take away their jobs", "AI cannot work");
+        eqExam(ex, 18, reading, "According to experts, what will AI also do?", Competency.COMPREHENSION, "Đọc hiểu", 1,
+                "Destroy all companies", "Create new kinds of work", "Stop creativity", "Reduce learning");
+        eqExam(ex, 19, reading, "What will workers need to do to succeed?", Competency.COMPREHENSION, "Đọc hiểu", 2,
+                "Stop working", "Avoid computers", "Keep learning new skills", "Work less");
+        eqExam(ex, 20, reading, "The word \"routine\" is closest in meaning to ___.", Competency.COMPREHENSION, "Từ vựng", 1,
+                "difficult", "regular and repeated", "creative", "rare");
+    }
+
+    /** Đề thi tốt nghiệp THPT Quốc gia thật — mục riêng, mọi lớp xem được, miễn phí. */
+    private void seedNationalThptExam(Subject anh) {
+        Exam ex = new Exam();
+        ex.setSubject(anh);
+        ex.setGrade(null);
+        ex.setCategory("THPT");
+        ex.setPremium(false);
+        ex.setTitle("Đề thi tốt nghiệp THPT 2026 — Mã đề 1145");
+        ex.setLevel("THPT QG");
+        ex.setDescription("Đề chính thức Kỳ thi tốt nghiệp THPT 2026 (phần 1: sắp xếp câu & đọc hiểu). Có đáp án.");
+        ex.setOrderIndex(1);
+        exams.save(ex);
+
+        // Sắp xếp câu (đáp án: 1.D 2.D 3.C 4.C 5.A)
+        eqExam(ex, 1, "Sắp xếp thành đoạn hợp lí:\na. Initial results were impressive, as villagers reported broadband speeds comparable to city standards.\nb. For years, the isolated villages of central Marsh County struggled with unreliable copper cables.\nc. Consequently, the local council committed to laying fibre optic cables to every household within a year.\nd. To minimise disruption, cables were placed along existing verges, while community halls served as installation hubs.\ne. Encouraged by the villagers' satisfaction, neighbouring counties have requested guidance on the model.",
+                Competency.APPLICATION, "Sắp xếp câu", 3, "d-a-e-c-b", "e-b-a-c-d", "a-e-d-b-c", "b-c-d-a-e");
+        eqExam(ex, 2, "Sắp xếp đoạn hội thoại:\na. Diner: Excuse me, I've been waiting so long for my order.\nb. Diner: Thanks for your help.\nc. Waiter: I'm sorry! I'll check with the kitchen and get back to you immediately.",
+                Competency.APPLICATION, "Sắp xếp câu", 3, "a-b-c", "c-b-a", "b-c-a", "a-c-b");
+        eqExam(ex, 3, "Sắp xếp lá thư (Dear Ms Hoang):\na. A payment of $5,000 will be released at the beginning...\nb. Failure to respond by the stated date will result in the offer being granted to the next candidate.\nc. We are delighted to inform you that you have been awarded the Young Researcher Grant.\nd. To confirm your acceptance, please sign the attached form and submit it by 31 August.\ne. The funding is intended to support your fieldwork...",
+                Competency.APPLICATION, "Sắp xếp câu", 2, "c-a-b-d-e", "c-a-b-e-d", "c-e-a-d-b", "c-b-e-d-a");
+        eqExam(ex, 4, "Sắp xếp hội thoại đổi hàng:\na. Customer: What if I didn't keep the original packaging?\nb. Customer: Great. I'll bring the item and receipt tomorrow.\nc. Customer: I'd like to exchange the electric fan I bought yesterday.\nd. Manager: Sold items can be exchanged within five days, but we don't give refunds.\ne. Manager: No problem, only your receipt is needed.",
+                Competency.APPLICATION, "Sắp xếp câu", 2, "a-d-c-e-b", "a-e-c-d-b", "c-d-a-e-b", "c-e-a-d-b");
+        eqExam(ex, 5, "Sắp xếp đoạn về điện gió:\na. Inhabitants of coastal regions housing large-scale facilities have reported that the low hum impairs sleep.\nb. Nevertheless, the argument for transitioning is not entirely convincing when implications for residents are considered.\nc. With the infrastructure in place, operational expenditures of wind mills are substantially lower than coal or gas.\nd. Wind power has been promoted as a notably clean and economically viable substitute for fossil fuels.\ne. Progress on renewable targets necessitates balancing each initiative against burdens imposed on local populations.",
+                Competency.APPLICATION, "Sắp xếp câu", 0, "d-c-b-a-e", "c-e-d-b-a", "e-b-a-c-d", "a-d-c-e-b");
+
+        // Đọc hiểu (đáp án: 6.A 7.A 8.B 9.A 10.D 11.A 12.B 13.C 14.B 15.C)
+        String passage = """
+                Đọc đoạn văn và trả lời các câu hỏi (6–15).
+
+                Environmental services, even when they arise without any human labour, are by no means
+                cost-free. Every cost should be understood in terms of opportunity cost. For environmental
+                services, the opportunity cost amounts to the net gain relinquished because the resources
+                are no longer available for their second-best application. Whenever a resource has
+                alternative uses, it cannot legitimately be deemed free.
+
+                For instance, a section of river might serve as a site used for either white-water canoeing
+                or hydroelectric generation. Constructing a dam to produce electricity would flood the
+                rapids, so this makes white-water canoeing here out of the question. The opportunity cost
+                of preserving the river for canoeing equals the net benefit of the electricity that would
+                otherwise have been produced. By the same token, the opportunity cost of erecting the dam
+                involves everything the river in its natural state would have provided.
+
+                This understanding carries considerable weight for planning development. [I] Numerous
+                decisions initially appearing to be cost-free moves in favour of growth prove, when examined
+                carefully, to be against something else. [II] Clearing a forest to make way for crops is
+                hardly without cost; it is paid for through losses in carbon storage and biological diversity.
+                [III] Channelling a river for irrigation has its price. [IV] Even leaving a swathe of land
+                alone exacts a cost, since the earnings that intensive exploitation might have produced are
+                equally sacrificed.
+
+                From this perspective, economic development can never be reduced to whether a project delivers
+                a positive return. Rather, what must be asked is whether that return outweighs the value of
+                sacrifices. Policies considering this are not against development. What they demand is that
+                development should be worth its true cost. The danger lies not in counting too much, but in
+                counting too little.""";
+        eqExam(ex, 6, passage, "The word \"relinquished\" in paragraph 1 is closest in meaning to ____.",
+                Competency.COMPREHENSION, "Đọc hiểu", 0, "given up", "filled up", "made up", "ended up");
+        eqExam(ex, 7, passage, "According to paragraph 1, the costs of environmental services are ____.",
+                Competency.COMPREHENSION, "Đọc hiểu", 0,
+                "existent even in the absence of human involvement", "determined by financial investment in natural resources",
+                "included in the market value of natural resources", "minimal because these services are nearly labour-free");
+        eqExam(ex, 8, passage, "Which of the following is NOT implied in paragraph 2?",
+                Competency.COMPREHENSION, "Đọc hiểu", 1,
+                "The intrinsic value of the river is not confined to generating hydroelectricity only.",
+                "The strains on the ecosystem from recreation and power generation are similar.",
+                "Intangible benefits also constitute the opportunity cost of the dam construction.",
+                "It is impossible to exploit one stretch of river for both purposes.");
+        eqExam(ex, 9, passage, "Where in paragraph 3 does this sentence best fit? \"Such hidden costs only come to light when one stops to think about the roles nature itself is quietly playing.\"",
+                Competency.COMPREHENSION, "Đọc hiểu", 0, "[II]", "[IV]", "[III]", "[I]");
+        eqExam(ex, 10, passage, "Which of the following best summarises paragraph 3?",
+                Competency.COMPREHENSION, "Đọc hiểu", 3,
+                "Untouched and cultivated lands both produce benefits in the long term.",
+                "Ecological preservation exerts negligible influence on economic development.",
+                "Economic benefits should never take precedence over forest and river preservation.",
+                "Apparently harmless developments actually come at an underlying price.");
+        eqExam(ex, 11, passage, "The word \"they\" in paragraph 4 refers to ____.",
+                Competency.COMPREHENSION, "Đọc hiểu", 0, "policies", "sacrifices", "sides", "services");
+        eqExam(ex, 12, passage, "What conclusion can be drawn from paragraph 4?",
+                Competency.COMPREHENSION, "Đọc hiểu", 1,
+                "Putting a price on environmental services is aimed at slowing down economic projects.",
+                "Due consideration for opportunity costs is crucial for the genuine success of development.",
+                "Both excessive caution and complete ignorance regarding environmental costs cause permanent damage.",
+                "Initiatives are required by law to deduct the hidden costs before claiming a positive return.");
+        eqExam(ex, 13, passage, "Which of the following is true according to the passage?",
+                Competency.COMPREHENSION, "Đọc hiểu", 2,
+                "Cost-free resources can be put to alternative uses as long as this is legally permitted.",
+                "Assigning a specific price tag to a resource is a prerequisite for calculating opportunity costs.",
+                "The positive return of every economic development must be worth what is sacrificed.",
+                "Keeping land intact is free of opportunity cost as there is no resource consumption.");
+        eqExam(ex, 14, passage, "Which of the following can be inferred from the passage?",
+                Competency.COMPREHENSION, "Đọc hiểu", 1,
+                "The value of preserved environmental services far outweighs the benefits of industrial development.",
+                "Decisions that overlook environmental opportunity costs risk overestimating the net gains they produce.",
+                "The scale of economic development inevitably suffers from strict regulations on environmental services.",
+                "Projects are mandated to make up for the economic losses in return for environmental preservation.");
+        eqExam(ex, 15, passage, "Which of the following would be the best title for the passage?",
+                Competency.COMPREHENSION, "Đọc hiểu", 2,
+                "Sustainable Development: A Pipe Dream", "Natural Preservation: Ushering in a New Era",
+                "Development: Factoring in Sacrifices", "Environment: A Tower of Strength");
     }
 
     private void seedEnglish10ExamHK1(Subject anh) {
