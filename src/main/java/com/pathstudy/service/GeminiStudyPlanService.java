@@ -26,6 +26,8 @@ public class GeminiStudyPlanService implements AiStudyPlanService {
     // nhầm là OAuth access token với key định dạng mới.
     private static final String ENDPOINT =
             "https://generativelanguage.googleapis.com/v1beta/models/{m}:generateContent";
+    private static final String LIST_ENDPOINT =
+            "https://generativelanguage.googleapis.com/v1beta/models?pageSize=100";
 
     @Value("${app.ai.gemini-key:}")
     private String apiKey;
@@ -113,6 +115,32 @@ public class GeminiStudyPlanService implements AiStudyPlanService {
             sb.append("  ⚠ Key Gemini hợp lệ thường bắt đầu bằng 'AIza'.");
         }
         sb.append('\n');
+
+        // Liệt kê các model khả dụng cho key này (để chọn đúng tên model).
+        try {
+            JsonNode list = rest.get()
+                    .uri(LIST_ENDPOINT)
+                    .header("x-goog-api-key", apiKey)
+                    .retrieve()
+                    .body(JsonNode.class);
+            StringBuilder names = new StringBuilder();
+            if (list != null && list.has("models")) {
+                for (JsonNode m : list.path("models")) {
+                    boolean gen = false;
+                    for (JsonNode meth : m.path("supportedGenerationMethods")) {
+                        if ("generateContent".equals(meth.asText())) { gen = true; break; }
+                    }
+                    if (gen) {
+                        String n = m.path("name").asText().replace("models/", "");
+                        names.append(names.length() == 0 ? "" : ", ").append(n);
+                    }
+                }
+            }
+            sb.append("Model khả dụng (generateContent): ")
+                    .append(names.length() == 0 ? "(không đọc được)" : names).append('\n');
+        } catch (RuntimeException e) {
+            sb.append("Không liệt kê được model: ").append(e.toString()).append('\n');
+        }
 
         Map<String, Object> body = Map.of("contents",
                 List.of(Map.of("parts", List.of(Map.of("text", "Trả lời đúng 2 chữ: xin chào")))));
