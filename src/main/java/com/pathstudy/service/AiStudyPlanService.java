@@ -18,4 +18,7 @@ public interface AiStudyPlanService {
      */
     String generatePlan(String subjectName, int score, String level, List<String> weakTopics,
                         String referenceMaterial);
+
+    /** Admin diagnostic: human-readable status of the AI configuration + a live ping. */
+    String diagnose();
 }

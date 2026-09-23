@@ -1,10 +1,13 @@
 package com.pathstudy.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientResponseException;
 
 import java.util.List;
 import java.util.Map;
@@ -16,6 +19,10 @@ import java.util.Map;
  */
 @Service
 public class GeminiStudyPlanService implements AiStudyPlanService {
+
+    private static final Logger log = LoggerFactory.getLogger(GeminiStudyPlanService.class);
+    private static final String ENDPOINT =
+            "https://generativelanguage.googleapis.com/v1beta/models/{m}:generateContent?key={k}";
 
     @Value("${app.ai.gemini-key:}")
     private String apiKey;
@@ -62,8 +69,7 @@ public class GeminiStudyPlanService implements AiStudyPlanService {
 
         try {
             JsonNode resp = rest.post()
-                    .uri("https://generativelanguage.googleapis.com/v1beta/models/{m}:generateContent?key={k}",
-                            model, apiKey)
+                    .uri(ENDPOINT, model, apiKey)
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(body)
                     .retrieve()
@@ -73,8 +79,56 @@ public class GeminiStudyPlanService implements AiStudyPlanService {
             }
             JsonNode text = resp.path("candidates").path(0).path("content").path("parts").path(0).path("text");
             return text.isMissingNode() ? null : text.asText();
+        } catch (RestClientResponseException e) {
+            log.warn("Gemini API error (model={}): HTTP {} - {}", model, e.getStatusCode().value(),
+                    e.getResponseBodyAsString());
+            return null;
         } catch (RuntimeException e) {
+            log.warn("Gemini call failed (model={}): {}", model, e.toString());
             return null;
         }
+    }
+
+    /**
+     * Admin diagnostic: reports whether the key/model are configured and makes a
+     * minimal live call, returning the outcome (or the exact API error) as text.
+     * Never reveals the full key — only its first characters and length.
+     */
+    @Override
+    public String diagnose() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("AI bật (isEnabled): ").append(isEnabled()).append('\n');
+        sb.append("Model: ").append(model).append('\n');
+        if (apiKey == null || apiKey.isBlank()) {
+            sb.append("Key: CHƯA đặt (biến môi trường GEMINI_API_KEY trống).\n");
+            return sb.toString();
+        }
+        String prefix = apiKey.length() >= 4 ? apiKey.substring(0, 4) : apiKey;
+        sb.append("Key: bắt đầu '").append(prefix).append("...', độ dài ").append(apiKey.length());
+        if (!apiKey.startsWith("AIza")) {
+            sb.append("  ⚠ Key Gemini hợp lệ thường bắt đầu bằng 'AIza'.");
+        }
+        sb.append('\n');
+
+        Map<String, Object> body = Map.of("contents",
+                List.of(Map.of("parts", List.of(Map.of("text", "Trả lời đúng 2 chữ: xin chào")))));
+        try {
+            JsonNode resp = rest.post()
+                    .uri(ENDPOINT, model, apiKey)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(body)
+                    .retrieve()
+                    .body(JsonNode.class);
+            JsonNode text = resp == null ? null
+                    : resp.path("candidates").path(0).path("content").path("parts").path(0).path("text");
+            sb.append("Gọi API: OK ✅\n");
+            sb.append("Phản hồi mẫu: ").append(text == null ? "(rỗng)" : text.asText("(rỗng)"));
+        } catch (RestClientResponseException e) {
+            sb.append("Gọi API: LỖI ❌ HTTP ").append(e.getStatusCode().value()).append('\n');
+            sb.append(e.getResponseBodyAsString());
+        } catch (RuntimeException e) {
+            sb.append("Gọi API: LỖI ❌ ").append(e.toString());
+        }
+        return sb.toString();
     }
 }
