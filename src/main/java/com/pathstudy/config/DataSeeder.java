@@ -24,7 +24,7 @@ import java.util.List;
 @Component
 public class DataSeeder implements CommandLineRunner {
 
-    private static final String SEED_VERSION = "2026-09-23-user-grade-placement30";
+    private static final String SEED_VERSION = "2026-09-23-placement11";
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -560,8 +560,9 @@ public class DataSeeder implements CommandLineRunner {
         pqTopic(anh, 12, "Which word contains the diphthong /əʊ/?", Competency.KNOWLEDGE, "Phát âm", 2,
                 "age", "saved", "wrote", "against");
 
-        // ---- Đề khảo sát ĐẦU VÀO LỚP 10 — 30 câu, đủ dạng như đề KSCL đầu năm ----
+        // ---- Đề khảo sát ĐẦU VÀO 30 câu, đủ dạng như đề KSCL đầu năm ----
         seedEnglish10Placement(anh);
+        seedEnglish11Placement(anh);
 
         // Tài liệu nguồn cho AI (giáo viên gửi) — AI dựa vào đây để soạn giáo trình + bài tập.
         String grammar = readClasspath("materials/tieng-anh-thanh-phan-cau.txt");
@@ -1503,6 +1504,97 @@ public class DataSeeder implements CommandLineRunner {
                 "Water pollution", "Traffic jams", "Noise pollution", "Deforestation");
         pqTopic(anh, G10, 30, reading, "What have local authorities done to protect the bay?", Competency.COMPREHENSION, "Đọc hiểu", 1,
                 "Built more hotels", "Organised clean-up activities", "Banned all tourists", "Closed the bay");
+    }
+
+    private void seedEnglish11Placement(Subject anh) {
+        // 1–4: Phát âm & trọng âm
+        pqTopic(anh, G11, 1, "Choose the word whose underlined \"c\" is pronounced differently: con_c_ert, _c_ity, re_c_ent, _c_ircle.",
+                Competency.KNOWLEDGE, "Phát âm", 0, "concert", "city", "recent", "circle");
+        pqTopic(anh, G11, 2, "Choose the word whose underlined \"i\" is pronounced differently.",
+                Competency.KNOWLEDGE, "Phát âm", 0, "fine", "fit", "sick", "little");
+        pqTopic(anh, G11, 3, "Choose the word that has a different stress pattern.",
+                Competency.KNOWLEDGE, "Phát âm", 0, "adapt", "carry", "enter", "happen");
+        pqTopic(anh, G11, 4, "Choose the word that has a different stress pattern.",
+                Competency.KNOWLEDGE, "Phát âm", 0, "wonderful", "unhealthy", "domestic", "fantastic");
+
+        // 5–17: Ngữ pháp (mỗi câu 1 chủ đề Lớp 11 để map bài học)
+        pqTopic(anh, G11, 5, "I ___ a writer since 2010.", Competency.APPLICATION, T11_PASTPERF, 0,
+                "have been", "was", "am", "had been");
+        pqTopic(anh, G11, 6, "You look ill. You ___ see a doctor.", Competency.KNOWLEDGE, T11_MODAL, 2,
+                "must", "have to", "should", "would");
+        pqTopic(anh, G11, 7, "This soup ___ delicious.", Competency.KNOWLEDGE, T11_STATIVE, 1,
+                "is tasting", "tastes", "taste", "tasted");
+        pqTopic(anh, G11, 8, "___ English every day improves your skills.", Competency.APPLICATION, T11_GERSO, 1,
+                "Practise", "Practising", "To practising", "Practised");
+        pqTopic(anh, G11, 9, "The man ___ over there is my teacher.", Competency.APPLICATION, T11_PARTICIPLE, 1,
+                "stand", "standing", "stood", "to stand");
+        pqTopic(anh, G11, 10, "She stayed up late ___ for the exam.", Competency.APPLICATION, T11_TOINF, 1,
+                "prepare", "to prepare", "preparing", "prepared");
+        pqTopic(anh, G11, 11, "He thanked me for ___ him with his homework.", Competency.APPLICATION, T11_PERFGER, 2,
+                "help", "helping", "having helped", "to help");
+        pqTopic(anh, G11, 12, "It was John ___ broke the window.", Competency.APPLICATION, T11_CLEFT, 1,
+                "which", "who", "whom", "whose");
+        pqTopic(anh, G11, 13, "It was raining heavily; ___, we decided to go out.", Competency.KNOWLEDGE, T11_LINKING, 0,
+                "however", "because", "so", "therefore");
+        pqTopic(anh, G11, 14, "A ___ protects many kinds of wild animals.", Competency.KNOWLEDGE, T11_COMPNOUN, 1,
+                "nation park", "national park", "nationally park", "nation's park");
+        pqTopic(anh, G11, 15, "My family ___ to Ha Noi last year.", Competency.APPLICATION, T11_PASTPERF, 1,
+                "moves", "moved", "has moved", "move");
+        pqTopic(anh, G11, 16, "You ___ smoke here. It is strictly forbidden.", Competency.APPLICATION, T11_MODAL, 0,
+                "mustn't", "don't have to", "should", "needn't");
+        pqTopic(anh, G11, 17, "I avoid ___ fast food because it is unhealthy.", Competency.KNOWLEDGE, T11_GERSO, 2,
+                "eat", "to eat", "eating", "eaten");
+
+        // 18–20: Từ vựng
+        pqTopic(anh, G11, 18, "Choose the word CLOSEST in meaning to \"fantastic\".",
+                Competency.COMPREHENSION, "Từ vựng", 1, "terrible", "wonderful", "ordinary", "boring");
+        pqTopic(anh, G11, 19, "Who is going to ___ the children while you are away?",
+                Competency.KNOWLEDGE, "Từ vựng", 3, "come in", "break up", "go for", "look after");
+        pqTopic(anh, G11, 20, "She was very ___ with the excellent service at the hotel.",
+                Competency.KNOWLEDGE, "Từ vựng", 2, "satisfy", "satisfactorily", "satisfied", "satisfaction");
+
+        // 21–25: Điền vào đoạn văn (cloze)
+        String cloze = """
+                Đọc mẩu quảng cáo sau và chọn đáp án đúng cho mỗi chỗ trống (21–25).
+
+                REVIEWS WANTED
+                Have you visited (21)____ wonderful cafe recently? Now is your chance to write about it.
+                We (22)____ for reviews of cafes in your area. Describe your experience at the cafe that
+                you (23)____ last week. Say why you were (24)____ or dissatisfied with it.
+                We will publish the (25)____ interesting reviews on our website.""";
+        pqTopic(anh, G11, 21, cloze, "Chỗ trống (21):", Competency.KNOWLEDGE, "Từ vựng", 0,
+                "a", "an", "the", "(không cần mạo từ)");
+        pqTopic(anh, G11, 22, cloze, "Chỗ trống (22):", Competency.APPLICATION, T11_STATIVE, 1,
+                "look", "are looking", "looked", "looking");
+        pqTopic(anh, G11, 23, cloze, "Chỗ trống (23):", Competency.APPLICATION, T11_PASTPERF, 1,
+                "visit", "visited", "have visited", "visiting");
+        pqTopic(anh, G11, 24, cloze, "Chỗ trống (24):", Competency.KNOWLEDGE, "Từ vựng", 1,
+                "satisfy", "satisfied", "satisfaction", "satisfying");
+        pqTopic(anh, G11, 25, cloze, "Chỗ trống (25):", Competency.KNOWLEDGE, "Từ vựng", 1,
+                "more", "most", "much", "many");
+
+        // 26–30: Đọc hiểu
+        String reading = """
+                Đọc đoạn văn sau và trả lời các câu hỏi (26–30).
+
+                Living a long and healthy life is something everyone wants. To stay healthy, people
+                should eat a balanced diet with plenty of fruit and vegetables. Regular exercise is
+                also important because it keeps the heart strong and reduces stress. Doctors recommend
+                at least thirty minutes of physical activity every day. In addition, getting enough
+                sleep helps the body recover and improves memory. On the other hand, bad habits such
+                as smoking and eating too much fast food can cause serious diseases. Therefore, making
+                small positive changes to our daily routine can help us live longer and feel better.""";
+        pqTopic(anh, G11, 26, reading, "What should people eat to stay healthy?", Competency.COMPREHENSION, "Đọc hiểu", 1,
+                "Only meat", "A balanced diet with fruit and vegetables", "Fast food", "Sweets");
+        pqTopic(anh, G11, 27, reading, "Why is regular exercise important?", Competency.COMPREHENSION, "Đọc hiểu", 1,
+                "It causes stress", "It keeps the heart strong and reduces stress", "It makes people tired", "It wastes time");
+        pqTopic(anh, G11, 28, reading, "How much daily physical activity do doctors recommend?", Competency.COMPREHENSION, "Đọc hiểu", 1,
+                "Ten minutes", "At least thirty minutes", "Two hours", "None at all");
+        pqTopic(anh, G11, 29, reading, "Which of the following is a BAD habit mentioned in the passage?", Competency.COMPREHENSION, "Đọc hiểu", 2,
+                "Getting enough sleep", "Eating vegetables", "Smoking", "Doing exercise");
+        pqTopic(anh, G11, 30, reading, "What is the main idea of the passage?", Competency.COMPREHENSION, "Đọc hiểu", 1,
+                "Fast food is good for health", "Small positive changes help us live longer and healthier",
+                "Sleep is not important", "Exercise is dangerous");
     }
 
     private String readClasspath(String path) {
