@@ -9,6 +9,7 @@ import com.pathstudy.repo.EnglishLessonRepository;
 import com.pathstudy.repo.PlacementResultRepository;
 import com.pathstudy.repo.ReferenceMaterialRepository;
 import com.pathstudy.repo.SubjectRepository;
+import com.pathstudy.repo.UserRepository;
 import com.pathstudy.service.BankTransferPaymentService;
 import com.pathstudy.service.CurrentUserService;
 import com.pathstudy.service.ExamService;
@@ -30,7 +31,6 @@ public class EnglishController {
 
     /** Grades that have a curriculum available (SGK Global Success). */
     private static final List<String> GRADES = List.of("Lớp 10", "Lớp 11", "Lớp 12");
-    private static final String DEFAULT_GRADE = "Lớp 12";
 
     private final ExamService examService;
     private final ReferenceMaterialRepository referenceMaterials;
@@ -39,12 +39,14 @@ public class EnglishController {
     private final BankTransferPaymentService payments;
     private final PlacementResultRepository placementResults;
     private final EnglishLessonRepository englishLessons;
+    private final UserRepository users;
 
     public EnglishController(ExamService examService, ReferenceMaterialRepository referenceMaterials,
                              SubjectRepository subjects, CurrentUserService currentUser,
                              BankTransferPaymentService payments,
                              PlacementResultRepository placementResults,
-                             EnglishLessonRepository englishLessons) {
+                             EnglishLessonRepository englishLessons,
+                             UserRepository users) {
         this.examService = examService;
         this.referenceMaterials = referenceMaterials;
         this.subjects = subjects;
@@ -52,6 +54,7 @@ public class EnglishController {
         this.payments = payments;
         this.placementResults = placementResults;
         this.englishLessons = englishLessons;
+        this.users = users;
     }
 
     private Subject anh() {
@@ -59,11 +62,16 @@ public class EnglishController {
     }
 
     @GetMapping
-    public String hub(@RequestParam(name = "grade", required = false) String gradeParam, Model model) {
+    public String hub(Model model) {
         User user = currentUser.require();
         Subject anh = anh();
 
-        String grade = (gradeParam != null && GRADES.contains(gradeParam)) ? gradeParam : DEFAULT_GRADE;
+        // Khối là thuộc tính của học sinh (chọn khi đăng ký). Tài khoản cũ chưa có → cho chọn.
+        String grade = user.getGrade();
+        if (grade == null || !GRADES.contains(grade)) {
+            model.addAttribute("grades", GRADES);
+            return "english/choose-grade";
+        }
         List<EnglishLesson> lessons = englishLessons.findByGradeOrderByOrderIndexAsc(grade);
 
         // Group lessons by unit for the curriculum browser.
@@ -92,6 +100,17 @@ public class EnglishController {
         model.addAttribute("weakTopics", weakTopics);
         model.addAttribute("recommended", recommended);
         return "english/hub";
+    }
+
+    /** Đặt khối cho tài khoản cũ chưa có khối (đăng ký mới đã có sẵn). */
+    @PostMapping("/grade")
+    public String setGrade(@RequestParam String grade) {
+        User user = currentUser.require();
+        if (GRADES.contains(grade)) {
+            user.setGrade(grade);
+            users.save(user);
+        }
+        return "redirect:/english";
     }
 
     @GetMapping("/lesson/{id}")

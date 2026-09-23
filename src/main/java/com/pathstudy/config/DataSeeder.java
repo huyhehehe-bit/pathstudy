@@ -24,7 +24,7 @@ import java.util.List;
 @Component
 public class DataSeeder implements CommandLineRunner {
 
-    private static final String SEED_VERSION = "2026-09-23-english-placement-grade10";
+    private static final String SEED_VERSION = "2026-09-23-user-grade-placement30";
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -126,20 +126,24 @@ public class DataSeeder implements CommandLineRunner {
     }
 
     private void seedUsers() {
-        user("Nguyễn An", "demo@pathstudy.vn", "123456", "STUDENT");
-        user("Cô Lan (Giáo viên)", "teacher@pathstudy.vn", "teacher123", "TEACHER");
-        user("Quản trị viên", "admin@pathstudy.vn", "admin123", "ADMIN");
+        user("Nguyễn An", "demo@pathstudy.vn", "123456", "STUDENT", "Lớp 10");
+        user("Cô Lan (Giáo viên)", "teacher@pathstudy.vn", "teacher123", "TEACHER", null);
+        user("Quản trị viên", "admin@pathstudy.vn", "admin123", "ADMIN", null);
     }
 
-    private void user(String name, String email, String rawPassword, String role) {
-        if (users.existsByEmail(email)) {
-            return;
+    private void user(String name, String email, String rawPassword, String role, String grade) {
+        User u = users.findByEmail(email).orElse(null);
+        if (u == null) {
+            u = new User();
+            u.setFullName(name);
+            u.setEmail(email);
+            u.setPasswordHash(passwordEncoder.encode(rawPassword));
+            u.setRole(role);
         }
-        User u = new User();
-        u.setFullName(name);
-        u.setEmail(email);
-        u.setPasswordHash(passwordEncoder.encode(rawPassword));
-        u.setRole(role);
+        // Gán khối cho tài khoản demo (kể cả tài khoản cũ đã tồn tại) nếu chưa có.
+        if (grade != null && u.getGrade() == null) {
+            u.setGrade(grade);
+        }
         users.save(u);
     }
 
@@ -556,35 +560,8 @@ public class DataSeeder implements CommandLineRunner {
         pqTopic(anh, 12, "Which word contains the diphthong /əʊ/?", Competency.KNOWLEDGE, "Phát âm", 2,
                 "age", "saved", "wrote", "against");
 
-        // ---- Đề chẩn đoán ĐẦU VÀO LỚP 10 (theo đề KSCL đầu năm) — tag topic Lớp 10 ----
-        pqTopic(anh, G10, 1, "Look! The children ___ football in the yard.", Competency.KNOWLEDGE, T10_PRES, 2,
-                "play", "plays", "are playing", "played");
-        pqTopic(anh, G10, 2, "While we ___ TV, the lights suddenly went out.", Competency.APPLICATION, T10_PAST, 1,
-                "watched", "were watching", "watch", "are watching");
-        pqTopic(anh, G10, 3, "I ___ this film already, so let's watch another one.", Competency.APPLICATION, T10_PRESPERF, 1,
-                "saw", "have seen", "see", "seeing");
-        pqTopic(anh, G10, 4, "Look at those dark clouds! It ___ rain soon.", Competency.APPLICATION, T10_FUTURE, 1,
-                "will", "is going to", "goes to", "would");
-        pqTopic(anh, G10, 5, "This bridge ___ in 1995.", Competency.KNOWLEDGE, T10_PASSIVE, 1,
-                "built", "was built", "is built", "has built");
-        pqTopic(anh, G10, 6, "The report must ___ before Monday.", Competency.APPLICATION, T10_PASSMODAL, 1,
-                "finish", "be finished", "finished", "be finish");
-        pqTopic(anh, G10, 7, "Mount Everest is ___ mountain in the world.", Competency.KNOWLEDGE, T10_COMPSUP, 1,
-                "higher", "the highest", "high", "more high");
-        pqTopic(anh, G10, 8, "The woman ___ lives next door is a doctor.", Competency.KNOWLEDGE, T10_RELCLAUSE, 1,
-                "which", "who", "whose", "where");
-        pqTopic(anh, G10, 9, "If it rains tomorrow, we ___ at home.", Competency.APPLICATION, T10_CONDITIONAL, 1,
-                "stay", "will stay", "stayed", "would stay");
-        pqTopic(anh, G10, 10, "If I ___ you, I would say sorry to her.", Competency.APPLICATION, T10_CONDITIONAL, 2,
-                "am", "was", "were", "be");
-        pqTopic(anh, G10, 11, "My parents let me ___ TV after dinner.", Competency.KNOWLEDGE, T10_INF, 0,
-                "watch", "to watch", "watching", "watched");
-        pqTopic(anh, G10, 12, "I enjoy ___ books in my free time.", Competency.KNOWLEDGE, T10_GERUND, 2,
-                "read", "to read", "reading", "reads");
-        pqTopic(anh, G10, 13, "She said that she ___ very tired that day.", Competency.APPLICATION, T10_REPORTED, 1,
-                "is", "was", "will be", "be");
-        pqTopic(anh, G10, 14, "Choose the word that is OPPOSITE in meaning to \"sociable\".",
-                Competency.COMPREHENSION, "Từ vựng", 2, "friendly", "talkative", "unfriendly", "kind");
+        // ---- Đề khảo sát ĐẦU VÀO LỚP 10 — 30 câu, đủ dạng như đề KSCL đầu năm ----
+        seedEnglish10Placement(anh);
 
         // Tài liệu nguồn cho AI (giáo viên gửi) — AI dựa vào đây để soạn giáo trình + bài tập.
         String grammar = readClasspath("materials/tieng-anh-thanh-phan-cau.txt");
@@ -1438,6 +1415,96 @@ public class DataSeeder implements CommandLineRunner {
                 - Climate change threatens many habitats. (climate change)""");
     }
 
+    private void seedEnglish10Placement(Subject anh) {
+        // 1–4: Phát âm & trọng âm
+        pqTopic(anh, G10, 1, "Choose the word whose underlined part is pronounced differently: bre_a_d, h_ea_d, br_ea_k, r_ea_dy.",
+                Competency.KNOWLEDGE, "Phát âm", 2, "bread", "head", "break", "ready");
+        pqTopic(anh, G10, 2, "Choose the word whose underlined \"ch\" is pronounced differently.",
+                Competency.KNOWLEDGE, "Phát âm", 2, "child", "chair", "chemistry", "church");
+        pqTopic(anh, G10, 3, "Choose the word that has a different stress pattern.",
+                Competency.KNOWLEDGE, "Phát âm", 3, "exercise", "benefit", "different", "contribute");
+        pqTopic(anh, G10, 4, "Choose the word that has a different stress pattern.",
+                Competency.KNOWLEDGE, "Phát âm", 2, "happy", "pretty", "relax", "busy");
+
+        // 5–17: Ngữ pháp (mỗi câu 1 chủ đề Lớp 10 để map bài học)
+        pqTopic(anh, G10, 5, "Look! The children ___ football in the yard.", Competency.KNOWLEDGE, T10_PRES, 2,
+                "play", "plays", "are playing", "played");
+        pqTopic(anh, G10, 6, "While we ___ TV, the lights suddenly went out.", Competency.APPLICATION, T10_PAST, 1,
+                "watched", "were watching", "watch", "are watching");
+        pqTopic(anh, G10, 7, "I ___ this film already, so let's watch another one.", Competency.APPLICATION, T10_PRESPERF, 1,
+                "saw", "have seen", "see", "seeing");
+        pqTopic(anh, G10, 8, "Look at those dark clouds! It ___ rain soon.", Competency.APPLICATION, T10_FUTURE, 1,
+                "will", "is going to", "goes to", "would");
+        pqTopic(anh, G10, 9, "This bridge ___ in 1995.", Competency.KNOWLEDGE, T10_PASSIVE, 1,
+                "built", "was built", "is built", "has built");
+        pqTopic(anh, G10, 10, "The report must ___ before Monday.", Competency.APPLICATION, T10_PASSMODAL, 1,
+                "finish", "be finished", "finished", "be finish");
+        pqTopic(anh, G10, 11, "He was very tired, ___ he kept working until midnight.", Competency.KNOWLEDGE, T10_COMPOUND, 1,
+                "and", "but", "or", "because");
+        pqTopic(anh, G10, 12, "My parents let me ___ TV after dinner.", Competency.KNOWLEDGE, T10_INF, 0,
+                "watch", "to watch", "watching", "watched");
+        pqTopic(anh, G10, 13, "I enjoy ___ books in my free time.", Competency.KNOWLEDGE, T10_GERUND, 2,
+                "read", "to read", "reading", "reads");
+        pqTopic(anh, G10, 14, "Mount Everest is ___ mountain in the world.", Competency.KNOWLEDGE, T10_COMPSUP, 1,
+                "higher", "the highest", "high", "more high");
+        pqTopic(anh, G10, 15, "The woman ___ lives next door is a doctor.", Competency.KNOWLEDGE, T10_RELCLAUSE, 1,
+                "which", "who", "whose", "where");
+        pqTopic(anh, G10, 16, "She said that she ___ very tired that day.", Competency.APPLICATION, T10_REPORTED, 1,
+                "is", "was", "will be", "be");
+        pqTopic(anh, G10, 17, "If I ___ you, I would say sorry to her.", Competency.APPLICATION, T10_CONDITIONAL, 2,
+                "am", "was", "were", "be");
+
+        // 18–20: Từ vựng (đồng nghĩa / trái nghĩa / chọn từ)
+        pqTopic(anh, G10, 18, "Choose the word CLOSEST in meaning to \"enormous\".",
+                Competency.COMPREHENSION, "Từ vựng", 1, "tiny", "huge", "narrow", "weak");
+        pqTopic(anh, G10, 19, "Choose the word OPPOSITE in meaning to \"sociable\".",
+                Competency.COMPREHENSION, "Từ vựng", 2, "friendly", "talkative", "unfriendly", "kind");
+        pqTopic(anh, G10, 20, "She is very ___; she always helps other people.",
+                Competency.KNOWLEDGE, "Từ vựng", 1, "selfish", "generous", "lazy", "rude");
+
+        // 21–25: Điền vào đoạn văn (cloze)
+        String cloze = """
+                Đọc đoạn văn sau và chọn đáp án đúng cho mỗi chỗ trống (21–25).
+
+                In many families today, both parents (21)____. As a result, children are often asked
+                to help (22)____ the housework. Doing chores (23)____ children become more responsible
+                and independent. For example, a child who cooks dinner learns a useful (24)____.
+                Although some children think housework is boring, it (25)____ them important life lessons.""";
+        pqTopic(anh, G10, 21, cloze, "Chỗ trống (21):", Competency.APPLICATION, T10_PRES, 1,
+                "works", "work", "working", "worked");
+        pqTopic(anh, G10, 22, cloze, "Chỗ trống (22):", Competency.KNOWLEDGE, "Từ vựng", 0,
+                "with", "for", "on", "of");
+        pqTopic(anh, G10, 23, cloze, "Chỗ trống (23):", Competency.APPLICATION, T10_GERUND, 1,
+                "help", "helps", "helping", "to help");
+        pqTopic(anh, G10, 24, cloze, "Chỗ trống (24):", Competency.KNOWLEDGE, "Từ vựng", 0,
+                "skill", "skills", "skilful", "skilfully");
+        pqTopic(anh, G10, 25, cloze, "Chỗ trống (25):", Competency.APPLICATION, T10_PRES, 1,
+                "teach", "teaches", "taught", "teaching");
+
+        // 26–30: Đọc hiểu
+        String reading = """
+                Đọc đoạn văn sau và trả lời các câu hỏi (26–30).
+
+                Ha Long Bay is one of the most famous tourist attractions in Viet Nam. Located in
+                Quang Ninh Province, it has thousands of limestone islands of different shapes and
+                sizes. In 1994, Ha Long Bay was recognised by UNESCO as a World Heritage Site.
+                Every year, millions of tourists visit the bay to enjoy its beautiful scenery,
+                explore the caves, and take boat trips around the islands. However, the increasing
+                number of visitors has caused some environmental problems, such as water pollution.
+                To protect the bay, local authorities have asked tourists not to throw rubbish into
+                the water and have organised regular clean-up activities.""";
+        pqTopic(anh, G10, 26, reading, "Where is Ha Long Bay located?", Competency.COMPREHENSION, "Đọc hiểu", 1,
+                "In Ha Noi", "In Quang Ninh Province", "In Da Nang", "In Hue");
+        pqTopic(anh, G10, 27, reading, "When was Ha Long Bay recognised by UNESCO?", Competency.COMPREHENSION, "Đọc hiểu", 1,
+                "In 1990", "In 1994", "In 2000", "In 2004");
+        pqTopic(anh, G10, 28, reading, "Which activity is NOT mentioned in the passage?", Competency.COMPREHENSION, "Đọc hiểu", 2,
+                "Exploring the caves", "Taking boat trips", "Climbing mountains", "Enjoying the scenery");
+        pqTopic(anh, G10, 29, reading, "What problem has the growing number of tourists caused?", Competency.COMPREHENSION, "Đọc hiểu", 0,
+                "Water pollution", "Traffic jams", "Noise pollution", "Deforestation");
+        pqTopic(anh, G10, 30, reading, "What have local authorities done to protect the bay?", Competency.COMPREHENSION, "Đọc hiểu", 1,
+                "Built more hotels", "Organised clean-up activities", "Banned all tourists", "Closed the bay");
+    }
+
     private String readClasspath(String path) {
         try {
             org.springframework.core.io.ClassPathResource res =
@@ -1536,10 +1603,16 @@ public class DataSeeder implements CommandLineRunner {
 
     private Question pqTopic(Subject subject, String grade, int idx, String text, Competency competency,
                              String topic, int correct, String... opts) {
+        return pqTopic(subject, grade, idx, null, text, competency, topic, correct, opts);
+    }
+
+    private Question pqTopic(Subject subject, String grade, int idx, String passage, String text,
+                             Competency competency, String topic, int correct, String... opts) {
         Question q = new Question();
         q.setScope(QuizScope.PLACEMENT);
         q.setSubject(subject);
         q.setGrade(grade);
+        q.setPassage(passage);
         q.setOrderIndex(idx);
         q.setText(text);
         q.setCompetency(competency);

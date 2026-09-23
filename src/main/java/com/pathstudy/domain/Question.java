@@ -63,4 +63,9 @@ public class Question {
      *  ("Lớp 10"/"Lớp 11"/"Lớp 12"). Null for grade-agnostic subjects (Ngữ văn). */
     @Column(length = 20)
     private String grade;
+
+    /** Shared reading passage (cloze / reading comprehension). Rendered once for
+     *  consecutive questions that share it. Null for standalone questions. */
+    @Column(length = 6000)
+    private String passage;
 }

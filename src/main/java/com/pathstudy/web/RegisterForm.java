@@ -20,4 +20,8 @@ public class RegisterForm {
     @NotBlank(message = "Vui lòng nhập mật khẩu")
     @Size(min = 6, message = "Mật khẩu tối thiểu 6 ký tự")
     private String password;
+
+    /** Khối lớp học sinh chọn khi đăng ký: "Lớp 10"/"Lớp 11"/"Lớp 12". */
+    @NotBlank(message = "Vui lòng chọn khối lớp")
+    private String grade;
 }

@@ -30,6 +30,10 @@ public class User {
     @Column(nullable = false)
     private String role = "STUDENT";
 
+    /** Khối lớp của học sinh: "Lớp 10"/"Lớp 11"/"Lớp 12". Null cho GV/Admin hoặc tài khoản cũ. */
+    @Column(length = 20)
+    private String grade;
+
     @Column(nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 }

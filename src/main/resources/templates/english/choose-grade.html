@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Chọn khối')}"></head>
+<body>
+<div class="shell">
+    <aside th:replace="~{fragments/layout :: sidebar('path')}"></aside>
+    <main class="main">
+        <header th:replace="~{fragments/layout :: topbar('Tiếng Anh')}"></header>
+        <div class="content stack">
+            <div class="section-head">
+                <h2 style="font-size:24px">Bạn đang học khối nào?</h2>
+                <p class="muted">Chọn khối để nhận đúng bài kiểm tra đầu vào và giáo trình của lớp bạn.</p>
+            </div>
+            <form th:action="@{/english/grade}" method="post" class="grid-2" style="max-width:560px">
+                <button th:each="g : ${grades}" type="submit" name="grade" th:value="${g}"
+                        class="card card-pad center" style="justify-content:center;gap:8px;font-weight:700;font-size:16px;cursor:pointer">
+                    <span class="tile tile-sky" th:insert="~{fragments/icons :: ic('book-open')}"></span>
+                    <span th:text="${g}">Lớp 10</span>
+                </button>
+            </form>
+        </div>
+    </main>
+</div>
+<div th:replace="~{fragments/layout :: toast}"></div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

@@ -18,14 +18,10 @@
                 <a th:href="@{/upgrade}" style="margin-left:auto;font-weight:700">Nâng cấp →</a>
             </div>
 
-            <!-- Chọn lớp (mỗi lớp có giáo trình riêng) -->
+            <!-- Khối của học sinh (chọn khi đăng ký) -->
             <div class="center" style="gap:8px;flex-wrap:wrap">
-                <a th:each="g : ${grades}" th:href="@{/english(grade=${g})}"
-                   class="pill"
-                   th:style="${g == grade}
-                       ? 'background:var(--primary-soft);color:var(--primary);font-weight:700;text-decoration:none'
-                       : 'text-decoration:none'"
-                   th:text="${g} + ' · SGK Global Success'">Lớp 12 · SGK Global Success</a>
+                <span class="pill" style="background:var(--primary-soft);color:var(--primary);font-weight:700"
+                      th:text="${grade} + ' · SGK Global Success'">Lớp 12 · SGK Global Success</span>
             </div>
 
             <!-- Bước 1: Kiểm tra đầu vào / Kết quả + lộ trình gia sư -->

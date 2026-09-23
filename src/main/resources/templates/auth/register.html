@@ -30,6 +30,21 @@
                     <input id="password" th:field="*{password}" type="password" required placeholder="Tối thiểu 6 ký tự"/>
                     <span class="err" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></span>
                 </div>
+                <div class="field">
+                    <label>Bạn đang học khối nào?</label>
+                    <div class="center" style="gap:8px;flex-wrap:wrap">
+                        <label class="option" style="flex:1;min-width:90px;justify-content:center">
+                            <input type="radio" th:field="*{grade}" value="Lớp 10"/> <span>Lớp 10</span>
+                        </label>
+                        <label class="option" style="flex:1;min-width:90px;justify-content:center">
+                            <input type="radio" th:field="*{grade}" value="Lớp 11"/> <span>Lớp 11</span>
+                        </label>
+                        <label class="option" style="flex:1;min-width:90px;justify-content:center">
+                            <input type="radio" th:field="*{grade}" value="Lớp 12"/> <span>Lớp 12</span>
+                        </label>
+                    </div>
+                    <span class="err" th:if="${#fields.hasErrors('grade')}" th:errors="*{grade}"></span>
+                </div>
                 <button type="submit" class="btn btn-primary btn-block btn-lg">Đăng ký & bắt đầu</button>
             </form>
 

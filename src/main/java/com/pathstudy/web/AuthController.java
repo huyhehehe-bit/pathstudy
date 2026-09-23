@@ -65,6 +65,7 @@ public class AuthController {
         u.setFullName(form.getFullName().strip());
         u.setEmail(form.getEmail().strip().toLowerCase());
         u.setPasswordHash(passwordEncoder.encode(form.getPassword()));
+        u.setGrade(form.getGrade());
         users.save(u);
 
         autoLogin(u.getEmail(), form.getPassword(), request, response);
