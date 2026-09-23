@@ -24,7 +24,7 @@ import java.util.List;
 @Component
 public class DataSeeder implements CommandLineRunner {
 
-    private static final String SEED_VERSION = "2026-09-23-placement11";
+    private static final String SEED_VERSION = "2026-09-23-placement-all-grades";
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -533,36 +533,10 @@ public class DataSeeder implements CommandLineRunner {
     private static final String T12_REPORTED = "Câu tường thuật: mệnh lệnh, yêu cầu, đề nghị, lời khuyên";
 
     private void seedEnglish(Subject anh) {
-        // Đề chẩn đoán đầu vào bám sát ngữ pháp SGK Tiếng Anh 12. Mỗi câu gắn 1 chủ đề
-        // trùng với bài học, để sau khi test → chỉ ra điểm yếu → dạy đúng bài trong SGK.
-        pqTopic(anh, 1, "While I ___ dinner, the phone rang.", Competency.APPLICATION, T_PAST, 1,
-                "cooked", "was cooking", "cook", "am cooking");
-        pqTopic(anh, 2, "Steve Jobs ___ Apple in 1976.", Competency.KNOWLEDGE, T_PAST, 1,
-                "founds", "founded", "was founding", "has founded");
-        pqTopic(anh, 3, "I want to buy ___ souvenir for my friend.", Competency.KNOWLEDGE, T_ART, 0,
-                "a", "an", "the", "(không cần mạo từ)");
-        pqTopic(anh, 4, "___ Pacific is the largest of all oceans.", Competency.KNOWLEDGE, T_ART, 2,
-                "A", "An", "The", "(không cần mạo từ)");
-        pqTopic(anh, 5, "The future of our planet depends ___ how we treat it.", Competency.KNOWLEDGE, T_VPREP, 1,
-                "in", "on", "at", "for");
-        pqTopic(anh, 6, "More and more people are recycling now, ___ is good for the environment.",
-                Competency.APPLICATION, T_WHICH, 1, "that", "which", "what", "who");
-        pqTopic(anh, 7, "This is the second time I ___ this city.", Competency.APPLICATION, T_PRESPERF, 2,
-                "visit", "visited", "have visited", "am visiting");
-        pqTopic(anh, 8, "The bigger the city gets, ___ it becomes.", Competency.APPLICATION, T_DBLCOMP, 1,
-                "more crowded", "the more crowded", "the most crowded", "crowded");
-        pqTopic(anh, 9, "Cities are getting ___ every year.", Competency.KNOWLEDGE, T_DBLCOMP, 1,
-                "big and big", "bigger and bigger", "the bigger", "more big");
-        pqTopic(anh, 10, "___ my brother is often late for work, he is never promoted.",
-                Competency.APPLICATION, T_SENTENCE, 0, "Because", "But", "So", "And");
-        pqTopic(anh, 11, "The ___ of cycling among young people has increased recently.",
-                Competency.KNOWLEDGE, "Từ vựng", 1, "origin", "popularity", "identity", "trend");
-        pqTopic(anh, 12, "Which word contains the diphthong /əʊ/?", Competency.KNOWLEDGE, "Phát âm", 2,
-                "age", "saved", "wrote", "against");
-
-        // ---- Đề khảo sát ĐẦU VÀO 30 câu, đủ dạng như đề KSCL đầu năm ----
+        // ---- Đề khảo sát ĐẦU VÀO 30 câu, đủ dạng như đề KSCL đầu năm (mỗi lớp một đề) ----
         seedEnglish10Placement(anh);
         seedEnglish11Placement(anh);
+        seedEnglish12Placement(anh);
 
         // Tài liệu nguồn cho AI (giáo viên gửi) — AI dựa vào đây để soạn giáo trình + bài tập.
         String grammar = readClasspath("materials/tieng-anh-thanh-phan-cau.txt");
@@ -1595,6 +1569,97 @@ public class DataSeeder implements CommandLineRunner {
         pqTopic(anh, G11, 30, reading, "What is the main idea of the passage?", Competency.COMPREHENSION, "Đọc hiểu", 1,
                 "Fast food is good for health", "Small positive changes help us live longer and healthier",
                 "Sleep is not important", "Exercise is dangerous");
+    }
+
+    private void seedEnglish12Placement(Subject anh) {
+        // 1–4: Phát âm & trọng âm
+        pqTopic(anh, G12, 1, "Choose the word whose underlined \"a\" is pronounced differently: m_a_rk, f_a_ce, b_a_ke, p_a_ge.",
+                Competency.KNOWLEDGE, "Phát âm", 0, "mark", "face", "bake", "page");
+        pqTopic(anh, G12, 2, "Choose the word whose underlined part is pronounced differently.",
+                Competency.KNOWLEDGE, "Phát âm", 1, "picture", "cartoon", "practice", "climbed");
+        pqTopic(anh, G12, 3, "Choose the word that has a different stress pattern.",
+                Competency.KNOWLEDGE, "Phát âm", 3, "army", "beauty", "money", "account");
+        pqTopic(anh, G12, 4, "Choose the word that has a different stress pattern.",
+                Competency.KNOWLEDGE, "Phát âm", 0, "concentrate", "vacation", "effective", "experience");
+
+        // 5–17: Ngữ pháp (mỗi câu 1 chủ đề Lớp 12 để map bài học)
+        pqTopic(anh, G12, 5, "While I ___ dinner, the phone suddenly rang.", Competency.APPLICATION, T_PAST, 1,
+                "cooked", "was cooking", "cook", "am cooking");
+        pqTopic(anh, G12, 6, "___ Pacific is the largest of all oceans.", Competency.KNOWLEDGE, T_ART, 2,
+                "A", "An", "The", "(không cần mạo từ)");
+        pqTopic(anh, G12, 7, "The future of our planet depends ___ how we treat it.", Competency.KNOWLEDGE, T_VPREP, 1,
+                "in", "on", "at", "for");
+        pqTopic(anh, G12, 8, "More and more people are recycling now, ___ is good for the environment.",
+                Competency.APPLICATION, T_WHICH, 1, "that", "which", "what", "who");
+        pqTopic(anh, G12, 9, "This is the second time I ___ this beautiful city.", Competency.APPLICATION, T_PRESPERF, 2,
+                "visit", "visited", "have visited", "am visiting");
+        pqTopic(anh, G12, 10, "The bigger the city gets, ___ it becomes.", Competency.APPLICATION, T_DBLCOMP, 1,
+                "more crowded", "the more crowded", "the most crowded", "crowded");
+        pqTopic(anh, G12, 11, "___ my brother is often late for work, he is never promoted.",
+                Competency.APPLICATION, T_SENTENCE, 0, "Because", "But", "So", "And");
+        pqTopic(anh, G12, 12, "I had my computer ___ yesterday.", Competency.APPLICATION, T12_CAUSATIVE, 1,
+                "repair", "repaired", "to repair", "repairing");
+        pqTopic(anh, G12, 13, "The story was ___ interesting that it went viral in a day.", Competency.APPLICATION, T12_ADVMANNER, 0,
+                "so", "such", "very", "too");
+        pqTopic(anh, G12, 14, "___ we act now, many species will disappear forever.", Competency.APPLICATION, T12_ADVCOND, 1,
+                "If", "Unless", "Because", "Although");
+        pqTopic(anh, G12, 15, "I look ___ to seeing you again next week.", Competency.KNOWLEDGE, T12_PHRASAL3, 0,
+                "forward", "after", "up", "for");
+        pqTopic(anh, G12, 16, "The teacher told the students ___ hard for the exam.", Competency.APPLICATION, T12_REPORTED, 1,
+                "study", "to study", "studying", "studied");
+        pqTopic(anh, G12, 17, "She ___ in Ha Noi since 2015.", Competency.APPLICATION, T_PRESPERF, 2,
+                "lives", "lived", "has lived", "living");
+
+        // 18–20: Từ vựng
+        pqTopic(anh, G12, 18, "Choose the word CLOSEST in meaning to \"maintain\".",
+                Competency.COMPREHENSION, "Từ vựng", 1, "lose", "keep", "waste", "break");
+        pqTopic(anh, G12, 19, "The technology company decided to ___ a brand-new smartphone.",
+                Competency.KNOWLEDGE, "Từ vựng", 0, "launch", "close", "lose", "forget");
+        pqTopic(anh, G12, 20, "Choose the word OPPOSITE in meaning to \"artificial\".",
+                Competency.COMPREHENSION, "Từ vựng", 2, "fake", "synthetic", "natural", "man-made");
+
+        // 21–25: Điền vào đoạn văn (cloze)
+        String cloze = """
+                Đọc thông báo sau và chọn đáp án đúng cho mỗi chỗ trống (21–25).
+
+                ANNOUNCEMENT — INTERNATIONAL CULTURAL FESTIVAL
+                The School Youth Union would like to announce: The festival (21)____ at 7 p.m. on
+                September 2 at our school. This is a perfect event for students to learn about cultural
+                diversity, (22)____ by tasting food from different countries. This programme brings
+                cultures from all over the world to one (23)____! (24)____ you have any questions,
+                please contact your class monitor. We hope (25)____ you there.""";
+        pqTopic(anh, G12, 21, cloze, "Chỗ trống (21):", Competency.APPLICATION, "Từ vựng", 0,
+                "will be held", "held", "hold", "was holding");
+        pqTopic(anh, G12, 22, cloze, "Chỗ trống (22):", Competency.KNOWLEDGE, "Từ vựng", 1,
+                "particular", "particularly", "particularity", "particulars");
+        pqTopic(anh, G12, 23, cloze, "Chỗ trống (23):", Competency.KNOWLEDGE, "Từ vựng", 0,
+                "location", "culture", "position", "land");
+        pqTopic(anh, G12, 24, cloze, "Chỗ trống (24):", Competency.APPLICATION, "Từ vựng", 0,
+                "If", "Were", "Should", "Do");
+        pqTopic(anh, G12, 25, cloze, "Chỗ trống (25):", Competency.APPLICATION, "Từ vựng", 1,
+                "see", "to see", "seeing", "saw");
+
+        // 26–30: Đọc hiểu
+        String reading = """
+                Đọc đoạn văn sau và trả lời các câu hỏi (26–30).
+
+                Artificial intelligence (AI) is changing the way we live and work. Today, AI is used in
+                many fields, from healthcare to education. In hospitals, AI helps doctors diagnose
+                diseases more quickly and accurately. In schools, AI-powered apps can give students
+                personalised lessons based on their strengths and weaknesses. However, some people
+                worry that AI may replace human workers and cause unemployment. Others believe that AI
+                will create new jobs and make our lives easier. Whatever happens, it is clear that
+                understanding AI will be an important skill in the future.""";
+        pqTopic(anh, G12, 26, reading, "According to the passage, where is AI used?", Competency.COMPREHENSION, "Đọc hiểu", 1,
+                "Only in games", "In many fields such as healthcare and education", "Only in factories", "Nowhere yet");
+        pqTopic(anh, G12, 27, reading, "How does AI help doctors in hospitals?", Competency.COMPREHENSION, "Đọc hiểu", 1,
+                "By cooking food", "By diagnosing diseases quickly and accurately", "By cleaning rooms", "By replacing patients");
+        pqTopic(anh, G12, 28, reading, "What can AI-powered apps do in schools?", Competency.COMPREHENSION, "Đọc hiểu", 0,
+                "Give students personalised lessons", "Cook meals", "Drive buses", "Build classrooms");
+        pqTopic(anh, G12, 29, reading, "What do some people worry about?", Competency.COMPREHENSION, "Đọc hiểu", 1,
+                "AI is too slow", "AI may replace workers and cause unemployment", "AI is too cheap", "AI cannot learn");
+        pqTopic(anh, G12, 30, reading, "What will be an important skill in the future?", Competency.COMPREHENSION, "Đọc hiểu", 1,
+                "Cooking well", "Understanding AI", "Driving fast", "Singing loudly");
     }
 
     private String readClasspath(String path) {
