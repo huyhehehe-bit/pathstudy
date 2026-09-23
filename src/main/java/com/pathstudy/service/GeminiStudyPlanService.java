@@ -124,6 +124,10 @@ public class GeminiStudyPlanService implements AiStudyPlanService {
                 3) BÀI TẬP LUYỆN TẬP: 5 câu hỏi bám sát điểm yếu, KÈM ĐÁP ÁN ở cuối.
                 Nếu là Tiếng Anh, thêm 10 từ vựng nên học theo chủ điểm.
                 Chỉ trả về nội dung, không mở đầu dài dòng.
+                ĐỊNH DẠNG: viết văn bản thuần tiếng Việt, dễ đọc. TUYỆT ĐỐI KHÔNG dùng
+                ký hiệu Markdown (không dùng #, ##, ###, dấu * hay ** để in đậm) và
+                KHÔNG dùng công thức LaTeX (không dùng $...$, \\text, _{}). Trình bày
+                tiêu đề mục bằng chữ IN HOA, gạch đầu dòng bằng "-", ví dụ viết bình thường.
                 """.formatted(subjectName, material, score, level,
                 weakTopics.isEmpty() ? "chưa xác định" : String.join(", ", weakTopics));
 
