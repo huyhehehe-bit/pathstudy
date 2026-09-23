@@ -37,9 +37,32 @@ public class GeminiStudyPlanService implements AiStudyPlanService {
 
     private final RestClient rest = RestClient.create();
 
+    /** Reason the last generatePlan call produced no AI text (shown in /admin/ai-check). */
+    private volatile String lastError = "(chưa gọi generatePlan)";
+
     @Override
     public boolean isEnabled() {
         return apiKey != null && !apiKey.isBlank();
+    }
+
+    /**
+     * Pulls the answer text out of a generateContent response, tolerating models
+     * that return several parts (e.g. a thinking part before the answer): joins
+     * every parts[*].text under the first candidate.
+     */
+    private static String extractText(JsonNode resp) {
+        if (resp == null) {
+            return null;
+        }
+        JsonNode parts = resp.path("candidates").path(0).path("content").path("parts");
+        StringBuilder sb = new StringBuilder();
+        for (JsonNode p : parts) {
+            JsonNode t = p.path("text");
+            if (t.isTextual()) {
+                sb.append(t.asText());
+            }
+        }
+        return sb.length() == 0 ? null : sb.toString();
     }
 
     @Override
@@ -80,17 +103,24 @@ public class GeminiStudyPlanService implements AiStudyPlanService {
                     .body(body)
                     .retrieve()
                     .body(JsonNode.class);
-            if (resp == null) {
+            String text = extractText(resp);
+            if (text == null) {
+                String dump = resp == null ? "null" : resp.toString();
+                lastError = "200 nhưng không có text. finishReason/response: "
+                        + dump.substring(0, Math.min(400, dump.length()));
+                log.warn("Gemini returned no text (model={}): {}", model, lastError);
                 return null;
             }
-            JsonNode text = resp.path("candidates").path(0).path("content").path("parts").path(0).path("text");
-            return text.isMissingNode() ? null : text.asText();
+            lastError = "OK";
+            return text;
         } catch (RestClientResponseException e) {
-            log.warn("Gemini API error (model={}): HTTP {} - {}", model, e.getStatusCode().value(),
-                    e.getResponseBodyAsString());
+            lastError = "HTTP " + e.getStatusCode().value() + " - "
+                    + e.getResponseBodyAsString();
+            log.warn("Gemini API error (model={}): {}", model, lastError);
             return null;
         } catch (RuntimeException e) {
-            log.warn("Gemini call failed (model={}): {}", model, e.toString());
+            lastError = e.toString();
+            log.warn("Gemini call failed (model={}): {}", model, lastError);
             return null;
         }
     }
@@ -152,16 +182,16 @@ public class GeminiStudyPlanService implements AiStudyPlanService {
                     .body(body)
                     .retrieve()
                     .body(JsonNode.class);
-            JsonNode text = resp == null ? null
-                    : resp.path("candidates").path(0).path("content").path("parts").path(0).path("text");
+            String text = extractText(resp);
             sb.append("Gọi API: OK ✅\n");
-            sb.append("Phản hồi mẫu: ").append(text == null ? "(rỗng)" : text.asText("(rỗng)"));
+            sb.append("Phản hồi mẫu: ").append(text == null ? "(rỗng)" : text);
         } catch (RestClientResponseException e) {
             sb.append("Gọi API: LỖI ❌ HTTP ").append(e.getStatusCode().value()).append('\n');
             sb.append(e.getResponseBodyAsString());
         } catch (RuntimeException e) {
             sb.append("Gọi API: LỖI ❌ ").append(e.toString());
         }
+        sb.append("\nLỗi gần nhất của generatePlan (bài kiểm tra thật): ").append(lastError);
         return sb.toString();
     }
 }
