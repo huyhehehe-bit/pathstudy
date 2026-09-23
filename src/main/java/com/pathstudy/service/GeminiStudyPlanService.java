@@ -65,6 +65,41 @@ public class GeminiStudyPlanService implements AiStudyPlanService {
         return sb.length() == 0 ? null : sb.toString();
     }
 
+    /**
+     * POSTs a single-prompt generateContent request, retrying on transient
+     * overload (HTTP 503 UNAVAILABLE / 429 rate limit) up to 3 attempts.
+     */
+    private JsonNode generateContent(String promptText) {
+        Map<String, Object> body = Map.of(
+                "contents", List.of(Map.of("parts", List.of(Map.of("text", promptText)))));
+        RestClientResponseException lastEx = null;
+        for (int attempt = 1; attempt <= 3; attempt++) {
+            try {
+                return rest.post()
+                        .uri(ENDPOINT, model)
+                        .header("x-goog-api-key", apiKey)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(body)
+                        .retrieve()
+                        .body(JsonNode.class);
+            } catch (RestClientResponseException e) {
+                int code = e.getStatusCode().value();
+                if ((code == 503 || code == 429) && attempt < 3) {
+                    lastEx = e;
+                    try {
+                        Thread.sleep(700L * attempt);
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt();
+                        throw e;
+                    }
+                    continue;
+                }
+                throw e;
+            }
+        }
+        throw lastEx;
+    }
+
     @Override
     public String generatePlan(String subjectName, int score, String level, List<String> weakTopics,
                                String referenceMaterial) {
@@ -92,17 +127,8 @@ public class GeminiStudyPlanService implements AiStudyPlanService {
                 """.formatted(subjectName, material, score, level,
                 weakTopics.isEmpty() ? "chưa xác định" : String.join(", ", weakTopics));
 
-        Map<String, Object> body = Map.of(
-                "contents", List.of(Map.of("parts", List.of(Map.of("text", prompt)))));
-
         try {
-            JsonNode resp = rest.post()
-                    .uri(ENDPOINT, model)
-                    .header("x-goog-api-key", apiKey)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(body)
-                    .retrieve()
-                    .body(JsonNode.class);
+            JsonNode resp = generateContent(prompt);
             String text = extractText(resp);
             if (text == null) {
                 String dump = resp == null ? "null" : resp.toString();
@@ -172,16 +198,8 @@ public class GeminiStudyPlanService implements AiStudyPlanService {
             sb.append("Không liệt kê được model: ").append(e.toString()).append('\n');
         }
 
-        Map<String, Object> body = Map.of("contents",
-                List.of(Map.of("parts", List.of(Map.of("text", "Trả lời đúng 2 chữ: xin chào")))));
         try {
-            JsonNode resp = rest.post()
-                    .uri(ENDPOINT, model)
-                    .header("x-goog-api-key", apiKey)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(body)
-                    .retrieve()
-                    .body(JsonNode.class);
+            JsonNode resp = generateContent("Trả lời đúng 2 chữ: xin chào");
             String text = extractText(resp);
             sb.append("Gọi API: OK ✅\n");
             sb.append("Phản hồi mẫu: ").append(text == null ? "(rỗng)" : text);
