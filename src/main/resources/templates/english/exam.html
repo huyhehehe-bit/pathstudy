@@ -16,6 +16,9 @@
                 </div>
 
                 <div class="q-card" th:each="q, qi : ${questions}">
+                    <div th:if="${q.passage != null and !q.passage.isBlank() and (qi.first or questions[qi.index - 1].passage != q.passage)}"
+                         style="white-space:pre-line;line-height:1.65;font-size:14px;background:var(--primary-tint);padding:14px;border-radius:10px;margin-bottom:12px"
+                         th:text="${q.passage}">Đoạn văn</div>
                     <div class="q-num" th:text="'Câu ' + ${qi.count} + ' / ' + ${#lists.size(questions)}">Câu 1</div>
                     <div class="q-text" th:text="${q.text}">Câu hỏi?</div>
                     <div class="options">

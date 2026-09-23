@@ -35,6 +35,10 @@ public class Exam {
     @Column(nullable = false)
     private boolean premium = true;
 
+    /** Khối mà đề này thuộc về ("Lớp 10/11/12"). Null = đề chung cho mọi lớp. */
+    @Column(length = 20)
+    private String grade;
+
     @Column(nullable = false)
     private int orderIndex = 0;
 }

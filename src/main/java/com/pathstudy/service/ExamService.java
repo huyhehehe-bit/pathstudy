@@ -39,6 +39,19 @@ public class ExamService {
         return exams.findBySubjectOrderByOrderIndexAsc(subject);
     }
 
+    /** Đề của khối {@code grade} + các đề chung (grade == null). */
+    @Transactional(readOnly = true)
+    public List<Exam> listExams(Subject subject, String grade) {
+        List<Exam> all = exams.findBySubjectOrderByOrderIndexAsc(subject);
+        List<Exam> result = new ArrayList<>();
+        for (Exam e : all) {
+            if (e.getGrade() == null || e.getGrade().equals(grade)) {
+                result.add(e);
+            }
+        }
+        return result;
+    }
+
     @Transactional(readOnly = true)
     public Optional<Exam> exam(Long id) {
         return exams.findById(id);

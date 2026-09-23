@@ -24,7 +24,7 @@ import java.util.List;
 @Component
 public class DataSeeder implements CommandLineRunner {
 
-    private static final String SEED_VERSION = "2026-09-23-placement-all-grades";
+    private static final String SEED_VERSION = "2026-09-23-exams-hk-10-11";
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -589,11 +589,263 @@ public class DataSeeder implements CommandLineRunner {
                 "lives", "lived", "has lived", "living");
         eqExam(ex2, 6, "If it ___ , we will stay home.", Competency.APPLICATION, "Câu điều kiện loại 1", 0,
                 "rains", "rained", "will rain", "raining");
+
+        // Đề tổng hợp cuối kì theo lớp (từ đề cương ôn tập / đề thi của user)
+        seedEnglish10ExamHK1(anh);
+        seedEnglish10ExamHK2(anh);
+        seedEnglish11ExamHK1(anh);
+        seedEnglish11ExamHK2(anh);
+    }
+
+    private void seedEnglish10ExamHK1(Subject anh) {
+        Exam ex = exam(anh, G10, "Đề tổng hợp Học kì 1 — Lớp 10", "Tổng hợp HK1",
+                "Ôn tập Unit 1–5 (các thì, bị động, câu ghép, động từ nguyên mẫu/V-ing) — chấm điểm & chỉ điểm yếu.", 10);
+        eqExam(ex, 1, "My sister ___ her homework at the moment.", Competency.APPLICATION, T10_PRES, 2,
+                "do", "does", "is doing", "did");
+        eqExam(ex, 2, "Water ___ at 100 degrees Celsius.", Competency.KNOWLEDGE, T10_PRES, 1,
+                "boil", "boils", "is boiling", "boiled");
+        eqExam(ex, 3, "I promise I ___ you tomorrow.", Competency.APPLICATION, T10_FUTURE, 1,
+                "am", "will call", "call", "calling");
+        eqExam(ex, 4, "Look at the timetable. The train ___ at 6 p.m. (kế hoạch chắc chắn).", Competency.APPLICATION, T10_FUTURE, 2,
+                "will leave", "leave", "is going to leave", "left");
+        eqExam(ex, 5, "The letter ___ yesterday.", Competency.APPLICATION, T10_PASSIVE, 1,
+                "sent", "was sent", "is sent", "sends");
+        eqExam(ex, 6, "I was tired, ___ I went to bed early.", Competency.KNOWLEDGE, T10_COMPOUND, 3,
+                "but", "or", "and", "so");
+        eqExam(ex, 7, "She agreed ___ us with the project.", Competency.APPLICATION, T10_INF, 1,
+                "help", "to help", "helping", "helped");
+        eqExam(ex, 8, "My mother made me ___ the dishes.", Competency.APPLICATION, T10_INF, 0,
+                "wash", "to wash", "washing", "washed");
+        eqExam(ex, 9, "While they ___ dinner, the doorbell rang.", Competency.APPLICATION, T10_PAST, 2,
+                "have", "had", "were having", "are having");
+        eqExam(ex, 10, "I ___ never ___ to Japan.", Competency.APPLICATION, T10_PRESPERF, 1,
+                "did / go", "have / been", "am / being", "was / gone");
+        eqExam(ex, 11, "He avoids ___ junk food.", Competency.KNOWLEDGE, T10_GERUND, 2,
+                "eat", "to eat", "eating", "eaten");
+        eqExam(ex, 12, "___ a new language takes time and effort.", Competency.APPLICATION, T10_GERUND, 1,
+                "Learn", "Learning", "To learning", "Learned");
+        eqExam(ex, 13, "Choose the word CLOSEST in meaning to \"talented\".", Competency.COMPREHENSION, "Từ vựng", 1,
+                "lazy", "gifted", "weak", "ordinary");
+        eqExam(ex, 14, "We should ___ electricity to protect the environment.", Competency.KNOWLEDGE, "Từ vựng", 0,
+                "save", "waste", "spend", "throw");
+        String reading = """
+                Đọc đoạn văn sau và trả lời các câu hỏi (15–20).
+
+                Music plays an important part in our lives. Many young people listen to music every day
+                to relax after school or to feel more energetic. Some students say that listening to soft
+                music while studying helps them concentrate better. Music can also bring people together;
+                for example, at concerts and festivals, thousands of fans sing along to their favourite
+                songs. In addition, learning to play a musical instrument, such as the guitar or the piano,
+                can improve memory and reduce stress. For these reasons, music is much more than just
+                entertainment.""";
+        eqExam(ex, 15, reading, "Why do many young people listen to music every day?", Competency.COMPREHENSION, "Đọc hiểu", 1,
+                "To earn money", "To relax or feel energetic", "To do homework", "To sleep in class");
+        eqExam(ex, 16, reading, "According to some students, soft music while studying helps them ___.", Competency.COMPREHENSION, "Đọc hiểu", 0,
+                "concentrate better", "sleep", "eat more", "talk louder");
+        eqExam(ex, 17, reading, "Where do thousands of fans sing along to songs?", Competency.COMPREHENSION, "Đọc hiểu", 2,
+                "At school", "At home", "At concerts and festivals", "In libraries");
+        eqExam(ex, 18, reading, "What can learning a musical instrument improve?", Competency.COMPREHENSION, "Đọc hiểu", 1,
+                "Eyesight", "Memory and stress reduction", "Height", "Speed");
+        eqExam(ex, 19, reading, "The word \"entertainment\" is closest in meaning to ___.", Competency.COMPREHENSION, "Từ vựng", 1,
+                "work", "amusement", "study", "sport");
+        eqExam(ex, 20, reading, "What is the main idea of the passage?", Competency.COMPREHENSION, "Đọc hiểu", 1,
+                "Music is a waste of time", "Music is important and useful in many ways", "Only singers like music", "Music is only for concerts");
+    }
+
+    private void seedEnglish10ExamHK2(Subject anh) {
+        Exam ex = exam(anh, G10, "Đề tổng hợp Học kì 2 — Lớp 10", "Tổng hợp HK2",
+                "Ôn tập Unit 6–10 (bị động+modal, so sánh, mệnh đề quan hệ, tường thuật, câu điều kiện) — chấm điểm & chỉ điểm yếu.", 11);
+        eqExam(ex, 1, "This problem must ___ immediately.", Competency.APPLICATION, T10_PASSMODAL, 1,
+                "solve", "be solved", "solved", "be solving");
+        eqExam(ex, 2, "Gender equality should ___ in every country.", Competency.APPLICATION, T10_PASSMODAL, 1,
+                "promote", "be promoted", "promoted", "promoting");
+        eqExam(ex, 3, "This building is ___ than that one.", Competency.KNOWLEDGE, T10_COMPSUP, 1,
+                "tall", "taller", "tallest", "more tall");
+        eqExam(ex, 4, "She is ___ student in her class.", Competency.KNOWLEDGE, T10_COMPSUP, 2,
+                "cleverer", "more clever", "the cleverest", "clever");
+        eqExam(ex, 5, "The book ___ I borrowed is very interesting.", Competency.KNOWLEDGE, T10_RELCLAUSE, 2,
+                "who", "whose", "which", "where");
+        eqExam(ex, 6, "This is the town ___ I was born.", Competency.APPLICATION, T10_RELCLAUSE, 3,
+                "which", "who", "that", "where");
+        eqExam(ex, 7, "He said that he ___ busy at that moment.", Competency.APPLICATION, T10_REPORTED, 1,
+                "is", "was", "will be", "be");
+        eqExam(ex, 8, "She told me ___ the window.", Competency.APPLICATION, T10_REPORTED, 1,
+                "close", "to close", "closing", "closed");
+        eqExam(ex, 9, "If you heat ice, it ___.", Competency.APPLICATION, T10_CONDITIONAL, 1,
+                "melted", "melts", "will melt", "would melt");
+        eqExam(ex, 10, "If we don't protect nature, animals ___ their habitats.", Competency.APPLICATION, T10_CONDITIONAL, 2,
+                "lost", "would lose", "will lose", "lose");
+        eqExam(ex, 11, "If I had more money, I ___ around the world.", Competency.APPLICATION, T10_CONDITIONAL, 1,
+                "will travel", "would travel", "travel", "travelled");
+        eqExam(ex, 12, "Choose the word OPPOSITE in meaning to \"protect\".", Competency.COMPREHENSION, "Từ vựng", 2,
+                "guard", "defend", "harm", "save");
+        eqExam(ex, 13, "Ecotourism helps ___ the natural environment.", Competency.KNOWLEDGE, "Từ vựng", 0,
+                "preserve", "destroy", "pollute", "waste");
+        eqExam(ex, 14, "A person who does a job without being paid is a ___.", Competency.KNOWLEDGE, "Từ vựng", 1,
+                "manager", "volunteer", "customer", "tourist");
+        String reading = """
+                Đọc đoạn văn sau và trả lời các câu hỏi (15–20).
+
+                Ecotourism is a form of tourism that focuses on protecting the environment and supporting
+                local people. Instead of staying in big hotels, ecotourists often stay in small guesthouses
+                run by local families. They enjoy activities such as hiking, bird-watching and visiting
+                national parks. Ecotourism helps local communities earn money while keeping their traditions
+                alive. It also raises people's awareness of the importance of protecting nature. However,
+                if it is not managed carefully, too many visitors can damage the environment. Therefore,
+                both tourists and local authorities must work together to keep ecotourism sustainable.""";
+        eqExam(ex, 15, reading, "What does ecotourism focus on?", Competency.COMPREHENSION, "Đọc hiểu", 1,
+                "Building big hotels", "Protecting the environment and supporting local people", "Making profit only", "Fast travel");
+        eqExam(ex, 16, reading, "Where do ecotourists often stay?", Competency.COMPREHENSION, "Đọc hiểu", 2,
+                "In big hotels", "On cruise ships", "In small local guesthouses", "In airports");
+        eqExam(ex, 17, reading, "Which activity is NOT mentioned?", Competency.COMPREHENSION, "Đọc hiểu", 3,
+                "Hiking", "Bird-watching", "Visiting national parks", "Shopping in malls");
+        eqExam(ex, 18, reading, "What can happen if ecotourism is not managed carefully?", Competency.COMPREHENSION, "Đọc hiểu", 1,
+                "Local people become rich", "Too many visitors can damage the environment", "Nature improves", "Traditions disappear");
+        eqExam(ex, 19, reading, "The word \"sustainable\" is closest in meaning to ___.", Competency.COMPREHENSION, "Từ vựng", 1,
+                "temporary", "long-lasting", "expensive", "dangerous");
+        eqExam(ex, 20, reading, "Who must work together to keep ecotourism sustainable?", Competency.COMPREHENSION, "Đọc hiểu", 2,
+                "Only tourists", "Only the government", "Tourists and local authorities", "Only hotel owners");
+    }
+
+    private void seedEnglish11ExamHK2(Subject anh) {
+        Exam ex = exam(anh, G11, "Đề tổng hợp Học kì 2 — Lớp 11", "Tổng hợp HK2",
+                "Ôn tập Unit 6–10 (mệnh đề to-V, danh động từ/phân từ hoàn thành, câu chẻ, từ nối, danh từ ghép) — chấm điểm & chỉ điểm yếu.", 11);
+        eqExam(ex, 1, "We went to the museum ___ about our national heritage.", Competency.APPLICATION, T11_TOINF, 1,
+                "learn", "to learn", "learning", "learned");
+        eqExam(ex, 2, "It is important ___ our cultural heritage.", Competency.APPLICATION, T11_TOINF, 1,
+                "preserve", "to preserve", "preserving", "preserved");
+        eqExam(ex, 3, "___ his homework, he went out to play.", Competency.APPLICATION, T11_PERFGER, 2,
+                "Finish", "Finishing", "Having finished", "To finish");
+        eqExam(ex, 4, "She apologised for ___ the meeting.", Competency.APPLICATION, T11_PERFGER, 2,
+                "miss", "missing", "having missed", "to miss");
+        eqExam(ex, 5, "It was my teacher ___ inspired me to study hard.", Competency.APPLICATION, T11_CLEFT, 1,
+                "which", "who", "whom", "whose");
+        eqExam(ex, 6, "It was in 2020 ___ she became independent.", Competency.APPLICATION, T11_CLEFT, 2,
+                "who", "which", "that", "when");
+        eqExam(ex, 7, "He studied hard; ___, he passed the exam.", Competency.KNOWLEDGE, T11_LINKING, 2,
+                "however", "although", "therefore", "because");
+        eqExam(ex, 8, "___ the heavy rain, they still went camping.", Competency.APPLICATION, T11_LINKING, 1,
+                "Because of", "Despite", "Therefore", "So");
+        eqExam(ex, 9, "A place where many species live together is called an ___.", Competency.KNOWLEDGE, T11_COMPNOUN, 1,
+                "ecology", "ecosystem", "economy", "ecotour");
+        eqExam(ex, 10, "The ___ keeps the balance of nature in a forest.", Competency.KNOWLEDGE, T11_COMPNOUN, 0,
+                "food chain", "food shop", "food court", "fast food");
+        eqExam(ex, 11, "Choose the word CLOSEST in meaning to \"independent\".", Competency.COMPREHENSION, "Từ vựng", 1,
+                "dependent", "self-reliant", "weak", "shy");
+        eqExam(ex, 12, "We should ___ our cultural traditions for future generations.", Competency.KNOWLEDGE, "Từ vựng", 0,
+                "preserve", "destroy", "forget", "ignore");
+        eqExam(ex, 13, "Peer ___ can make teenagers do things they don't want to do.", Competency.KNOWLEDGE, "Từ vựng", 1,
+                "power", "pressure", "energy", "force");
+        eqExam(ex, 14, "Biodiversity means the ___ of living things in a place.", Competency.KNOWLEDGE, "Từ vựng", 0,
+                "variety", "shortage", "lack", "absence");
+        String reading = """
+                Đọc đoạn văn sau và trả lời các câu hỏi (15–20).
+
+                Becoming independent is an important step in a young person's life. Independent teenagers
+                are able to make their own decisions, manage their time and take care of themselves. To
+                become more independent, students can start with simple tasks, such as doing their own
+                laundry, cooking simple meals and managing their pocket money. Learning these life skills
+                helps them build confidence and prepares them for the future. However, being independent
+                does not mean doing everything alone. It also means knowing when to ask for help and
+                learning from the advice of parents and teachers.""";
+        eqExam(ex, 15, reading, "What can independent teenagers do?", Competency.COMPREHENSION, "Đọc hiểu", 1,
+                "Only play games", "Make decisions and take care of themselves", "Depend on others", "Avoid all tasks");
+        eqExam(ex, 16, reading, "Which is a simple task mentioned to become independent?", Competency.COMPREHENSION, "Đọc hiểu", 0,
+                "Doing their own laundry", "Buying a car", "Building a house", "Running a company");
+        eqExam(ex, 17, reading, "What do life skills help teenagers build?", Competency.COMPREHENSION, "Đọc hiểu", 1,
+                "Weakness", "Confidence", "Fear", "Laziness");
+        eqExam(ex, 18, reading, "According to the passage, being independent does NOT mean ___.", Competency.COMPREHENSION, "Đọc hiểu", 2,
+                "making decisions", "managing time", "doing everything alone", "taking care of oneself");
+        eqExam(ex, 19, reading, "The word \"confidence\" is closest in meaning to ___.", Competency.COMPREHENSION, "Từ vựng", 1,
+                "doubt", "self-belief", "worry", "fear");
+        eqExam(ex, 20, reading, "What should teenagers still do, according to the passage?", Competency.COMPREHENSION, "Đọc hiểu", 1,
+                "Never ask for help", "Ask for help and learn from advice", "Ignore their parents", "Stop studying");
+    }
+
+    private void seedEnglish11ExamHK1(Subject anh) {
+        Exam ex = exam(anh, G11, "Đề tổng hợp Học kì 1 — Lớp 11", "Tổng hợp HK1",
+                "Ôn tập tổng hợp Unit 1–5 (ngữ pháp, từ vựng, đọc hiểu) — chấm điểm & chỉ điểm yếu.", 10);
+        // Ngữ pháp Unit 1–5 (tag topic Lớp 11 để chỉ đúng bài yếu)
+        eqExam(ex, 1, "I ___ him since we were children.", Competency.APPLICATION, T11_PASTPERF, 1,
+                "knew", "have known", "know", "had known");
+        eqExam(ex, 2, "She ___ to Da Nang last summer.", Competency.APPLICATION, T11_PASTPERF, 1,
+                "goes", "went", "has gone", "going");
+        eqExam(ex, 3, "The deadline is tomorrow, so you ___ finish it today.", Competency.APPLICATION, T11_MODAL, 3,
+                "must", "have to", "should", "don't have to");
+        eqExam(ex, 4, "Students ___ wear uniforms at this school. It is a rule.", Competency.KNOWLEDGE, T11_MODAL, 0,
+                "have to", "should", "might", "would");
+        eqExam(ex, 5, "I ___ about my future career these days.", Competency.APPLICATION, T11_STATIVE, 1,
+                "think", "am thinking", "thinks", "thought");
+        eqExam(ex, 6, "This cake ___ delicious.", Competency.KNOWLEDGE, T11_STATIVE, 1,
+                "is smelling", "smells", "smell", "smelt");
+        eqExam(ex, 7, "___ smart cities requires modern technology.", Competency.APPLICATION, T11_GERSO, 1,
+                "Build", "Building", "To building", "Built");
+        eqExam(ex, 8, "They discussed ___ the ASEAN summit next year.", Competency.APPLICATION, T11_GERSO, 2,
+                "organise", "to organise", "organising", "organised");
+        eqExam(ex, 9, "The gases ___ by factories cause global warming.", Competency.APPLICATION, T11_PARTICIPLE, 2,
+                "produce", "producing", "produced", "to produce");
+        eqExam(ex, 10, "The woman ___ to the students is our new teacher.", Competency.APPLICATION, T11_PARTICIPLE, 1,
+                "talk", "talking", "talked", "to talk");
+        // Từ vựng theo chủ điểm Unit 1–5
+        eqExam(ex, 11, "A balanced ___ is important for good health.", Competency.KNOWLEDGE, "Từ vựng", 0,
+                "diet", "traffic", "summit", "gas");
+        eqExam(ex, 12, "There is often a generation ___ between parents and children.", Competency.KNOWLEDGE, "Từ vựng", 0,
+                "gap", "bridge", "hole", "space");
+        eqExam(ex, 13, "A smart city uses technology to become more ___.", Competency.KNOWLEDGE, "Từ vựng", 0,
+                "efficient", "lazy", "crowded", "dirty");
+        eqExam(ex, 14, "Greenhouse ___ trap heat and warm the Earth.", Competency.KNOWLEDGE, "Từ vựng", 0,
+                "gases", "cities", "parents", "diets");
+        // Cloze (đoạn quảng cáo)
+        String cloze = """
+                Đọc đoạn văn sau và chọn đáp án đúng cho mỗi chỗ trống (15–19).
+
+                VIETNAM AND ASIA
+                Asia is home to many diverse cultures, and Vietnam, with its rich history and vibrant
+                traditions, is one of the (15)____ countries in the region. Its capital, Ha Noi, and its
+                largest city, Ho Chi Minh City, (16)____ millions of tourists every year. Vietnam is also
+                an active (17)____ of ASEAN, working closely with other nations to (18)____ peace and
+                development. Thanks to its efforts, Vietnam (19)____ much stronger over the past decades.""";
+        eqExam(ex, 15, cloze, "Chỗ trống (15):", Competency.COMPREHENSION, "Từ vựng", 1,
+                "fast-growing", "fastest-growing", "more fast", "most fast");
+        eqExam(ex, 16, cloze, "Chỗ trống (16):", Competency.APPLICATION, "Từ vựng", 0,
+                "attract", "attracts", "attracting", "to attract");
+        eqExam(ex, 17, cloze, "Chỗ trống (17):", Competency.KNOWLEDGE, "Từ vựng", 0,
+                "member", "memory", "number", "manager");
+        eqExam(ex, 18, cloze, "Chỗ trống (18):", Competency.APPLICATION, "Từ vựng", 0,
+                "promote", "promotes", "promoting", "promoted");
+        eqExam(ex, 19, cloze, "Chỗ trống (19):", Competency.APPLICATION, T11_PASTPERF, 2,
+                "becomes", "became", "has become", "becoming");
+        // Đọc hiểu
+        String reading = """
+                Đọc đoạn văn sau và trả lời các câu hỏi (20–24).
+
+                Global warming is one of the most serious problems facing our planet today. It is mainly
+                caused by greenhouse gases, such as carbon dioxide, which are released when we burn coal,
+                oil and gas. As the Earth gets warmer, ice at the poles melts and sea levels rise,
+                threatening many coastal cities. In addition, extreme weather events like storms and
+                droughts are becoming more common. To fight global warming, people should use renewable
+                energy, plant more trees and reduce waste. Governments around the world are also working
+                together to cut emissions and protect the environment.""";
+        eqExam(ex, 20, reading, "What mainly causes global warming?", Competency.COMPREHENSION, "Đọc hiểu", 1,
+                "Planting trees", "Greenhouse gases", "Renewable energy", "Rivers");
+        eqExam(ex, 21, reading, "What happens when the Earth gets warmer?", Competency.COMPREHENSION, "Đọc hiểu", 0,
+                "Ice melts and sea levels rise", "Cities get colder", "Trees grow faster", "It stops raining");
+        eqExam(ex, 22, reading, "Which is NOT mentioned as a way to fight global warming?", Competency.COMPREHENSION, "Đọc hiểu", 2,
+                "Using renewable energy", "Planting trees", "Burning more coal", "Reducing waste");
+        eqExam(ex, 23, reading, "What are governments around the world doing?", Competency.COMPREHENSION, "Đọc hiểu", 1,
+                "Ignoring the problem", "Working together to cut emissions", "Building more factories", "Cutting down forests");
+        eqExam(ex, 24, reading, "What is the passage mainly about?", Competency.COMPREHENSION, "Đọc hiểu", 1,
+                "How to travel cheaply", "Global warming and how to fight it", "Famous Asian cities", "Healthy eating habits");
     }
 
     private Exam exam(Subject subject, String title, String level, String description, int idx) {
+        return exam(subject, null, title, level, description, idx);
+    }
+
+    private Exam exam(Subject subject, String grade, String title, String level, String description, int idx) {
         Exam e = new Exam();
         e.setSubject(subject);
+        e.setGrade(grade);
         e.setTitle(title);
         e.setLevel(level);
         e.setDescription(description);
@@ -604,12 +856,18 @@ public class DataSeeder implements CommandLineRunner {
 
     private Question eqExam(Exam exam, int idx, String text, Competency competency,
                             String topic, int correct, String... opts) {
+        return eqExam(exam, idx, null, text, competency, topic, correct, opts);
+    }
+
+    private Question eqExam(Exam exam, int idx, String passage, String text, Competency competency,
+                            String topic, int correct, String... opts) {
         Question q = new Question();
         // Reuse ESTIMATE scope (an allowed enum value) — exam questions are
         // identified by their exam link, and have no module/subject, so they never
         // leak into the placement or module-estimate queries.
         q.setScope(QuizScope.ESTIMATE);
         q.setExam(exam);
+        q.setPassage(passage);
         q.setOrderIndex(idx);
         q.setText(text);
         q.setCompetency(competency);

@@ -92,7 +92,7 @@ public class EnglishController {
 
         model.addAttribute("grade", grade);
         model.addAttribute("grades", GRADES);
-        model.addAttribute("exams", examService.listExams(anh));
+        model.addAttribute("exams", examService.listExams(anh, grade));
         model.addAttribute("hasDocs", !referenceMaterials.findBySubjectOrderByIdAsc(anh).isEmpty());
         model.addAttribute("lessons", lessons);
         model.addAttribute("unitGroups", unitGroups);
