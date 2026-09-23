@@ -44,9 +44,26 @@ public class PlacementService {
         return questions.findByScopeAndSubjectOrderByOrderIndexAsc(QuizScope.PLACEMENT, subject);
     }
 
+    /** Grade-scoped question set (English). When grade is null, returns all. */
+    @Transactional(readOnly = true)
+    public List<Question> questionsFor(Subject subject, String grade) {
+        if (grade == null) {
+            return questionsFor(subject);
+        }
+        return questions.findByScopeAndSubjectAndGradeOrderByOrderIndexAsc(QuizScope.PLACEMENT, subject, grade);
+    }
+
     @Transactional(readOnly = true)
     public int attemptsUsed(User user, Subject subject) {
         return (int) results.countByUserAndSubject(user, subject);
+    }
+
+    @Transactional(readOnly = true)
+    public int attemptsUsed(User user, Subject subject, String grade) {
+        if (grade == null) {
+            return attemptsUsed(user, subject);
+        }
+        return (int) results.countByUserAndSubjectAndGrade(user, subject, grade);
     }
 
     @Transactional(readOnly = true)
@@ -54,9 +71,19 @@ public class PlacementService {
         return attemptsUsed(user, subject) < ATTEMPTS_MAX;
     }
 
+    @Transactional(readOnly = true)
+    public boolean canAttempt(User user, Subject subject, String grade) {
+        return attemptsUsed(user, subject, grade) < ATTEMPTS_MAX;
+    }
+
     @Transactional
     public PlacementOutcome grade(User user, Subject subject, Map<Long, Integer> answers) {
-        List<Question> qs = questionsFor(subject);
+        return grade(user, subject, null, answers);
+    }
+
+    @Transactional
+    public PlacementOutcome grade(User user, Subject subject, String grade, Map<Long, Integer> answers) {
+        List<Question> qs = questionsFor(subject, grade);
 
         int correct = 0;
         Map<Competency, int[]> tally = new EnumMap<>(Competency.class); // [correct, total]
@@ -114,10 +141,11 @@ public class PlacementService {
             studyPlan = rulePlan(weakTopics);
         }
 
-        int attemptNo = attemptsUsed(user, subject) + 1;
+        int attemptNo = attemptsUsed(user, subject, grade) + 1;
         PlacementResult r = new PlacementResult();
         r.setUser(user);
         r.setSubject(subject);
+        r.setGrade(grade);
         r.setAttemptNo(attemptNo);
         r.setScore(score);
         r.setLevel(level);
@@ -127,8 +155,10 @@ public class PlacementService {
         r.setStudyPlan(studyPlan);
         results.save(r);
 
-        // The system uses the BEST attempt to set the starting level.
-        PlacementResult best = results.findTopByUserAndSubjectOrderByScoreDesc(user, subject).orElse(r);
+        // The system uses the BEST attempt (within the same grade) to set the starting level.
+        PlacementResult best = (grade == null
+                ? results.findTopByUserAndSubjectOrderByScoreDesc(user, subject)
+                : results.findTopByUserAndSubjectAndGradeOrderByScoreDesc(user, subject, grade)).orElse(r);
         boolean bestUpdated = best.getId().equals(r.getId());
 
         Enrollment e = enrollments.findByUserAndSubject(user, subject)

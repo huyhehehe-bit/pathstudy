@@ -24,6 +24,10 @@ public class PlacementResult {
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     private Subject subject;
 
+    /** For English: which grade's diagnostic this result is for. Null for Ngữ văn. */
+    @Column(length = 20)
+    private String grade;
+
     @Column(nullable = false)
     private int attemptNo;
 

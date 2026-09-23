@@ -30,55 +30,63 @@ public class PlacementController {
     }
 
     @GetMapping
-    public String intro(@PathVariable String code, Model model, RedirectAttributes ra) {
+    public String intro(@PathVariable String code, @RequestParam(required = false) String grade,
+                        Model model, RedirectAttributes ra) {
         User user = currentUser.require();
         Subject subject = subjects.findByCode(code).orElse(null);
         if (subject == null || !subject.isActive()) {
             ra.addFlashAttribute("toast", "Môn này chưa có bài kiểm tra đầu vào.");
             return "redirect:/subjects";
         }
-        int used = placement.attemptsUsed(user, subject);
+        int used = placement.attemptsUsed(user, subject, grade);
         model.addAttribute("subject", subject);
+        model.addAttribute("grade", grade);
         model.addAttribute("attemptsUsed", used);
         model.addAttribute("attemptsMax", PlacementService.ATTEMPTS_MAX);
         model.addAttribute("canAttempt", used < PlacementService.ATTEMPTS_MAX);
-        model.addAttribute("questionCount", placement.questionsFor(subject).size());
+        model.addAttribute("questionCount", placement.questionsFor(subject, grade).size());
         return "placement/intro";
     }
 
     @GetMapping("/test")
-    public String test(@PathVariable String code, Model model, RedirectAttributes ra) {
+    public String test(@PathVariable String code, @RequestParam(required = false) String grade,
+                       Model model, RedirectAttributes ra) {
         User user = currentUser.require();
         Subject subject = subjects.findByCode(code).orElseThrow();
-        if (!placement.canAttempt(user, subject)) {
+        if (!placement.canAttempt(user, subject, grade)) {
             ra.addFlashAttribute("toast", "Bạn đã dùng hết 3 lần làm bài.");
             return "redirect:/placement/" + code;
         }
         model.addAttribute("subject", subject);
-        model.addAttribute("questions", placement.questionsFor(subject));
-        model.addAttribute("attemptNo", placement.attemptsUsed(user, subject) + 1);
+        model.addAttribute("grade", grade);
+        model.addAttribute("questions", placement.questionsFor(subject, grade));
+        model.addAttribute("attemptNo", placement.attemptsUsed(user, subject, grade) + 1);
         return "placement/test";
     }
 
     @PostMapping("/submit")
-    public String submit(@PathVariable String code, @RequestParam Map<String, String> params,
-                         RedirectAttributes ra) {
+    public String submit(@PathVariable String code, @RequestParam(required = false) String grade,
+                         @RequestParam Map<String, String> params, RedirectAttributes ra) {
         User user = currentUser.require();
         Subject subject = subjects.findByCode(code).orElseThrow();
-        if (!placement.canAttempt(user, subject)) {
+        if (!placement.canAttempt(user, subject, grade)) {
             ra.addFlashAttribute("toast", "Bạn đã dùng hết 3 lần làm bài.");
             return "redirect:/placement/" + code;
         }
-        PlacementOutcome outcome = placement.grade(user, subject, parseAnswers(params));
+        PlacementOutcome outcome = placement.grade(user, subject, grade, parseAnswers(params));
         ra.addFlashAttribute("outcome", outcome);
-        return "redirect:/placement/" + code + "/result";
+        String suffix = grade == null ? "" : "?grade=" + org.springframework.web.util.UriUtils
+                .encode(grade, java.nio.charset.StandardCharsets.UTF_8);
+        return "redirect:/placement/" + code + "/result" + suffix;
     }
 
     @GetMapping("/result")
-    public String result(@PathVariable String code, Model model) {
+    public String result(@PathVariable String code, @RequestParam(required = false) String grade,
+                         Model model) {
         if (!model.containsAttribute("outcome")) {
             return "redirect:/placement/" + code;
         }
+        model.addAttribute("grade", grade);
         return "placement/result";
     }
 

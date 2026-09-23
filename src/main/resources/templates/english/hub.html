@@ -34,10 +34,10 @@
                     <span class="tile tile-amber" th:insert="~{fragments/icons :: ic('clipboard-check')}"></span>
                     <div>
                         <strong style="font-size:16px">Bước 1 — Kiểm tra đầu vào</strong>
-                        <p class="muted" style="font-size:13px;margin:2px 0 0">12 câu bám sát ngữ pháp SGK 12. Chấm điểm và chỉ ra chính xác chủ đề bạn còn yếu.</p>
+                        <p class="muted" style="font-size:13px;margin:2px 0 0" th:text="'Bài kiểm tra đầu vào ' + ${grade} + '. Chấm điểm và chỉ ra chính xác chủ đề bạn còn yếu.'">Bài kiểm tra đầu vào. Chấm điểm và chỉ ra chính xác chủ đề bạn còn yếu.</p>
                     </div>
                 </div>
-                <a th:href="@{/placement/anh}" class="btn btn-primary" style="align-self:flex-start">Bắt đầu kiểm tra →</a>
+                <a th:href="@{/placement/anh(grade=${grade})}" class="btn btn-primary" style="align-self:flex-start">Bắt đầu kiểm tra →</a>
             </div>
 
             <div th:if="${placement != null}" class="card card-pad stack-sm">
@@ -52,7 +52,7 @@
                             </p>
                         </div>
                     </div>
-                    <a th:href="@{/placement/anh}" class="btn btn-ghost">Làm lại bài test</a>
+                    <a th:href="@{/placement/anh(grade=${grade})}" class="btn btn-ghost">Làm lại bài test</a>
                 </div>
 
                 <div th:if="${!#lists.isEmpty(weakTopics)}" class="stack-sm">
@@ -70,7 +70,7 @@
             <div th:if="${!#lists.isEmpty(recommended)}" class="stack-sm">
                 <div class="section-head">
                     <h3 style="font-size:17px">Lộ trình gia sư của bạn</h3>
-                    <p class="muted" style="font-size:13px">Học đúng những bài trong SGK 12 giúp bạn khắc phục điểm yếu.</p>
+                    <p class="muted" style="font-size:13px" th:text="'Học đúng những bài trong giáo trình ' + ${grade} + ' giúp bạn khắc phục điểm yếu.'">Học đúng những bài trong giáo trình giúp bạn khắc phục điểm yếu.</p>
                 </div>
                 <a th:each="l : ${recommended}" th:href="@{'/english/lesson/' + ${l.id}}"
                    class="card card-pad between" style="gap:14px;border-left:3px solid var(--warn)">

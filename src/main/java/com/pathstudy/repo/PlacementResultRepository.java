@@ -12,4 +12,8 @@ public interface PlacementResultRepository extends JpaRepository<PlacementResult
     List<PlacementResult> findByUserAndSubjectOrderByScoreDesc(User user, Subject subject);
     Optional<PlacementResult> findTopByUserAndSubjectOrderByScoreDesc(User user, Subject subject);
     long countByUserAndSubject(User user, Subject subject);
+
+    // Grade-scoped (English): each grade has its own diagnostic + attempts.
+    Optional<PlacementResult> findTopByUserAndSubjectAndGradeOrderByScoreDesc(User user, Subject subject, String grade);
+    long countByUserAndSubjectAndGrade(User user, Subject subject, String grade);
 }

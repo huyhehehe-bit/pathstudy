@@ -58,4 +58,9 @@ public class Question {
      *  "Phát âm", "Câu điều kiện". Used to analyse where the learner is weak. */
     @Column(length = 120)
     private String topic;
+
+    /** For English PLACEMENT questions: the grade this diagnostic belongs to
+     *  ("Lớp 10"/"Lớp 11"/"Lớp 12"). Null for grade-agnostic subjects (Ngữ văn). */
+    @Column(length = 20)
+    private String grade;
 }

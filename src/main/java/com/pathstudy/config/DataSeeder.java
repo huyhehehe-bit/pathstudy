@@ -24,7 +24,7 @@ import java.util.List;
 @Component
 public class DataSeeder implements CommandLineRunner {
 
-    private static final String SEED_VERSION = "2026-09-23-english-sgk-10-11-12-full";
+    private static final String SEED_VERSION = "2026-09-23-english-placement-grade10";
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -555,6 +555,36 @@ public class DataSeeder implements CommandLineRunner {
                 Competency.KNOWLEDGE, "Từ vựng", 1, "origin", "popularity", "identity", "trend");
         pqTopic(anh, 12, "Which word contains the diphthong /əʊ/?", Competency.KNOWLEDGE, "Phát âm", 2,
                 "age", "saved", "wrote", "against");
+
+        // ---- Đề chẩn đoán ĐẦU VÀO LỚP 10 (theo đề KSCL đầu năm) — tag topic Lớp 10 ----
+        pqTopic(anh, G10, 1, "Look! The children ___ football in the yard.", Competency.KNOWLEDGE, T10_PRES, 2,
+                "play", "plays", "are playing", "played");
+        pqTopic(anh, G10, 2, "While we ___ TV, the lights suddenly went out.", Competency.APPLICATION, T10_PAST, 1,
+                "watched", "were watching", "watch", "are watching");
+        pqTopic(anh, G10, 3, "I ___ this film already, so let's watch another one.", Competency.APPLICATION, T10_PRESPERF, 1,
+                "saw", "have seen", "see", "seeing");
+        pqTopic(anh, G10, 4, "Look at those dark clouds! It ___ rain soon.", Competency.APPLICATION, T10_FUTURE, 1,
+                "will", "is going to", "goes to", "would");
+        pqTopic(anh, G10, 5, "This bridge ___ in 1995.", Competency.KNOWLEDGE, T10_PASSIVE, 1,
+                "built", "was built", "is built", "has built");
+        pqTopic(anh, G10, 6, "The report must ___ before Monday.", Competency.APPLICATION, T10_PASSMODAL, 1,
+                "finish", "be finished", "finished", "be finish");
+        pqTopic(anh, G10, 7, "Mount Everest is ___ mountain in the world.", Competency.KNOWLEDGE, T10_COMPSUP, 1,
+                "higher", "the highest", "high", "more high");
+        pqTopic(anh, G10, 8, "The woman ___ lives next door is a doctor.", Competency.KNOWLEDGE, T10_RELCLAUSE, 1,
+                "which", "who", "whose", "where");
+        pqTopic(anh, G10, 9, "If it rains tomorrow, we ___ at home.", Competency.APPLICATION, T10_CONDITIONAL, 1,
+                "stay", "will stay", "stayed", "would stay");
+        pqTopic(anh, G10, 10, "If I ___ you, I would say sorry to her.", Competency.APPLICATION, T10_CONDITIONAL, 2,
+                "am", "was", "were", "be");
+        pqTopic(anh, G10, 11, "My parents let me ___ TV after dinner.", Competency.KNOWLEDGE, T10_INF, 0,
+                "watch", "to watch", "watching", "watched");
+        pqTopic(anh, G10, 12, "I enjoy ___ books in my free time.", Competency.KNOWLEDGE, T10_GERUND, 2,
+                "read", "to read", "reading", "reads");
+        pqTopic(anh, G10, 13, "She said that she ___ very tired that day.", Competency.APPLICATION, T10_REPORTED, 1,
+                "is", "was", "will be", "be");
+        pqTopic(anh, G10, 14, "Choose the word that is OPPOSITE in meaning to \"sociable\".",
+                Competency.COMPREHENSION, "Từ vựng", 2, "friendly", "talkative", "unfriendly", "kind");
 
         // Tài liệu nguồn cho AI (giáo viên gửi) — AI dựa vào đây để soạn giáo trình + bài tập.
         String grammar = readClasspath("materials/tieng-anh-thanh-phan-cau.txt");
@@ -1498,11 +1528,18 @@ public class DataSeeder implements CommandLineRunner {
         return materials.save(m);
     }
 
+    /** English placement question. The no-grade variant defaults to Lớp 12 (legacy calls). */
     private Question pqTopic(Subject subject, int idx, String text, Competency competency,
+                             String topic, int correct, String... opts) {
+        return pqTopic(subject, G12, idx, text, competency, topic, correct, opts);
+    }
+
+    private Question pqTopic(Subject subject, String grade, int idx, String text, Competency competency,
                              String topic, int correct, String... opts) {
         Question q = new Question();
         q.setScope(QuizScope.PLACEMENT);
         q.setSubject(subject);
+        q.setGrade(grade);
         q.setOrderIndex(idx);
         q.setText(text);
         q.setCompetency(competency);

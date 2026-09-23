@@ -73,9 +73,9 @@ public class EnglishController {
                     k -> new ArrayList<>()).add(l);
         }
 
-        // Latest diagnostic (best attempt) → drive the personalized tutor path.
+        // Latest diagnostic (best attempt) for THIS grade → drive the personalized tutor path.
         PlacementResult placement = placementResults
-                .findTopByUserAndSubjectOrderByScoreDesc(user, anh).orElse(null);
+                .findTopByUserAndSubjectAndGradeOrderByScoreDesc(user, anh, grade).orElse(null);
         List<String> weakTopics = parseWeakTopics(placement);
         List<EnglishLesson> recommended = new ArrayList<>();
         for (String topic : weakTopics) {

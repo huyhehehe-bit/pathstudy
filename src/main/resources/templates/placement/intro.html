@@ -30,7 +30,7 @@
                     </div>
                 </div>
 
-                <a th:if="${canAttempt}" th:href="@{'/placement/' + ${subject.code} + '/test'}"
+                <a th:if="${canAttempt}" th:href="@{'/placement/' + ${subject.code} + '/test'(grade=${grade})}"
                    class="btn btn-primary btn-lg btn-block">Bắt đầu làm bài</a>
                 <div th:unless="${canAttempt}" class="banner banner-warn">Bạn đã dùng hết 3 lần làm bài.
                     <a th:href="@{/path}" style="margin-left:auto;font-weight:700">Xem lộ trình →</a></div>

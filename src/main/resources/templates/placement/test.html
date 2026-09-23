@@ -7,7 +7,7 @@
     <main class="main">
         <header th:replace="~{fragments/layout :: topbar('Bài kiểm tra đầu vào')}"></header>
         <div class="content">
-            <form th:action="@{'/placement/' + ${subject.code} + '/submit'}" method="post"
+            <form th:action="@{'/placement/' + ${subject.code} + '/submit'(grade=${grade})}" method="post"
                   class="stack" style="max-width:720px;margin:0 auto">
                 <div class="between">
                     <div>
@@ -30,7 +30,7 @@
                 </div>
 
                 <div class="between">
-                    <a th:href="@{'/placement/' + ${subject.code}}" class="btn btn-ghost">Quay lại</a>
+                    <a th:href="@{'/placement/' + ${subject.code}(grade=${grade})}" class="btn btn-ghost">Quay lại</a>
                     <button type="submit" class="btn btn-primary btn-lg">Nộp bài & xem kết quả</button>
                 </div>
             </form>

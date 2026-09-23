@@ -11,6 +11,7 @@ import java.util.List;
 
 public interface QuestionRepository extends JpaRepository<Question, Long> {
     List<Question> findByScopeAndSubjectOrderByOrderIndexAsc(QuizScope scope, Subject subject);
+    List<Question> findByScopeAndSubjectAndGradeOrderByOrderIndexAsc(QuizScope scope, Subject subject, String grade);
     List<Question> findByScopeAndModuleOrderByOrderIndexAsc(QuizScope scope, CourseModule module);
     List<Question> findByExamOrderByOrderIndexAsc(Exam exam);
 }
