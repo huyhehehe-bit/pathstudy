@@ -21,8 +21,11 @@ import java.util.Map;
 public class GeminiStudyPlanService implements AiStudyPlanService {
 
     private static final Logger log = LoggerFactory.getLogger(GeminiStudyPlanService.class);
+    // Gửi API key qua header x-goog-api-key (cách Google khuyến nghị; hỗ trợ cả
+    // key kiểu cũ 'AIza...' lẫn kiểu mới 'AQ...'). Truyền qua ?key= dễ bị hiểu
+    // nhầm là OAuth access token với key định dạng mới.
     private static final String ENDPOINT =
-            "https://generativelanguage.googleapis.com/v1beta/models/{m}:generateContent?key={k}";
+            "https://generativelanguage.googleapis.com/v1beta/models/{m}:generateContent";
 
     @Value("${app.ai.gemini-key:}")
     private String apiKey;
@@ -69,7 +72,8 @@ public class GeminiStudyPlanService implements AiStudyPlanService {
 
         try {
             JsonNode resp = rest.post()
-                    .uri(ENDPOINT, model, apiKey)
+                    .uri(ENDPOINT, model)
+                    .header("x-goog-api-key", apiKey)
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(body)
                     .retrieve()
@@ -114,7 +118,8 @@ public class GeminiStudyPlanService implements AiStudyPlanService {
                 List.of(Map.of("parts", List.of(Map.of("text", "Trả lời đúng 2 chữ: xin chào")))));
         try {
             JsonNode resp = rest.post()
-                    .uri(ENDPOINT, model, apiKey)
+                    .uri(ENDPOINT, model)
+                    .header("x-goog-api-key", apiKey)
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(body)
                     .retrieve()
