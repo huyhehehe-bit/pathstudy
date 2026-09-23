@@ -28,8 +28,9 @@ import java.util.Map;
 @RequestMapping("/english")
 public class EnglishController {
 
-    /** The grade whose curriculum is currently available (SGK 12). */
-    private static final String GRADE = "Lớp 12";
+    /** Grades that have a curriculum available (SGK Global Success). */
+    private static final List<String> GRADES = List.of("Lớp 10", "Lớp 12");
+    private static final String DEFAULT_GRADE = "Lớp 12";
 
     private final ExamService examService;
     private final ReferenceMaterialRepository referenceMaterials;
@@ -58,11 +59,12 @@ public class EnglishController {
     }
 
     @GetMapping
-    public String hub(Model model) {
+    public String hub(@RequestParam(name = "grade", required = false) String gradeParam, Model model) {
         User user = currentUser.require();
         Subject anh = anh();
 
-        List<EnglishLesson> lessons = englishLessons.findByGradeOrderByOrderIndexAsc(GRADE);
+        String grade = (gradeParam != null && GRADES.contains(gradeParam)) ? gradeParam : DEFAULT_GRADE;
+        List<EnglishLesson> lessons = englishLessons.findByGradeOrderByOrderIndexAsc(grade);
 
         // Group lessons by unit for the curriculum browser.
         Map<String, List<EnglishLesson>> unitGroups = new LinkedHashMap<>();
@@ -77,9 +79,11 @@ public class EnglishController {
         List<String> weakTopics = parseWeakTopics(placement);
         List<EnglishLesson> recommended = new ArrayList<>();
         for (String topic : weakTopics) {
-            englishLessons.findByGradeAndTopic(GRADE, topic).ifPresent(recommended::add);
+            englishLessons.findByGradeAndTopic(grade, topic).ifPresent(recommended::add);
         }
 
+        model.addAttribute("grade", grade);
+        model.addAttribute("grades", GRADES);
         model.addAttribute("exams", examService.listExams(anh));
         model.addAttribute("hasDocs", !referenceMaterials.findBySubjectOrderByIdAsc(anh).isEmpty());
         model.addAttribute("lessons", lessons);
@@ -94,7 +98,7 @@ public class EnglishController {
     public String lesson(@PathVariable Long id, Model model, RedirectAttributes ra) {
         User user = currentUser.require();
         EnglishLesson lesson = englishLessons.findById(id)
-                .filter(l -> GRADE.equals(l.getGrade())).orElse(null);
+                .filter(l -> GRADES.contains(l.getGrade())).orElse(null);
         if (lesson == null) {
             return "redirect:/english";
         }

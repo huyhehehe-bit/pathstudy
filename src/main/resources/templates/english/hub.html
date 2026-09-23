@@ -20,9 +20,13 @@
 
             <!-- Chọn lớp (mỗi lớp có giáo trình riêng) -->
             <div class="center" style="gap:8px;flex-wrap:wrap">
-                <span class="pill faint">Lớp 10 · đang cập nhật</span>
+                <a th:each="g : ${grades}" th:href="@{/english(grade=${g})}"
+                   class="pill"
+                   th:style="${g == grade}
+                       ? 'background:var(--primary-soft);color:var(--primary);font-weight:700;text-decoration:none'
+                       : 'text-decoration:none'"
+                   th:text="${g} + ' · SGK Global Success'">Lớp 12 · SGK Global Success</a>
                 <span class="pill faint">Lớp 11 · đang cập nhật</span>
-                <span class="pill" style="background:var(--primary-soft);color:var(--primary);font-weight:700">Lớp 12 · SGK Global Success</span>
             </div>
 
             <!-- Bước 1: Kiểm tra đầu vào / Kết quả + lộ trình gia sư -->
@@ -94,7 +98,7 @@
             <div class="grid-2">
                 <a href="#curriculum" class="card card-pad stack-sm" style="gap:10px">
                     <span class="tile tile-indigo" th:insert="~{fragments/icons :: ic('book-open')}"></span>
-                    <strong style="font-size:16px">Học theo giáo trình SGK 12</strong>
+                    <strong style="font-size:16px" th:text="'Học theo giáo trình SGK ' + ${#strings.replace(grade,'Lớp ','')}">Học theo giáo trình SGK 12</strong>
                     <p class="muted" style="font-size:13px">Ngữ pháp, từ vựng, phát âm theo từng Unit — có ví dụ và giải thích tiếng Việt.</p>
                 </a>
                 <a href="#exams" class="card card-pad stack-sm" style="gap:10px">
@@ -106,7 +110,7 @@
 
             <!-- Giáo trình đầy đủ theo Unit -->
             <div id="curriculum" class="stack-sm">
-                <h3 style="font-size:16px">Giáo trình Lớp 12 — theo Unit</h3>
+                <h3 style="font-size:16px" th:text="'Giáo trình ' + ${grade} + ' — theo Unit'">Giáo trình Lớp 12 — theo Unit</h3>
                 <div class="faint" th:if="${#lists.isEmpty(lessons)}" style="font-size:14px">Chưa có bài học. Sẽ cập nhật.</div>
                 <div th:each="grp : ${unitGroups}" class="stack-sm">
                     <span class="muted" style="font-size:13px;font-weight:700" th:text="${grp.key}">Unit 1</span>

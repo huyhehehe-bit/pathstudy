@@ -23,7 +23,7 @@ import java.util.Arrays;
 @Component
 public class DataSeeder implements CommandLineRunner {
 
-    private static final String SEED_VERSION = "2026-09-21-english-sgk12-tutor-v2";
+    private static final String SEED_VERSION = "2026-09-23-english-sgk10-v1";
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -491,6 +491,17 @@ public class DataSeeder implements CommandLineRunner {
     // Không dùng dấu phẩy trong tên chủ đề: weakTopics được lưu dạng phân tách bằng dấu phẩy.
     private static final String T_SENTENCE = "Câu đơn / câu ghép / câu phức";
 
+    // Chủ đề ngữ pháp SGK Tiếng Anh 10 (Global Success) — Unit 1–5.
+    private static final String G10 = "Lớp 10";
+    private static final String T10_PRES = "Hiện tại đơn & Hiện tại tiếp diễn";
+    private static final String T10_FUTURE = "Tương lai: will & be going to";
+    private static final String T10_PASSIVE = "Câu bị động";
+    private static final String T10_COMPOUND = "Câu ghép";
+    private static final String T10_INF = "To-infinitive & bare infinitive";
+    private static final String T10_PAST = "Quá khứ đơn & Quá khứ tiếp diễn (when/while)";
+    private static final String T10_PRESPERF = "Thì hiện tại hoàn thành (lớp 10)";
+    private static final String T10_GERUND = "Danh động từ & to-infinitive";
+
     private void seedEnglish(Subject anh) {
         // Đề chẩn đoán đầu vào bám sát ngữ pháp SGK Tiếng Anh 12. Mỗi câu gắn 1 chủ đề
         // trùng với bài học, để sau khi test → chỉ ra điểm yếu → dạy đúng bài trong SGK.
@@ -532,6 +543,10 @@ public class DataSeeder implements CommandLineRunner {
 
         // ---- Giáo trình Lớp 12 (SGK Global Success) — dạy đúng điểm yếu ----
         seedEnglish12Lessons();
+
+        // ---- Giáo trình Lớp 10 (SGK Global Success) + tài liệu nguồn cho AI ----
+        seedEnglish10Lessons();
+        seedEnglish10Reference(anh);
 
         // ---- Đề luyện tập (làm đề) — chấm điểm + chỉ ra điểm yếu ----
         Exam ex1 = exam(anh, "Đề luyện tập số 1 — Ngữ pháp cơ bản", "Cơ bản",
@@ -760,8 +775,15 @@ public class DataSeeder implements CommandLineRunner {
     private void englishLesson(int order, int unitNo, String unitTitle, String topic,
                                String grammarName, String pronunciation, String vocabulary,
                                String theory, String examples) {
+        englishLesson(G12, order, unitNo, unitTitle, topic, grammarName, pronunciation,
+                vocabulary, theory, examples);
+    }
+
+    private void englishLesson(String grade, int order, int unitNo, String unitTitle, String topic,
+                               String grammarName, String pronunciation, String vocabulary,
+                               String theory, String examples) {
         EnglishLesson l = new EnglishLesson();
-        l.setGrade(G12);
+        l.setGrade(grade);
         l.setUnitNo(unitNo);
         l.setUnitTitle(unitTitle);
         l.setTopic(topic);
@@ -772,6 +794,171 @@ public class DataSeeder implements CommandLineRunner {
         l.setExamples(examples);
         l.setOrderIndex(order);
         englishLessons.save(l);
+    }
+
+    /** Gom nội dung bài học Lớp 10 thành 1 tài liệu nguồn để AI (Gemini) bám vào soạn giáo trình. */
+    private void seedEnglish10Reference(Subject anh) {
+        StringBuilder sb = new StringBuilder(
+                "GIÁO TRÌNH TIẾNG ANH 10 — SGK Global Success (Ngữ pháp, từ vựng, phát âm; Unit 1–5).\n\n");
+        for (EnglishLesson l : englishLessons.findByGradeOrderByOrderIndexAsc(G10)) {
+            sb.append("== UNIT ").append(l.getUnitNo()).append(": ").append(l.getUnitTitle())
+                    .append(" — ").append(l.getGrammarName()).append(" ==\n");
+            sb.append("Phát âm: ").append(l.getPronunciation()).append('\n');
+            sb.append("Ngữ pháp:\n").append(l.getTheory()).append('\n');
+            sb.append("Ví dụ:\n").append(l.getExamples()).append('\n');
+            sb.append("Từ vựng:\n").append(l.getVocabulary()).append("\n\n");
+        }
+        ReferenceMaterial rm = new ReferenceMaterial();
+        rm.setSubject(anh);
+        rm.setTitle("SGK Tiếng Anh 10 – Global Success (Ngữ pháp & từ vựng, Unit 1–5)");
+        rm.setContent(sb.toString());
+        rm.setCreatedByEmail("admin@pathstudy.vn");
+        referenceMaterials.save(rm);
+    }
+
+    private void seedEnglish10Lessons() {
+        englishLesson(G10, 1, 1, "Family Life", T10_PRES, "Present simple vs. present continuous",
+                "Tổ hợp phụ âm đầu (consonant blends): /br/, /kr/, /tr/.",
+                """
+                - breadwinner (n): người trụ cột kiếm tiền nuôi gia đình
+                - housework (n): việc nhà (nấu ăn, dọn dẹp, giặt giũ)
+                - groceries (n): thực phẩm và đồ dùng mua ở cửa hàng/siêu thị
+                - homemaker (n): người nội trợ, lo việc nhà
+                - heavy lifting (n): việc nhấc/khiêng vật nặng""",
+                """
+                Hiện tại đơn (Present simple) dùng để nói về THÓI QUEN hoặc việc làm THƯỜNG XUYÊN.
+
+                Hiện tại tiếp diễn (Present continuous = am/is/are + V-ing) dùng để nói về việc đang xảy ra NGAY TẠI THỜI ĐIỂM NÓI.
+
+                Lưu ý: KHÔNG dùng hiện tại tiếp diễn với động từ chỉ trạng thái (stative verbs) như like, love, need, want, know, agree.""",
+                """
+                - My mother cooks every day. (thói quen → hiện tại đơn)
+                - My mother isn't cooking now. She's working in her office. (đang xảy ra → hiện tại tiếp diễn)
+                - I love this song. (KHÔNG nói "I am loving")""");
+
+        englishLesson(G10, 2, 2, "Humans and the Environment", T10_FUTURE,
+                "The future with will and be going to",
+                "Tổ hợp phụ âm đầu: /kl/, /pl/, /gr/, /pr/.",
+                """
+                - household appliances: thiết bị gia dụng (tủ lạnh, TV...)
+                - energy (n): năng lượng
+                - carbon footprint: dấu chân carbon (lượng CO2 thải ra)
+                - litter (n): rác vứt bừa nơi công cộng
+                - eco-friendly (adj): thân thiện với môi trường""",
+                """
+                Dùng "will" để nói về:
+                - quyết định NGAY LÚC NÓI. Ví dụ: This shirt looks beautiful. I will buy it.
+                - dự đoán dựa trên SUY NGHĨ/NIỀM TIN. Ví dụ: I think our team will win the competition.
+
+                Dùng "be going to" để nói về:
+                - kế hoạch đã ĐỊNH TRƯỚC lúc nói. Ví dụ: I have made a reservation. We are going to have dinner at the Chinese restaurant.
+                - dự đoán dựa trên BẰNG CHỨNG nhìn thấy/biết. Ví dụ: Look at the dark clouds. It is going to rain soon.""",
+                """
+                - I will help you with your bags. (quyết định lúc nói)
+                - I think it will be sunny tomorrow. (dự đoán theo suy nghĩ)
+                - We are going to build a new school. (kế hoạch định trước)
+                - Look at the dark clouds. It is going to rain. (dự đoán theo bằng chứng)""");
+
+        englishLesson(G10, 3, 2, "Humans and the Environment", T10_PASSIVE, "Passive voice",
+                "Tổ hợp phụ âm đầu: /kl/, /pl/, /gr/, /pr/.",
+                "(Chung từ vựng với bài Unit 2 — The environment.)",
+                """
+                Dùng câu BỊ ĐỘNG (passive voice) khi người/vật gây ra hành động KHÔNG quan trọng, KHÔNG biết, hoặc ta muốn NHẤN MẠNH vào hành động chứ không phải người làm.
+
+                Cấu trúc: be (chia theo thì) + V3/-ed (+ by + tác nhân, nếu cần).""",
+                """
+                - The school playground is cleaned up every day (by students). (hiện tại đơn bị động)
+                - More trees will be planted in the neighbourhood. (tương lai bị động)
+                - Important environmental issues were discussed at the meeting. (quá khứ bị động)""");
+
+        englishLesson(G10, 4, 3, "Music", T10_COMPOUND, "Compound sentences",
+                "Trọng âm của từ có hai âm tiết.",
+                """
+                - perform (v): biểu diễn
+                - judge (n): giám khảo
+                - audience (n): khán giả
+                - talented (adj): tài năng
+                - single (n): đĩa đơn (bản thu một bài hát)""",
+                """
+                Câu GHÉP (compound sentence) gồm HAI mệnh đề độc lập trở lên, nối với nhau bằng LIÊN TỪ KẾT HỢP (coordinating conjunction): and, or, but, so.""",
+                """
+                - It was raining, but they still went to the outdoor show.
+                - I am a jazz fan, and my favourite style is from the late 1960s.
+                - He has a maths exam that day, so he can't go to the festival.""");
+
+        englishLesson(G10, 5, 3, "Music", T10_INF, "To-infinitives and bare infinitives",
+                "Trọng âm của từ có hai âm tiết.",
+                "(Chung từ vựng với bài Unit 3 — Music.)",
+                """
+                Một số động từ theo sau bởi TO-INFINITIVE (to + V): decide, expect, plan, want, promise, agree, hope, hesitate, ask...
+
+                Một số động từ theo sau bởi BARE INFINITIVE (V nguyên mẫu không "to"): make, let, hear, notice... (thường sau tân ngữ).""",
+                """
+                - Her fans planned to send her a surprise present. (plan + to V)
+                - The band decided to delay their live concert. (decide + to V)
+                - Their performance made us fall asleep. (make + O + V nguyên mẫu)
+                - Her parents won't let her watch such TV shows. (let + O + V nguyên mẫu)""");
+
+        englishLesson(G10, 6, 4, "For a Better Community", T10_PAST,
+                "Past simple vs. past continuous with when and while",
+                "Trọng âm của từ hai âm tiết viết giống nhau (danh từ/động từ).",
+                """
+                - donate (v): quyên góp (tiền, đồ...)
+                - volunteer (n): tình nguyện viên
+                - generous (adj): hào phóng
+                - remote (adj): xa xôi, hẻo lánh
+                - benefit (v): mang lại lợi ích
+                - Hậu tố tính từ: -ed vs -ing (interested/interesting), -ful vs -less (hopeful/hopeless)""",
+                """
+                Dùng QUÁ KHỨ TIẾP DIỄN (was/were + V-ing) cho hành động DÀI đang diễn ra trong quá khứ.
+                Dùng QUÁ KHỨ ĐƠN cho hành động NGẮN xen vào, cắt ngang hành động dài đó.
+
+                - "when" thường đứng trước hành động NGẮN (quá khứ đơn).
+                - "while" thường đứng trước hành động DÀI (quá khứ tiếp diễn).""",
+                """
+                - I was reading an article when she called.
+                - While I was reading an article, she called.
+                - While Lan was working as a volunteer, she met an old friend.
+                - We saw many unhappy children while we were helping people in remote areas.""");
+
+        englishLesson(G10, 7, 5, "Inventions", T10_PRESPERF, "Present perfect",
+                "Trọng âm của danh từ có ba âm tiết.",
+                """
+                - experiment (n): thí nghiệm
+                - device (n): thiết bị
+                - laboratory (n): phòng thí nghiệm
+                - hardware (n): phần cứng
+                - software (n): phần mềm
+                - equipment (n): trang thiết bị""",
+                """
+                Thì HIỆN TẠI HOÀN THÀNH (have/has + V3/-ed) dùng để nói về:
+                - việc xảy ra trong quá khứ nhưng VẪN đúng/quan trọng ở hiện tại. Ví dụ: I have lost my key. Now I can't open the door.
+                - việc bắt đầu trong quá khứ và VẪN đang tiếp diễn (thường với since/for). Ví dụ: They have lived here for a year.
+                - việc vừa hoàn thành trong quá khứ RẤT gần (thường với just/recently). Ví dụ: He has just finished his homework.""",
+                """
+                - They have just found a suitable solution to the problem.
+                - Since people invented the first computer, they have created many more inventions.
+                - The woman is very angry because her son has lost his smartphone.""");
+
+        englishLesson(G10, 8, 5, "Inventions", T10_GERUND, "Gerunds and to-infinitives",
+                "Trọng âm của danh từ có ba âm tiết.",
+                "(Chung từ vựng với bài Unit 5 — Inventions.)",
+                """
+                Dùng DANH ĐỘNG TỪ (gerund = V-ing):
+                - sau các động từ như avoid, enjoy, finish. Ví dụ: I enjoy cooking.
+                - làm CHỦ NGỮ của câu. Ví dụ: Learning English is fun.
+
+                Dùng TO-INFINITIVE (to + V):
+                - sau các động từ như want, decide, allow. Ví dụ: My parents don't allow me to use a smartphone.
+                - sau tính từ để nêu ý kiến, bắt đầu bằng "It's...". Ví dụ: It's fun to learn English.
+                - làm chủ ngữ. Ví dụ: To learn English is fun.
+
+                Lưu ý: like, love, hate có thể theo sau bởi CẢ HAI. Ví dụ: I like playing / to play computer games.""",
+                """
+                - Many children enjoy using modern devices nowadays. (enjoy + V-ing)
+                - I decided to study computer science at university. (decide + to V)
+                - Playing language games on a smartphone is fun. (V-ing làm chủ ngữ)
+                - It is very convenient to study with a smartphone. (It's + adj + to V)""");
     }
 
     private String readClasspath(String path) {

@@ -107,8 +107,9 @@ public class GeminiStudyPlanService implements AiStudyPlanService {
             return null;
         }
         String material = referenceMaterial == null ? "" : referenceMaterial;
-        if (material.length() > 24000) {
-            material = material.substring(0, 24000);
+        // gemini-3.x có context rất lớn; giữ đủ tài liệu nhiều lớp (10/12) trong prompt.
+        if (material.length() > 80000) {
+            material = material.substring(0, 80000);
         }
         String prompt = """
                 Bạn là gia sư %s cho học sinh THPT Việt Nam.
