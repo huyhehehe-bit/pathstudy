@@ -29,7 +29,7 @@ import java.util.Map;
 public class EnglishController {
 
     /** Grades that have a curriculum available (SGK Global Success). */
-    private static final List<String> GRADES = List.of("Lớp 10", "Lớp 12");
+    private static final List<String> GRADES = List.of("Lớp 10", "Lớp 11", "Lớp 12");
     private static final String DEFAULT_GRADE = "Lớp 12";
 
     private final ExamService examService;

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Seeds demo content. Keyed on {@link #SEED_VERSION}: when the version changes,
@@ -23,7 +24,7 @@ import java.util.Arrays;
 @Component
 public class DataSeeder implements CommandLineRunner {
 
-    private static final String SEED_VERSION = "2026-09-23-english-sgk10-v1";
+    private static final String SEED_VERSION = "2026-09-23-english-sgk-10-11-12-full";
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -501,6 +502,31 @@ public class DataSeeder implements CommandLineRunner {
     private static final String T10_PAST = "Quá khứ đơn & Quá khứ tiếp diễn (when/while)";
     private static final String T10_PRESPERF = "Thì hiện tại hoàn thành (lớp 10)";
     private static final String T10_GERUND = "Danh động từ & to-infinitive";
+    private static final String T10_PASSMODAL = "Câu bị động với động từ khiếm khuyết";
+    private static final String T10_COMPSUP = "So sánh hơn & so sánh nhất (tính từ)";
+    private static final String T10_RELCLAUSE = "Mệnh đề quan hệ (who/which/that/whose)";
+    private static final String T10_REPORTED = "Câu tường thuật (lớp 10)";
+    private static final String T10_CONDITIONAL = "Câu điều kiện loại 1 & loại 2";
+
+    // Chủ đề ngữ pháp SGK Tiếng Anh 11 (Global Success) — Unit 1–10.
+    private static final String G11 = "Lớp 11";
+    private static final String T11_PASTPERF = "Quá khứ đơn & Hiện tại hoàn thành";
+    private static final String T11_MODAL = "Động từ khiếm khuyết: must, have to, should";
+    private static final String T11_STATIVE = "Động từ trạng thái ở dạng tiếp diễn & Linking verbs";
+    private static final String T11_GERSO = "Danh động từ làm chủ ngữ & tân ngữ";
+    private static final String T11_PARTICIPLE = "Mệnh đề phân từ (hiện tại & quá khứ phân từ)";
+    private static final String T11_TOINF = "Mệnh đề to-infinitive";
+    private static final String T11_PERFGER = "Danh động từ hoàn thành & phân từ hoàn thành";
+    private static final String T11_CLEFT = "Câu chẻ (cleft) với It is/was ... that/who";
+    private static final String T11_LINKING = "Từ nối & cụm từ nối (linking words)";
+    private static final String T11_COMPNOUN = "Danh từ ghép (compound nouns)";
+
+    // Chủ đề ngữ pháp SGK Tiếng Anh 12 (Global Success) — Unit 6–10.
+    private static final String T12_CAUSATIVE = "Thể sai khiến chủ động & bị động (causatives)";
+    private static final String T12_ADVMANNER = "Mệnh đề trạng ngữ chỉ cách thức & kết quả";
+    private static final String T12_ADVCOND = "Mệnh đề trạng ngữ chỉ điều kiện & so sánh";
+    private static final String T12_PHRASAL3 = "Cụm động từ ba thành phần (phrasal verbs)";
+    private static final String T12_REPORTED = "Câu tường thuật: mệnh lệnh, yêu cầu, đề nghị, lời khuyên";
 
     private void seedEnglish(Subject anh) {
         // Đề chẩn đoán đầu vào bám sát ngữ pháp SGK Tiếng Anh 12. Mỗi câu gắn 1 chủ đề
@@ -541,12 +567,15 @@ public class DataSeeder implements CommandLineRunner {
             referenceMaterials.save(rm);
         }
 
-        // ---- Giáo trình Lớp 12 (SGK Global Success) — dạy đúng điểm yếu ----
+        // ---- Giáo trình theo lớp (SGK Global Success 10/11/12) ----
+        seedEnglish10Lessons();
+        seedEnglish11Lessons();
         seedEnglish12Lessons();
 
-        // ---- Giáo trình Lớp 10 (SGK Global Success) + tài liệu nguồn cho AI ----
-        seedEnglish10Lessons();
-        seedEnglish10Reference(anh);
+        // Tài liệu nguồn cho AI (Gemini bám vào để soạn giáo trình) — theo từng lớp.
+        seedGradeReference(anh, G10, "SGK Tiếng Anh 10 – Global Success (Ngữ pháp & từ vựng)");
+        seedGradeReference(anh, G11, "SGK Tiếng Anh 11 – Global Success (Ngữ pháp & từ vựng)");
+        seedGradeReference(anh, G12, "SGK Tiếng Anh 12 – Global Success (Ngữ pháp & từ vựng)");
 
         // ---- Đề luyện tập (làm đề) — chấm điểm + chỉ ra điểm yếu ----
         Exam ex1 = exam(anh, "Đề luyện tập số 1 — Ngữ pháp cơ bản", "Cơ bản",
@@ -770,6 +799,112 @@ public class DataSeeder implements CommandLineRunner {
                 • Being a nurse is a very tiring job; moreover, you don't earn a high salary. (câu ghép)
                 • When I was younger, I wanted to become a driver. (câu phức)
                 • Because my brother is often late for work, he is never promoted. (câu phức)""");
+
+        englishLesson(G12, 8, 6, "Artificial Intelligence", T12_CAUSATIVE,
+                "Active and passive causatives",
+                "Từ đồng âm (homophones).",
+                """
+                - artificial intelligence (AI): trí tuệ nhân tạo
+                - technology (n): công nghệ
+                - application (n): ứng dụng
+                - automate (v): tự động hoá
+                - device (n): thiết bị""",
+                """
+                Thể SAI KHIẾN (causative): nhờ/khiến ai đó làm việc gì.
+
+                Chủ động: have + O (người) + V (nguyên mẫu); get + O (người) + to V.
+                Ví dụ: I had the technician fix my computer. / I got the technician to fix my computer.
+
+                Bị động: have/get + O (vật) + V3/-ed (nhờ ai làm gì cho vật đó).
+                Ví dụ: I had my computer fixed. / I got my phone repaired.""",
+                """
+                - We had a robot assemble the parts. (chủ động: have + O + V)
+                - She got her assistant to write the report. (chủ động: get + O + to V)
+                - They had the software updated by AI. (bị động: have + O + V3)
+                - I get my data backed up automatically. (bị động: get + O + V3)""");
+
+        englishLesson(G12, 9, 7, "The World of Mass Media", T12_ADVMANNER,
+                "Adverbial clauses of manner and result",
+                "Nối âm /r/ giữa hai nguyên âm.",
+                """
+                - mass media (n): truyền thông đại chúng
+                - broadcast (v): phát sóng
+                - influence (v/n): ảnh hưởng
+                - digital (adj): kỹ thuật số
+                - traditional (adj): truyền thống""",
+                """
+                Mệnh đề trạng ngữ chỉ CÁCH THỨC (manner): as, as if, as though (như thể).
+                Ví dụ: He talks as if he knew everything.
+
+                Mệnh đề trạng ngữ chỉ KẾT QUẢ (result): so + adj/adv + that; such + (a/an) + adj + N + that (đến nỗi mà).
+                Ví dụ: The news was so shocking that everyone talked about it.""",
+                """
+                - She reports the news as a professional does. (cách thức)
+                - He acts as if he were a famous reporter. (cách thức, as if)
+                - The article was so interesting that it went viral. (kết quả, so ... that)
+                - It was such a powerful story that many people shared it. (kết quả, such ... that)""");
+
+        englishLesson(G12, 10, 8, "Wildlife Conservation", T12_ADVCOND,
+                "Adverbial clauses of condition and comparison",
+                "Đồng hoá âm (assimilation).",
+                """
+                - wildlife (n): động vật hoang dã
+                - conservation (n): sự bảo tồn
+                - endangered (adj): có nguy cơ tuyệt chủng
+                - habitat (n): môi trường sống
+                - extinct (adj): tuyệt chủng""",
+                """
+                Mệnh đề trạng ngữ chỉ ĐIỀU KIỆN: if, unless (trừ khi), as long as, provided that (miễn là).
+                Ví dụ: Unless we act now, many species will disappear.
+
+                Mệnh đề trạng ngữ chỉ SO SÁNH: than, as ... as, the + so sánh hơn ..., the + so sánh hơn (càng... càng).
+                Ví dụ: The more forests we protect, the safer wildlife becomes.""",
+                """
+                - We can save animals as long as we protect their habitats. (điều kiện)
+                - Unless people stop hunting, tigers will become extinct. (điều kiện)
+                - This species is more endangered than that one. (so sánh)
+                - The more we destroy nature, the faster animals disappear. (so sánh kép)""");
+
+        englishLesson(G12, 11, 9, "Career Paths", T12_PHRASAL3,
+                "Three-word phrasal verbs",
+                "Trọng âm và nhịp điệu câu.",
+                """
+                - career (n): sự nghiệp
+                - qualification (n): bằng cấp, trình độ
+                - apply (v): ứng tuyển
+                - opportunity (n): cơ hội
+                - promotion (n): sự thăng chức""",
+                """
+                Cụm động từ BA THÀNH PHẦN (three-word phrasal verbs) = động từ + trạng từ + giới từ, mang nghĩa cố định, thường có tân ngữ theo sau.
+
+                Ví dụ hay gặp: look forward to (mong đợi), come up with (nghĩ ra), catch up with (theo kịp), keep up with (bắt kịp), look up to (kính trọng), get on with (hoà hợp/tiếp tục), run out of (cạn kiệt).""",
+                """
+                - I look forward to starting my new career.
+                - She came up with a brilliant business idea.
+                - You must keep up with new skills in your field.
+                - He looks up to his mentor at work.""");
+
+        englishLesson(G12, 12, 10, "Lifelong Learning", T12_REPORTED,
+                "Reported speech: orders, requests, offers, and advice",
+                "Ngữ điệu trong câu hỏi (ôn tập).",
+                """
+                - lifelong learning: học tập suốt đời
+                - skill (n): kỹ năng
+                - improve (v): cải thiện
+                - knowledge (n): kiến thức
+                - motivate (v): tạo động lực""",
+                """
+                Tường thuật MỆNH LỆNH, YÊU CẦU, ĐỀ NGHỊ, LỜI KHUYÊN dùng: động từ tường thuật + O + (not) to V.
+
+                - Mệnh lệnh: tell somebody to do. (order)
+                - Yêu cầu: ask somebody to do. (request)
+                - Đề nghị: offer to do. (offer)
+                - Lời khuyên: advise somebody to do. (advice)""",
+                """
+                - "Study hard!" → The teacher told us to study hard.
+                - "Please help me." → She asked me to help her.
+                - "I'll carry your bag." → He offered to carry my bag.
+                - "You should keep learning." → My mentor advised me to keep learning.""");
     }
 
     private void englishLesson(int order, int unitNo, String unitTitle, String topic,
@@ -796,11 +931,16 @@ public class DataSeeder implements CommandLineRunner {
         englishLessons.save(l);
     }
 
-    /** Gom nội dung bài học Lớp 10 thành 1 tài liệu nguồn để AI (Gemini) bám vào soạn giáo trình. */
-    private void seedEnglish10Reference(Subject anh) {
+    /** Gom nội dung bài học của 1 lớp thành tài liệu nguồn để AI (Gemini) bám vào soạn giáo trình. */
+    private void seedGradeReference(Subject anh, String grade, String title) {
+        List<EnglishLesson> ls = englishLessons.findByGradeOrderByOrderIndexAsc(grade);
+        if (ls.isEmpty()) {
+            return;
+        }
         StringBuilder sb = new StringBuilder(
-                "GIÁO TRÌNH TIẾNG ANH 10 — SGK Global Success (Ngữ pháp, từ vựng, phát âm; Unit 1–5).\n\n");
-        for (EnglishLesson l : englishLessons.findByGradeOrderByOrderIndexAsc(G10)) {
+                "GIÁO TRÌNH TIẾNG ANH " + grade.replace("Lớp ", "")
+                        + " — SGK Global Success (Ngữ pháp, từ vựng, phát âm).\n\n");
+        for (EnglishLesson l : ls) {
             sb.append("== UNIT ").append(l.getUnitNo()).append(": ").append(l.getUnitTitle())
                     .append(" — ").append(l.getGrammarName()).append(" ==\n");
             sb.append("Phát âm: ").append(l.getPronunciation()).append('\n');
@@ -810,7 +950,7 @@ public class DataSeeder implements CommandLineRunner {
         }
         ReferenceMaterial rm = new ReferenceMaterial();
         rm.setSubject(anh);
-        rm.setTitle("SGK Tiếng Anh 10 – Global Success (Ngữ pháp & từ vựng, Unit 1–5)");
+        rm.setTitle(title);
         rm.setContent(sb.toString());
         rm.setCreatedByEmail("admin@pathstudy.vn");
         referenceMaterials.save(rm);
@@ -959,6 +1099,313 @@ public class DataSeeder implements CommandLineRunner {
                 - I decided to study computer science at university. (decide + to V)
                 - Playing language games on a smartphone is fun. (V-ing làm chủ ngữ)
                 - It is very convenient to study with a smartphone. (It's + adj + to V)""");
+
+        englishLesson(G10, 9, 6, "Gender Equality", T10_PASSMODAL, "Passive voice with modals",
+                "Trọng âm của tính từ và động từ có ba âm tiết.",
+                """
+                - gender equality (n): bình đẳng giới
+                - discrimination (n): sự phân biệt đối xử
+                - right (n): quyền
+                - responsibility (n): trách nhiệm
+                - equal (adj): bình đẳng, ngang bằng""",
+                """
+                Câu bị động với ĐỘNG TỪ KHIẾM KHUYẾT (modal verbs: can, could, should, must, will...).
+
+                Cấu trúc: modal + be + V3/-ed (+ by + tác nhân).
+
+                Dùng khi nhấn mạnh vào hành động và kèm ý nghĩa của modal (khả năng, lời khuyên, bắt buộc...).""",
+                """
+                - Women must be treated equally at work. (must be + V3)
+                - Gender discrimination should be eliminated. (should be + V3)
+                - This problem can be solved with better laws. (can be + V3)
+                - Equal rights will be given to everyone. (will be + V3)""");
+
+        englishLesson(G10, 10, 7, "Viet Nam and International Organisations", T10_COMPSUP,
+                "Comparative and superlative adjectives",
+                "Trọng âm của từ có hơn ba âm tiết.",
+                """
+                - organisation (n): tổ chức
+                - member (n): thành viên
+                - cooperation (n): sự hợp tác
+                - develop (v): phát triển
+                - support (v/n): hỗ trợ; sự hỗ trợ""",
+                """
+                So sánh HƠN (comparative) và so sánh NHẤT (superlative) của tính từ:
+                - Tính từ ngắn: thêm -er / -est. Ví dụ: tall → taller → the tallest.
+                - Tính từ dài: dùng more / the most. Ví dụ: important → more important → the most important.
+                - Bất quy tắc: good → better → the best; bad → worse → the worst.
+
+                So sánh hơn thường đi với "than"; so sánh nhất thường đi với "the".""",
+                """
+                - Viet Nam is becoming stronger than before.
+                - ASEAN is one of the most important organisations in the region.
+                - This is the best solution for both countries.
+                - Cooperation is more effective than competition.""");
+
+        englishLesson(G10, 11, 8, "New Ways to Learn", T10_RELCLAUSE,
+                "Relative clauses (defining and non-defining)",
+                "Trọng âm câu (sentence stress).",
+                """
+                - blended learning: học kết hợp (trực tuyến + trực tiếp)
+                - device (n): thiết bị
+                - online (adj/adv): trực tuyến
+                - flexible (adj): linh hoạt
+                - access (v/n): truy cập""",
+                """
+                Mệnh đề quan hệ dùng đại từ quan hệ: who (người), which (vật), that (người/vật), whose (sở hữu).
+
+                - Mệnh đề quan hệ XÁC ĐỊNH (defining): cần thiết để xác định danh từ, KHÔNG có dấu phẩy.
+                - Mệnh đề quan hệ KHÔNG XÁC ĐỊNH (non-defining): bổ sung thông tin thêm, CÓ dấu phẩy, KHÔNG dùng "that".""",
+                """
+                - The app which/that helps students learn is very popular. (xác định)
+                - Students who study online can learn anytime. (xác định)
+                - My teacher, who is very kind, uses online tools. (không xác định, có phẩy)
+                - This is the girl whose laptop was broken. (whose - sở hữu)""");
+
+        englishLesson(G10, 12, 9, "Protecting the Environment", T10_REPORTED, "Reported speech",
+                "Nhịp điệu (rhythm).",
+                """
+                - pollution (n): sự ô nhiễm
+                - protect (v): bảo vệ
+                - reduce (v): giảm bớt
+                - waste (n): rác thải
+                - solution (n): giải pháp""",
+                """
+                Câu TƯỜNG THUẬT (reported speech): thuật lại lời người khác nói.
+
+                Khi lùi thì (động từ tường thuật ở quá khứ): hiện tại đơn → quá khứ đơn; hiện tại tiếp diễn → quá khứ tiếp diễn; will → would; can → could...
+                Đổi đại từ và trạng từ chỉ thời gian/nơi chốn cho phù hợp (now → then, today → that day, here → there...).""",
+                """
+                - "I recycle every day." → She said (that) she recycled every day.
+                - "We will plant trees." → They said they would plant trees.
+                - "I am cleaning the beach." → He said he was cleaning the beach.
+                - "You should save water." → She told me I should save water.""");
+
+        englishLesson(G10, 13, 10, "Ecotourism", T10_CONDITIONAL,
+                "Conditional sentences Type 1 and Type 2",
+                "Ngữ điệu (intonation).",
+                """
+                - ecotourism (n): du lịch sinh thái
+                - attraction (n): điểm thu hút
+                - preserve (v): bảo tồn
+                - local (adj): địa phương
+                - sustainable (adj): bền vững""",
+                """
+                Câu điều kiện LOẠI 1 (có thật ở hiện tại/tương lai):
+                If + hiện tại đơn, ... will + V. Ví dụ: If we protect nature, tourists will come.
+
+                Câu điều kiện LOẠI 2 (không có thật/giả định ở hiện tại):
+                If + quá khứ đơn, ... would + V. (be → were cho mọi ngôi). Ví dụ: If I were rich, I would travel the world.""",
+                """
+                - If you visit the Mekong Delta, you will enjoy ecotours. (loại 1)
+                - If people don't pollute, nature will recover. (loại 1)
+                - If I were a tour guide, I would protect the environment. (loại 2)
+                - If we had more trees, the air would be cleaner. (loại 2)""");
+    }
+
+    private void seedEnglish11Lessons() {
+        englishLesson(G11, 1, 1, "A Long and Healthy Life", T11_PASTPERF,
+                "Past simple vs. Present perfect",
+                "Dạng nhấn và dạng yếu của trợ động từ (strong/weak forms).",
+                """
+                - fitness (n): sự khoẻ khoắn, thể lực
+                - well-being (n): sự khoẻ mạnh (thể chất & tinh thần)
+                - nutrition (n): dinh dưỡng
+                - lifestyle (n): lối sống
+                - immune system: hệ miễn dịch""",
+                """
+                QUÁ KHỨ ĐƠN: hành động đã kết thúc, có MỐC thời gian xác định trong quá khứ (yesterday, last year, in 2010, ago).
+
+                HIỆN TẠI HOÀN THÀNH (have/has + V3): việc bắt đầu trong quá khứ và còn liên quan hiện tại, hoặc chưa nêu mốc thời gian (already, yet, just, ever, never, since, for).""",
+                """
+                - I visited the doctor yesterday. (quá khứ đơn - có mốc)
+                - I have visited the doctor twice this month. (HTHT - còn liên quan hiện tại)
+                - She started exercising in 2020. (quá khứ đơn)
+                - She has exercised regularly since 2020. (HTHT - since)""");
+
+        englishLesson(G11, 2, 2, "The Generation Gap", T11_MODAL,
+                "Modal verbs: must, have to, should",
+                "Dạng rút gọn (contracted forms).",
+                """
+                - generation gap: khoảng cách thế hệ
+                - conflict (n): xung đột
+                - viewpoint (n): quan điểm
+                - respect (v/n): tôn trọng
+                - traditional (adj): truyền thống""",
+                """
+                MUST: sự bắt buộc mạnh, thường do người nói tự thấy cần. Ví dụ: You must respect your parents.
+                HAVE TO: sự bắt buộc do quy định/hoàn cảnh bên ngoài. Ví dụ: Students have to wear uniforms.
+                SHOULD: lời khuyên, nên làm. Ví dụ: You should listen to different opinions.
+
+                Phủ định: mustn't (cấm) khác don't have to (không cần thiết).""",
+                """
+                - Children must obey the family rules. (bắt buộc)
+                - I have to be home before 10 p.m. (quy định)
+                - You shouldn't argue with your parents. (lời khuyên)
+                - You don't have to agree, but you should respect them. (không bắt buộc + lời khuyên)""");
+
+        englishLesson(G11, 3, 3, "Cities of the Future", T11_STATIVE,
+                "Stative verbs in the continuous form; Linking verbs",
+                "Nối phụ âm cuối với nguyên âm đầu.",
+                """
+                - smart city: thành phố thông minh
+                - infrastructure (n): cơ sở hạ tầng
+                - sustainable (adj): bền vững
+                - efficient (adj): hiệu quả
+                - liveable (adj): đáng sống""",
+                """
+                Động từ CHỈ TRẠNG THÁI (stative verbs: think, feel, taste, look, have...) thường KHÔNG dùng tiếp diễn. Nhưng khi chuyển sang nghĩa HÀNH ĐỘNG, có thể dùng tiếp diễn.
+                Ví dụ: I think it's good. (quan điểm) — I'm thinking about the future. (đang suy nghĩ).
+
+                LINKING VERBS (be, become, seem, look, feel, taste, smell, sound...) nối chủ ngữ với tính từ (bổ ngữ), không dùng trạng từ.
+                Ví dụ: The city looks modern. (không nói "looks modernly").""",
+                """
+                - I'm having lunch now. (have = hành động → tiếp diễn được)
+                - This city seems very liveable. (linking verb + adj)
+                - The air feels fresh in the smart city. (linking verb + adj)
+                - She is being very helpful today. (trạng thái tạm thời)""");
+
+        englishLesson(G11, 4, 4, "ASEAN and Viet Nam", T11_GERSO,
+                "Gerunds as subjects and objects",
+                "Lược bỏ nguyên âm (elision).",
+                """
+                - ASEAN: Hiệp hội các quốc gia Đông Nam Á
+                - cooperation (n): sự hợp tác
+                - integration (n): sự hội nhập
+                - summit (n): hội nghị thượng đỉnh
+                - member state: quốc gia thành viên""",
+                """
+                DANH ĐỘNG TỪ (gerund = V-ing) có thể làm:
+                - CHỦ NGỮ của câu. Ví dụ: Joining ASEAN benefits Viet Nam.
+                - TÂN NGỮ sau động từ (enjoy, avoid, consider, suggest, mind...). Ví dụ: They suggested holding a summit.
+                - TÂN NGỮ sau giới từ. Ví dụ: They are interested in cooperating.""",
+                """
+                - Cooperating with other countries is important. (chủ ngữ)
+                - Viet Nam considers joining more organisations. (tân ngữ sau động từ)
+                - They talked about improving the economy. (sau giới từ)
+                - Promoting peace is ASEAN's main goal. (chủ ngữ)""");
+
+        englishLesson(G11, 5, 5, "Global Warming", T11_PARTICIPLE,
+                "Present participle and past participle clauses",
+                "Trọng âm và nhịp điệu câu.",
+                """
+                - global warming: sự nóng lên toàn cầu
+                - greenhouse gas: khí nhà kính
+                - emission (n): sự phát thải
+                - climate change: biến đổi khí hậu
+                - carbon dioxide (CO2): khí cacbonic""",
+                """
+                Mệnh đề PHÂN TỪ giúp rút gọn mệnh đề quan hệ/trạng ngữ:
+                - Hiện tại phân từ (V-ing): mang nghĩa CHỦ ĐỘNG. Ví dụ: The factory producing gas is huge. (= which produces).
+                - Quá khứ phân từ (V3/-ed): mang nghĩa BỊ ĐỘNG. Ví dụ: Gases produced by cars pollute the air. (= which are produced).""",
+                """
+                - Countries emitting more CO2 should act first. (V-ing, chủ động)
+                - The heat trapped by gases warms the Earth. (V3, bị động)
+                - Feeling worried, scientists warned the world. (V-ing chỉ nguyên nhân)
+                - Affected by droughts, many farms failed. (V3, bị động)""");
+
+        englishLesson(G11, 6, 6, "Preserving Our Heritage", T11_TOINF,
+                "To-infinitive clauses",
+                "Ngữ điệu trong câu kể, câu mệnh lệnh và liệt kê.",
+                """
+                - heritage (n): di sản
+                - preserve (v): bảo tồn
+                - monument (n): di tích, tượng đài
+                - restore (v): trùng tu, phục hồi
+                - cultural (adj): thuộc văn hoá""",
+                """
+                Mệnh đề TO-INFINITIVE (to + V) dùng để nêu MỤC ĐÍCH hoặc bổ nghĩa:
+                - Chỉ mục đích (= in order to / so as to). Ví dụ: We work hard to preserve our heritage.
+                - Sau tính từ: It's important to protect monuments.
+                - Sau danh từ: There is a lot to do.""",
+                """
+                - People donate money to restore the old temple. (mục đích)
+                - It is necessary to preserve cultural values. (sau tính từ)
+                - She was happy to join the heritage project. (sau tính từ)
+                - We have a duty to protect our heritage. (sau danh từ)""");
+
+        englishLesson(G11, 7, 7, "Education Options for School-Leavers", T11_PERFGER,
+                "Perfect gerunds and perfect participle clauses",
+                "Ngữ điệu trong câu hỏi Wh- và Yes/No.",
+                """
+                - school-leaver (n): người vừa rời trường
+                - vocational (adj): thuộc dạy nghề
+                - apprenticeship (n): việc học nghề
+                - qualification (n): bằng cấp
+                - career (n): sự nghiệp""",
+                """
+                DANH ĐỘNG TỪ HOÀN THÀNH (perfect gerund = having + V3) và PHÂN TỪ HOÀN THÀNH (perfect participle = having + V3) diễn tả hành động XẢY RA TRƯỚC hành động chính.
+
+                - Perfect gerund: sau động từ/giới từ. Ví dụ: She admitted having cheated.
+                - Perfect participle: rút gọn, nhấn mạnh việc xảy ra trước. Ví dụ: Having finished school, he applied for a job.""",
+                """
+                - Having left school, she took a vocational course. (phân từ hoàn thành)
+                - He thanked me for having helped him choose a career.
+                - Having studied hard, they passed the exam.
+                - She regretted not having applied earlier. (danh động từ hoàn thành, phủ định)""");
+
+        englishLesson(G11, 8, 8, "Becoming Independent", T11_CLEFT,
+                "Cleft sentences with It is/was ... that/who ...",
+                "Ngữ điệu trong lời mời, gợi ý và yêu cầu lịch sự.",
+                """
+                - independent (adj): độc lập, tự lập
+                - responsible (adj): có trách nhiệm
+                - budget (v/n): lập ngân sách; ngân sách
+                - decision (n): quyết định
+                - confident (adj): tự tin""",
+                """
+                Câu CHẺ (cleft sentence) dùng để NHẤN MẠNH một thành phần của câu:
+                It + is/was + (thành phần nhấn mạnh) + that/who + phần còn lại.
+
+                - Nhấn mạnh người: dùng who hoặc that.
+                - Nhấn mạnh vật/thời gian/nơi chốn: dùng that.""",
+                """
+                - It is teenagers who need to learn life skills. (nhấn mạnh người)
+                - It was my mother that taught me to cook. (nhấn mạnh người)
+                - It is self-confidence that helps you succeed. (nhấn mạnh vật)
+                - It was last year that I started living on my own. (nhấn mạnh thời gian)""");
+
+        englishLesson(G11, 9, 9, "Social Issues", T11_LINKING,
+                "Linking words and phrases",
+                "Ngữ điệu trong câu hỏi lựa chọn.",
+                """
+                - social issue: vấn đề xã hội
+                - peer pressure: áp lực đồng trang lứa
+                - poverty (n): sự nghèo đói
+                - discrimination (n): sự phân biệt đối xử
+                - awareness (n): sự nhận thức""",
+                """
+                TỪ NỐI & CỤM TỪ NỐI giúp liên kết ý:
+                - Thêm ý: in addition, moreover, furthermore.
+                - Tương phản: however, nevertheless, on the other hand, despite/in spite of + N.
+                - Nguyên nhân/kết quả: therefore, as a result, because of + N, due to + N.
+                - Ví dụ: for example, for instance.""",
+                """
+                - Poverty is serious; however, we can help. (tương phản)
+                - Many teens feel peer pressure. Therefore, they need support. (kết quả)
+                - In addition, education raises awareness. (thêm ý)
+                - Despite the difficulties, they kept trying. (tương phản + N)""");
+
+        englishLesson(G11, 10, 10, "The Ecosystem", T11_COMPNOUN,
+                "Compound nouns",
+                "Ngữ điệu trong câu hỏi đuôi.",
+                """
+                - ecosystem (n): hệ sinh thái
+                - biodiversity (n): đa dạng sinh học
+                - species (n): loài
+                - habitat (n): môi trường sống
+                - food chain: chuỗi thức ăn""",
+                """
+                DANH TỪ GHÉP (compound noun) = hai (hoặc nhiều) từ ghép lại thành một danh từ có nghĩa mới.
+                - Danh từ + danh từ: food chain, rainforest, wildlife.
+                - Tính từ + danh từ: greenhouse.
+                - Có thể viết liền (rainforest), có gạch nối (well-being) hoặc tách rời (food chain).
+                Trọng âm thường rơi vào từ ĐẦU tiên.""",
+                """
+                - A national park protects many species. (national park)
+                - The food chain keeps the ecosystem balanced. (food chain)
+                - Rainforests are home to great biodiversity. (rainforest)
+                - Climate change threatens many habitats. (climate change)""");
     }
 
     private String readClasspath(String path) {
