@@ -52,6 +52,30 @@ public class BankTransferPaymentService implements PaymentService {
                 .filter(o -> o.getExpiresAt() != null && o.getExpiresAt().isAfter(LocalDateTime.now()));
     }
 
+    /** Admin cấp Premium miễn phí (comp) cho user trong {@code days} ngày. */
+    @Transactional
+    public void grantComp(User user, int days) {
+        PaymentOrder order = new PaymentOrder();
+        order.setUser(user);
+        order.setPlanCode("ADMIN_COMP");
+        order.setAmount(0);
+        order.setStatus(OrderStatus.PAID);
+        order.setPaidAt(LocalDateTime.now());
+        order.setExpiresAt(LocalDateTime.now().plusDays(days));
+        orders.save(order);
+        order.setMemoCode("COMP" + order.getId());
+        orders.save(order);
+    }
+
+    /** Admin thu hồi toàn bộ Premium đang có của user (huỷ các đơn PAID). */
+    @Transactional
+    public void revokePremium(User user) {
+        for (PaymentOrder o : orders.findByUserAndStatus(user, OrderStatus.PAID)) {
+            o.setStatus(OrderStatus.CANCELLED);
+            orders.save(o);
+        }
+    }
+
     @Override
     @Transactional
     public String startCheckout(Long userId, String planCode) {

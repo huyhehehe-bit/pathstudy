@@ -38,6 +38,10 @@ public class PlacementController {
             ra.addFlashAttribute("toast", "Môn này chưa có bài kiểm tra đầu vào.");
             return "redirect:/subjects";
         }
+        grade = resolveGrade(user, subject, grade);
+        if (needsGrade(subject, grade)) {
+            return "redirect:/english";
+        }
         int used = placement.attemptsUsed(user, subject, grade);
         model.addAttribute("subject", subject);
         model.addAttribute("grade", grade);
@@ -53,6 +57,10 @@ public class PlacementController {
                        Model model, RedirectAttributes ra) {
         User user = currentUser.require();
         Subject subject = subjects.findByCode(code).orElseThrow();
+        grade = resolveGrade(user, subject, grade);
+        if (needsGrade(subject, grade)) {
+            return "redirect:/english";
+        }
         if (!placement.canAttempt(user, subject, grade)) {
             ra.addFlashAttribute("toast", "Bạn đã dùng hết 3 lần làm bài.");
             return "redirect:/placement/" + code;
@@ -69,6 +77,10 @@ public class PlacementController {
                          @RequestParam Map<String, String> params, RedirectAttributes ra) {
         User user = currentUser.require();
         Subject subject = subjects.findByCode(code).orElseThrow();
+        grade = resolveGrade(user, subject, grade);
+        if (needsGrade(subject, grade)) {
+            return "redirect:/english";
+        }
         if (!placement.canAttempt(user, subject, grade)) {
             ra.addFlashAttribute("toast", "Bạn đã dùng hết 3 lần làm bài.");
             return "redirect:/placement/" + code;
@@ -88,6 +100,25 @@ public class PlacementController {
         }
         model.addAttribute("grade", grade);
         return "placement/result";
+    }
+
+    /**
+     * Tiếng Anh là môn theo khối: nếu thiếu grade (đi thẳng từ trang "Học đúng hướng"
+     * hoặc grade rỗng ""), lấy khối từ tài khoản. Ngữ văn giữ nguyên grade=null.
+     */
+    private String resolveGrade(User user, Subject subject, String grade) {
+        if (grade != null && grade.isBlank()) {
+            grade = null;
+        }
+        if (grade == null && "anh".equals(subject.getCode()) && user.getGrade() != null) {
+            grade = user.getGrade();
+        }
+        return grade;
+    }
+
+    /** Tiếng Anh mà vẫn chưa xác định được khối → phải chọn khối trước (đẩy về /english). */
+    private boolean needsGrade(Subject subject, String grade) {
+        return "anh".equals(subject.getCode()) && grade == null;
     }
 
     static Map<Long, Integer> parseAnswers(Map<String, String> params) {

@@ -44,10 +44,10 @@ public class PlacementService {
         return questions.findByScopeAndSubjectOrderByOrderIndexAsc(QuizScope.PLACEMENT, subject);
     }
 
-    /** Grade-scoped question set (English). When grade is null, returns all. */
+    /** Grade-scoped question set (English). When grade is null/blank, returns all. */
     @Transactional(readOnly = true)
     public List<Question> questionsFor(Subject subject, String grade) {
-        if (grade == null) {
+        if (grade == null || grade.isBlank()) {
             return questionsFor(subject);
         }
         return questions.findByScopeAndSubjectAndGradeOrderByOrderIndexAsc(QuizScope.PLACEMENT, subject, grade);
@@ -60,7 +60,7 @@ public class PlacementService {
 
     @Transactional(readOnly = true)
     public int attemptsUsed(User user, Subject subject, String grade) {
-        if (grade == null) {
+        if (grade == null || grade.isBlank()) {
             return attemptsUsed(user, subject);
         }
         return (int) results.countByUserAndSubjectAndGrade(user, subject, grade);
@@ -83,6 +83,9 @@ public class PlacementService {
 
     @Transactional
     public PlacementOutcome grade(User user, Subject subject, String grade, Map<Long, Integer> answers) {
+        if (grade != null && grade.isBlank()) {
+            grade = null;
+        }
         List<Question> qs = questionsFor(subject, grade);
 
         int correct = 0;
