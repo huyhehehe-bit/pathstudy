@@ -9,7 +9,7 @@
         <div class="content stack">
             <div class="section-head">
                 <h2 style="font-size:24px">Người dùng</h2>
-                <p class="muted">Phân vai trò cho tài khoản: Học sinh · Giáo viên · Admin.</p>
+                <p class="muted">Phân vai trò và quản lý Premium: Học sinh · Giáo viên · Admin.</p>
             </div>
 
             <div class="stack" style="gap:10px">
@@ -22,7 +22,10 @@
                             <div class="faint" style="font-size:12px" th:text="${u.email}">email</div>
                         </div>
                     </div>
-                    <div class="center" style="gap:10px">
+                    <div class="center" style="gap:10px;flex-wrap:wrap">
+                        <span class="pill"
+                              th:classappend="${premiumUntil[u.id] != null} ? 'pill-doing' : 'pill-todo'"
+                              th:text="${premiumUntil[u.id] != null} ? 'Premium · HSD ' + ${premiumUntil[u.id]} : 'Free'">Free</span>
                         <span class="pill"
                               th:classappend="${u.role == 'ADMIN'} ? 'pill-warn' : (${u.role == 'TEACHER'} ? 'pill-doing' : 'pill-todo')"
                               th:text="${u.role}">STUDENT</span>
@@ -31,6 +34,16 @@
                                 <option th:each="r : ${roles}" th:value="${r}" th:selected="${r == u.role}" th:text="${r}">STUDENT</option>
                             </select>
                             <button type="submit" class="btn btn-soft">Lưu</button>
+                        </form>
+                        <form th:action="@{'/admin/users/' + ${u.id} + '/premium/grant'}" method="post" class="center" style="gap:6px">
+                            <input type="number" name="days" value="30" min="1" max="3650"
+                                   class="textarea" style="padding:8px 10px;width:78px" title="Số ngày Premium"/>
+                            <button type="submit" class="btn btn-soft">Mở Premium</button>
+                        </form>
+                        <form th:if="${premiumUntil[u.id] != null}"
+                              th:action="@{'/admin/users/' + ${u.id} + '/premium/revoke'}" method="post"
+                              onsubmit="return confirm('Thu hồi Premium của người dùng này?');">
+                            <button type="submit" class="btn btn-ghost">Thu hồi</button>
                         </form>
                     </div>
                 </div>

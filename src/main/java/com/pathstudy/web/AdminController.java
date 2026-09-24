@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -45,8 +44,16 @@ public class AdminController {
 
     @GetMapping("/admin/users")
     public String users(Model model) {
-        model.addAttribute("users", users.findAll());
+        List<User> all = users.findAll();
+        // userId → hạn Premium (dd/MM/yyyy) nếu đang có, ngược lại null (Free).
+        Map<Long, String> premiumUntil = new LinkedHashMap<>();
+        for (User u : all) {
+            premiumUntil.put(u.getId(), payments.activeSubscription(u)
+                    .map(o -> o.getExpiresAt().format(DF)).orElse(null));
+        }
+        model.addAttribute("users", all);
         model.addAttribute("roles", ROLES);
+        model.addAttribute("premiumUntil", premiumUntil);
         return "admin/users";
     }
 
@@ -61,6 +68,32 @@ public class AdminController {
             users.save(u);
         });
         ra.addFlashAttribute("toast", "Đã cập nhật vai trò.");
+        return "redirect:/admin/users";
+    }
+
+    /** Admin mở Premium miễn phí cho user trong {@code days} ngày (mặc định 30). */
+    @PostMapping("/admin/users/{id}/premium/grant")
+    public String grantPremium(@PathVariable Long id,
+                               @RequestParam(defaultValue = "30") int days,
+                               RedirectAttributes ra) {
+        if (days < 1 || days > 3650) {
+            ra.addFlashAttribute("toast", "Số ngày không hợp lệ (1–3650).");
+            return "redirect:/admin/users";
+        }
+        users.findById(id).ifPresentOrElse(u -> {
+            payments.grantComp(u, days);
+            ra.addFlashAttribute("toast", "Đã mở Premium " + days + " ngày cho " + u.getEmail() + ".");
+        }, () -> ra.addFlashAttribute("toast", "Không tìm thấy người dùng."));
+        return "redirect:/admin/users";
+    }
+
+    /** Admin thu hồi Premium của user (huỷ các đơn PAID). */
+    @PostMapping("/admin/users/{id}/premium/revoke")
+    public String revokePremium(@PathVariable Long id, RedirectAttributes ra) {
+        users.findById(id).ifPresentOrElse(u -> {
+            payments.revokePremium(u);
+            ra.addFlashAttribute("toast", "Đã thu hồi Premium của " + u.getEmail() + ".");
+        }, () -> ra.addFlashAttribute("toast", "Không tìm thấy người dùng."));
         return "redirect:/admin/users";
     }
 }
