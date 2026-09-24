@@ -24,7 +24,7 @@ import java.util.List;
 @Component
 public class DataSeeder implements CommandLineRunner {
 
-    private static final String SEED_VERSION = "2026-09-23-thpt-1145-full";
+    private static final String SEED_VERSION = "2026-09-24-thpt-3ma-full";
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -597,7 +597,22 @@ public class DataSeeder implements CommandLineRunner {
         seedEnglish11ExamHK2(anh);
         seedEnglish12ExamHK1(anh);
         seedEnglish12ExamHK2(anh);
-        seedNationalThptExam(anh);
+        seedNationalThptExam1145(anh);
+        seedNationalThptExam1146(anh);
+        seedNationalThptExam1147(anh);
+    }
+
+    private Exam thptExam(Subject anh, String title, String desc, int idx) {
+        Exam ex = new Exam();
+        ex.setSubject(anh);
+        ex.setGrade(null);
+        ex.setCategory("THPT");
+        ex.setPremium(false);
+        ex.setTitle(title);
+        ex.setLevel("THPT QG");
+        ex.setDescription(desc);
+        ex.setOrderIndex(idx);
+        return exams.save(ex);
     }
 
     private void seedEnglish12ExamHK1(Subject anh) {
@@ -712,17 +727,9 @@ public class DataSeeder implements CommandLineRunner {
     }
 
     /** Đề thi tốt nghiệp THPT Quốc gia thật — mục riêng, mọi lớp xem được, miễn phí. */
-    private void seedNationalThptExam(Subject anh) {
-        Exam ex = new Exam();
-        ex.setSubject(anh);
-        ex.setGrade(null);
-        ex.setCategory("THPT");
-        ex.setPremium(false);
-        ex.setTitle("Đề thi tốt nghiệp THPT 2026 — Mã đề 1145");
-        ex.setLevel("THPT QG");
-        ex.setDescription("Đề chính thức Kỳ thi tốt nghiệp THPT 2026 — 40 câu (sắp xếp câu, đọc hiểu, điền từ). Có đáp án.");
-        ex.setOrderIndex(1);
-        exams.save(ex);
+    private void seedNationalThptExam1145(Subject anh) {
+        Exam ex = thptExam(anh, "Đề thi tốt nghiệp THPT 2026 — Mã đề 1145",
+                "Đề chính thức Kỳ thi tốt nghiệp THPT 2026 — 40 câu (sắp xếp câu, đọc hiểu, điền từ). Đáp án đã kiểm chứng.", 1);
 
         // Sắp xếp câu (đáp án: 1.D 2.D 3.C 4.C 5.A)
         eqExam(ex, 1, "Sắp xếp thành đoạn hợp lí:\na. Initial results were impressive, as villagers reported broadband speeds comparable to city standards.\nb. For years, the isolated villages of central Marsh County struggled with unreliable copper cables.\nc. Consequently, the local council committed to laying fibre optic cables to every household within a year.\nd. To minimise disruption, cables were placed along existing verges, while community halls served as installation hubs.\ne. Encouraged by the villagers' satisfaction, neighbouring counties have requested guidance on the model.",
@@ -950,6 +957,403 @@ public class DataSeeder implements CommandLineRunner {
                 "being wealthy is distinguishing itself from being rich",
                 "for being wealthy to be distinguished from being rich",
                 "being wealthy and being rich distinguish themselves");
+    }
+
+    private void seedNationalThptExam1146(Subject anh) {
+        Exam ex = thptExam(anh, "Đề thi tốt nghiệp THPT 2026 — Mã đề 1146",
+                "Đề chính thức Kỳ thi tốt nghiệp THPT 2026 — 40 câu. Đáp án đã kiểm chứng (đã sửa vài lỗi đáp án tham khảo).", 2);
+        String r1 = """
+                Đọc đoạn văn và trả lời các câu hỏi (1–8).
+
+                For most undergraduates today, opening a laptop at the start of a lecture has become as
+                automatic as sitting down. The device is no longer a tool consciously chosen; it is simply
+                there, ready to absorb every word the instructor utters. Yet researchers who study students'
+                attention argue that this convenience comes at a price most learners are unaware they are paying.
+
+                A recent multi-campus study tracked the in-class behaviour of nearly two thousand undergraduates.
+                Even when students claimed to be "fully focused", eye-tracking data showed that they shifted
+                between unrelated tabs an average of fourteen times per fifty-minute session. The students
+                themselves were astounded when shown the results.
+
+                The findings underline an unsettling truth: digital multitasking is not just inefficient; it is
+                invisible to those engaged in it. Cognitive scientists describe this as "the illusion of
+                competence" — the false sense that because information has passed beneath one's eyes, it has been
+                understood and stored. Tests a week later showed laptop users recalling roughly a third less than
+                those taking handwritten notes.
+
+                Things go from bad to worse when we take into account the fact that the very tools that distract
+                students are also genuinely essential for some forms of academic work. Annotating digital texts,
+                accessing research databases and recording lectures all benefit from screen-based learning. The
+                crucial question is not to get rid of devices altogether but to teach students when and how to
+                set them aside.""";
+        eqExam(ex, 1, r1, "In paragraph 1, the writer is ____.", Competency.COMPREHENSION, "Đọc hiểu", 3,
+                "arguing in favour of undergraduates' use of laptops", "contrasting different methods of notetaking",
+                "questioning the real worth of costly laptops", "warning against a common habit among students");
+        eqExam(ex, 2, r1, "The word \"tracked\" in paragraph 2 is closest in meaning to ____.", Competency.COMPREHENSION, "Đọc hiểu", 0,
+                "examined", "represented", "copied", "controlled");
+        eqExam(ex, 3, r1, "The word \"astounded\" in paragraph 2 is OPPOSITE in meaning to ____.", Competency.COMPREHENSION, "Đọc hiểu", 2,
+                "honest", "brave", "calm", "anxious");
+        eqExam(ex, 4, r1, "The word \"those\" in paragraph 3 refers to ____.", Competency.COMPREHENSION, "Đọc hiểu", 2,
+                "lectures", "tests", "students", "scientists");
+        eqExam(ex, 5, r1, "Which of the following best paraphrases the underlined sentence in paragraph 4?", Competency.COMPREHENSION, "Đọc hiểu", 3,
+                "Not only certain academic assignments but also the digital tools useful for these tasks are causing problems.",
+                "Some academic work requires students' genuine concentration, which has become complicated with bad-quality tools.",
+                "It is the digital devices used for certain academic tasks that are distracting students from more important assignments.",
+                "What complicates matters is that digital devices necessary for completing some university work can interfere with concentration.");
+        eqExam(ex, 6, r1, "Which of the following statements would the writer NOT agree with?", Competency.COMPREHENSION, "Đọc hiểu", 0,
+                "Those switching between tasks on digital devices are aware of its adverse impacts on productivity.",
+                "University students' use of laptops in classrooms has become a practice performed unconsciously.",
+                "Providing students with guidance for proper use of laptops is better than imposing a blanket ban.",
+                "Students have become more isolated in lecture halls because of the widespread use of laptops.");
+        eqExam(ex, 7, r1, "In which paragraph does the writer mention a mismatch between self-report and scientific findings?", Competency.COMPREHENSION, "Đọc hiểu", 3,
+                "Paragraph 3", "Paragraph 1", "Paragraph 4", "Paragraph 2");
+        eqExam(ex, 8, r1, "In which paragraph does the writer provide examples for a general term?", Competency.COMPREHENSION, "Đọc hiểu", 1,
+                "Paragraph 2", "Paragraph 4", "Paragraph 3", "Paragraph 1");
+        // Sắp xếp câu (9–13)
+        eqExam(ex, 9, "Sắp xếp thành đoạn hợp lí:\na. Early data from the first quarter revealed a fifteen percent reduction in peak-hour delays and cleaner air.\nb. Motorists entering the central zone had to pay a fee, with the revenue allocated for cycle lanes and bus routes.\nc. Years of unchecked expansion of private vehicle ownership had rendered the commute in Stoneville the slowest in the region.\nd. The encouraging outcomes suggested that the scheme would be expanded to other districts.\ne. The city authorities implemented a simple yet controversial intervention: charging a congestion fee.",
+                Competency.APPLICATION, "Sắp xếp câu", 3, "b-a-d-e-c", "a-e-d-c-b", "e-b-d-c-a", "c-e-b-a-d");
+        eqExam(ex, 10, "Sắp xếp hội thoại:\na. Celine: Why do you say so?\nb. Celine: I've been considering taking a gap year. What's your view?\nc. Celine: Thanks. I'll think about it.\nd. Steward: The thing is, your studies won't be interrupted.\ne. Steward: If I were you, I would go to university right after graduating from high school.",
+                Competency.APPLICATION, "Sắp xếp câu", 0, "b-e-a-d-c", "b-d-a-e-c", "a-d-b-e-c", "a-e-b-d-c");
+        eqExam(ex, 11, "Sắp xếp lá thư (Dear Mr Tran):\na. To accept this scholarship, please sign the attached agreement and submit it before 15 July.\nb. Your performance during the selection process reflects dedication and potential.\nc. The grant covers full tuition for the programme and a monthly allowance of $500.\nd. It is our great pleasure to inform you that you have been selected as a recipient of the Pinnacle Scholarship.\ne. Should you have questions regarding the terms, please contact our admissions office.",
+                Competency.APPLICATION, "Sắp xếp câu", 1, "d-e-b-c-a", "d-b-c-a-e", "d-a-e-b-c", "d-c-e-a-b");
+        eqExam(ex, 12, "Sắp xếp hội thoại:\na. Customer: I've booked an online ticket for the concert this weekend, but haven't got the confirmation email.\nb. Customer: Here you are. Thanks for your help.\nc. Assistant: Please show me the receipt and I'll check it immediately.",
+                Competency.APPLICATION, "Sắp xếp câu", 3, "b-a-c", "a-c-b", "a-b-c", "b-c-a");
+        eqExam(ex, 13, "Sắp xếp đoạn về nhà thông minh:\na. The convenience, however, carries inherent risks, because every connected device is a potential entry point for hackers.\nb. Smart homes have become essential features of modern life.\nc. The integrated systems offer convenience, such as turning off the oven from afar.\nd. Anyone investing in smart hardware should weigh the appeal of automation against the care required to keep a home network secure.\ne. A poorly updated router has, in several cases, allowed strangers to listen in on private conversations.",
+                Competency.APPLICATION, "Sắp xếp câu", 1, "d-e-b-c-a", "b-c-a-e-d", "e-d-c-a-b", "c-a-d-b-e");
+        // Leaflet điền từ (14–19)
+        String lf = """
+                Đọc tờ rơi sau và chọn đáp án đúng cho mỗi chỗ trống (14–19).
+
+                GREEN HANDS, CLEAN LAND
+                The theme for Green Week 2026, "Green Hands, Clean Land", puts (14)____ on the role of our
+                community in protecting the environment. For several decades, climate change has had direct
+                effects on our daily life. (15)____, unless action is taken, we will face food insecurity,
+                water shortages, and higher energy prices. Since 2018, our annual campaigns have been coming
+                up (16)____. This year, we are planning two activities: clean-up and tree-planting.
+                Participation in (17)____ activity is open to all residents. Completed forms (18)____ be
+                submitted by 30 June. It is time to make a big difference to our surroundings. The harder we
+                try, (19)____ our future will be. Apply now!""";
+        eqExam(ex, 14, lf, "Chỗ trống (14):", Competency.KNOWLEDGE, "Ngữ pháp/Từ vựng", 1, "influence", "emphasis", "example", "intention");
+        eqExam(ex, 15, lf, "Chỗ trống (15):", Competency.APPLICATION, "Ngữ pháp/Từ vựng", 1, "However", "Therefore", "Finally", "Instead");
+        eqExam(ex, 16, lf, "Chỗ trống (16):", Competency.APPLICATION, "Ngữ pháp/Từ vựng", 0, "roses", "sky", "gold", "goods");
+        eqExam(ex, 17, lf, "Chỗ trống (17):", Competency.APPLICATION, "Ngữ pháp/Từ vựng", 3, "both", "other", "neither", "either");
+        eqExam(ex, 18, lf, "Chỗ trống (18):", Competency.APPLICATION, "Ngữ pháp/Từ vựng", 1, "should not", "should", "ought not", "ought");
+        eqExam(ex, 19, lf, "Chỗ trống (19):", Competency.APPLICATION, "Ngữ pháp/Từ vựng", 0, "the greener", "greenest", "greener", "the greenest");
+        // Đọc hiểu 2 (20–29) — môi trường (bản diễn đạt lại)
+        String r2 = """
+                Đọc đoạn văn và trả lời các câu hỏi (20–29).
+
+                It is important to stress that environmental services have costs, even when they are produced
+                without any human input. All costs ought to be measured as opportunity costs. The opportunity
+                cost for environmental services is the net benefit forgone because the resources providing the
+                service can no longer be used in the next most beneficial way. Resources are not free if they
+                can be put to alternative uses.
+
+                Consider a stretch of river that can be used either for white-water canoeing or for electric
+                power generation. Because the dam that generates the power would flood the rapids, the two uses
+                are incompatible. Conversely, the opportunity cost of building the dam is everything the
+                unspoiled river would have produced: recreation, wildlife, scenery, and whatever value future
+                generations might place upon the rapids.
+
+                This insight has far-reaching implications for development policy. [I] Many decisions that appear
+                at first to be costless choices in favour of growth turn out, on closer inspection, to be
+                choices against something else. [II] Cutting down a forest for cropland is not free; it is paid
+                for in carbon storage, biodiversity, and the regulating services the forest performed silently.
+                [III] Diverting a river to irrigate fields is not free. [IV] Even leaving land untouched is not
+                free, for the income that intensive use might have generated is traded off as well.
+
+                Economic development, in this view, is never simply a question of whether a project yields a
+                positive return. Policies that recognise this do not stand against development. They insist that
+                the development chosen be worth what it truly costs.""";
+        eqExam(ex, 20, r2, "The word \"forgone\" in paragraph 1 is closest in meaning to ____.", Competency.COMPREHENSION, "Đọc hiểu", 2,
+                "filled up", "ended up", "given up", "made up");
+        eqExam(ex, 21, r2, "According to paragraph 1, the costs of environmental services are ____.", Competency.COMPREHENSION, "Đọc hiểu", 1,
+                "insignificant as these services require almost no human labour to produce",
+                "present whether or not human effort is involved in creating these services",
+                "determined by the market value of the natural resources themselves",
+                "calculated based on the direct financial input provided for natural resources");
+        eqExam(ex, 22, r2, "Which of the following is NOT implied in paragraph 2?", Competency.COMPREHENSION, "Đọc hiểu", 2,
+                "Hydroelectric generation and white-water canoeing cannot coexist on the same stretch of river.",
+                "The opportunity cost of the dam construction includes intangible benefits that are sacrificed.",
+                "Recreational activities and power generation impose equal environmental burdens on the river.",
+                "The intrinsic value attached to the river may extend beyond its potential use for hydroelectric generation.");
+        eqExam(ex, 23, r2, "Where in paragraph 3 does this sentence best fit? \"Such hidden costs become apparent only when one pauses to consider what nature was quietly doing on its own.\"", Competency.COMPREHENSION, "Đọc hiểu", 1,
+                "[IV]", "[II]", "[III]", "[I]");
+        eqExam(ex, 24, r2, "Which of the following best summarises paragraph 3?", Competency.COMPREHENSION, "Đọc hiểu", 0,
+                "Initiatives that are perceived as harmless may actually involve underlying sacrifices.",
+                "Long-term ecological balance usually takes precedence over immediate financial gain.",
+                "Policymakers should take the management of natural resources into consideration.",
+                "Economic growth schemes should be halted once ecological disruption is detected.");
+        eqExam(ex, 25, r2, "The word \"They\" in paragraph 4 refers to ____.", Competency.COMPREHENSION, "Đọc hiểu", 0,
+                "policies", "services", "sides", "prices");
+        eqExam(ex, 26, r2, "What conclusion can be drawn from paragraph 4?", Competency.COMPREHENSION, "Đọc hiểu", 1,
+                "Deducting the hidden costs is obligatory after a project claims to have a positive return.",
+                "Considering opportunity costs ensures that development is truly justified.",
+                "Damage caused by intentional ignorance regarding environmental costs is permanent.",
+                "Regulations pricing natural resources are inherently harmful to growth.");
+        eqExam(ex, 27, r2, "Which of the following is true according to the passage?", Competency.COMPREHENSION, "Đọc hiểu", 2,
+                "Financial gain is the primary criterion for evaluating development projects.",
+                "Opportunity costs are determined by the going rate for environmental services.",
+                "The true value of a project is measured not merely by its economic benefits.",
+                "Preserving land in its natural state is economically sound as it consumes no resources.");
+        eqExam(ex, 28, r2, "Which of the following can be inferred from the passage?", Competency.COMPREHENSION, "Đọc hiểu", 0,
+                "The net gains produced by development projects overlooking opportunity costs tend to be overestimated.",
+                "Projects are forced to compensate for the economic losses in return for environmental preservation.",
+                "Policies that price environmental services are intended to restrict the scope of economic development.",
+                "The benefits of industrial development generally exceed the value of preserved environmental services.");
+        eqExam(ex, 29, r2, "Which of the following would be the best title for the passage?", Competency.COMPREHENSION, "Đọc hiểu", 0,
+                "Development: Factoring in Sacrifices", "Environmental Policies in the Firing Line",
+                "Economic Development on the Line", "Natural Preservation: Ushering in a New Era");
+        // Flyer điền từ (30–35) — ĐÁP ÁN ĐÃ SỬA cho đúng tiếng Anh
+        String fl = """
+                Đọc tờ rơi sau và chọn đáp án đúng cho mỗi chỗ trống (30–35).
+
+                LET'S WARM THEIR HEARTS!
+                In many remote regions, children face the harsh cold. Your kindness can warm their hearts.
+                Our project includes:
+                - Collection: Please (30)____ out your old winter clothes by size and ensure that the items
+                  are dry and in good (31)____. You can drop them off at our collection points.
+                - Cleaning: We will have all donations (32)____ to ensure that they are fresh. We use
+                  eco-friendly detergents to (33)____ the sensitive skin of the children.
+                - Distribution: We (34)____ with local schools to distribute the clothes directly to students.
+                If everyone (35)____ a hand, we will help thousands of children stay warm this winter.""";
+        eqExam(ex, 30, fl, "Chỗ trống (30):", Competency.KNOWLEDGE, "Ngữ pháp/Từ vựng", 1, "fill", "sort", "turn", "catch");
+        eqExam(ex, 31, fl, "Chỗ trống (31):", Competency.KNOWLEDGE, "Ngữ pháp/Từ vựng", 1, "relation", "condition", "position", "situation");
+        eqExam(ex, 32, fl, "Chỗ trống (32):", Competency.APPLICATION, "Ngữ pháp/Từ vựng", 3, "washing", "wash", "being washed", "washed");
+        eqExam(ex, 33, fl, "Chỗ trống (33):", Competency.KNOWLEDGE, "Ngữ pháp/Từ vựng", 2, "produce", "promote", "protect", "provide");
+        eqExam(ex, 34, fl, "Chỗ trống (34):", Competency.APPLICATION, "Ngữ pháp/Từ vựng", 3, "cooperative", "cooperation", "cooperatively", "cooperate");
+        eqExam(ex, 35, fl, "Chỗ trống (35):", Competency.APPLICATION, "Ngữ pháp/Từ vựng", 3, "gave", "have given", "give", "gives");
+        // Đọc điền câu (36–40)
+        String r3 = """
+                Đọc đoạn văn và chọn câu/cụm đúng cho mỗi chỗ trống (36–40).
+
+                Among the many paradoxes surrounding money, one deserves particular attention: the wealth that
+                truly counts is precisely the wealth you cannot observe. When a sleek Lamborghini glides past,
+                it is normal (36)____. In reality, however, many drivers of those who drive luxury vehicles are,
+                in fact, only modest earners (37)____ to the privilege of being seen in such a car. Yet the
+                certain thing is that they have a hundred thousand pounds less than before, or more in debt.
+                (38)____.
+                We tend to judge wealth by what we see as visible details are the only evidence we have access
+                to. Nobody walks around displaying a printout of their savings, (39)____ — handbags, holiday
+                villas, posts on social networks — to decide who is prospering. Wealth hides in the upgrade
+                declined and the watch never bought.
+                In short, wealth is whatever money has not yet been swapped for tangible goods. That is why
+                distinguishing wealthy from rich deserves careful thought (40)____.""";
+        eqExam(ex, 36, r3, "Chỗ trống (36):", Competency.COMPREHENSION, "Đọc hiểu", 1,
+                "a good conclusion about whoever sits behind the wheel must be",
+                "to conclude that whoever sits behind the wheel must be doing well",
+                "a good conclusion about the wheel behind which the person must sit",
+                "for concluding that the person must be doing well behind the wheel");
+        eqExam(ex, 37, r3, "Chỗ trống (37):", Competency.COMPREHENSION, "Đọc hiểu", 0,
+                "who have committed a disproportionate share of their monthly pay",
+                "whose monthly pay is disproportionately committed to sharing",
+                "a disproportionate share of whose monthly pay is committed",
+                "who are committed to sharing their monthly pay disproportionately");
+        eqExam(ex, 38, r3, "Chỗ trống (38):", Competency.COMPREHENSION, "Đọc hiểu", 3,
+                "You know that it is beyond nothing at all", "Beyond that, nothing is unknown to you",
+                "Beyond your knowledge, that is nothing", "Beyond that, you know nothing at all");
+        eqExam(ex, 39, r3, "Chỗ trống (39):", Competency.COMPREHENSION, "Đọc hiểu", 1,
+                "yet they appear reliable on the outside instead", "so we instead rely on their outward appearances",
+                "instead of their reliable outward appearances", "instead they rely on the appearances on the outside");
+        eqExam(ex, 40, r3, "Chỗ trống (40):", Competency.COMPREHENSION, "Đọc hiểu", 2,
+                "Authentic advertisements are, therefore, the refusal of real wealth itself",
+                "Real wealth itself, in reality, is advertised to refuse to be authentic",
+                "However, the reality is that authentic wealth refuses to advertise itself",
+                "Indeed, wealth in reality is advertised as the refusal of authenticity itself");
+    }
+
+    private void seedNationalThptExam1147(Subject anh) {
+        Exam ex = thptExam(anh, "Đề thi tốt nghiệp THPT 2026 — Mã đề 1147",
+                "Đề chính thức Kỳ thi tốt nghiệp THPT 2026 — 40 câu. Đáp án đã kiểm chứng.", 3);
+        // Quảng cáo điền từ (1–6)
+        String ad = """
+                Đọc mẩu quảng cáo sau và chọn đáp án đúng cho mỗi chỗ trống (1–6).
+
+                SUMMER PART-TIME JOBS FOR UNDERGRADUATES
+                Techworld Magazine is delighted to announce two IT assistant vacancies up for (1)____ this
+                summer. The better understanding of STEM you have, (2)____ likely you are to be selected!
+                Successful applicants will get plenty of hands-on experience, good pay, and access to the local
+                STEM community. (3)____, we offer flexible working hours and remote options. On top of that,
+                (4)____ position requires previous experience as new recruits are provided with training.
+                Applications (5)____ be submitted to us by 30 June. Never before has there been such a(n)
+                (6)____ opportunity to kick-start your career in STEM. Apply today!""";
+        eqExam(ex, 1, ad, "Chỗ trống (1):", Competency.KNOWLEDGE, "Ngữ pháp/Từ vựng", 2, "gift", "grips", "grabs", "grasp");
+        eqExam(ex, 2, ad, "Chỗ trống (2):", Competency.APPLICATION, "Ngữ pháp/Từ vựng", 1, "the most", "the more", "more", "most");
+        eqExam(ex, 3, ad, "Chỗ trống (3):", Competency.KNOWLEDGE, "Ngữ pháp/Từ vựng", 1, "Consequently", "Additionally", "Finally", "Subsequently");
+        eqExam(ex, 4, ad, "Chỗ trống (4):", Competency.APPLICATION, "Ngữ pháp/Từ vựng", 2, "either", "both", "neither", "none");
+        eqExam(ex, 5, ad, "Chỗ trống (5):", Competency.APPLICATION, "Ngữ pháp/Từ vựng", 3, "ought", "ought not", "should not", "should");
+        eqExam(ex, 6, ad, "Chỗ trống (6):", Competency.KNOWLEDGE, "Ngữ pháp/Từ vựng", 2, "private", "lively", "golden", "active");
+        // Đọc hiểu môi trường (7–16) — cùng bài 1145
+        String r1 = """
+                Đọc đoạn văn và trả lời các câu hỏi (7–16).
+
+                Environmental services, even when they arise without any human labour, are by no means
+                cost-free. Every cost should be understood in terms of opportunity cost. For environmental
+                services, the opportunity cost amounts to the net gain relinquished because the resources are
+                no longer available for their second-best application. Whenever a resource has alternative
+                uses, it cannot legitimately be deemed free.
+
+                For instance, a section of river might serve as a site used for either white-water canoeing or
+                hydroelectric generation. Constructing a dam to produce electricity would flood the rapids. The
+                opportunity cost of preserving the river for canoeing equals the net benefit of the electricity
+                that would otherwise have been produced. Conversely, the opportunity cost of building the dam is
+                everything the unspoiled river would have provided.
+
+                This understanding carries considerable weight for planning development. [I] Numerous decisions
+                initially appearing to be cost-free moves in favour of growth prove, on closer inspection, to be
+                against something else. [II] Clearing a forest for cropland is not free; it is paid for through
+                losses in carbon storage and biological diversity. [III] Channelling a river for irrigation has
+                its price. [IV] Even leaving land untouched exacts a cost, since the earnings intensive use might
+                have generated are sacrificed.
+
+                From this perspective, economic development can never be reduced to whether a project delivers a
+                positive return. Policies considering this are not against development. They insist that the
+                development chosen be worth its true cost.""";
+        eqExam(ex, 7, r1, "The word \"relinquished\" in paragraph 1 is closest in meaning to ____.", Competency.COMPREHENSION, "Đọc hiểu", 0,
+                "given up", "filled up", "ended up", "made up");
+        eqExam(ex, 8, r1, "According to paragraph 1, the costs of environmental services are ____.", Competency.COMPREHENSION, "Đọc hiểu", 1,
+                "determined by financial investment in natural resources", "existent even in the absence of human involvement",
+                "included in the market value of natural resources", "minimal because these services are nearly labour-free");
+        eqExam(ex, 9, r1, "Which of the following is NOT implied in paragraph 2?", Competency.COMPREHENSION, "Đọc hiểu", 1,
+                "The intrinsic value of the river is not confined to generating hydroelectricity only.",
+                "The strains on the ecosystem imposed by recreational activities and power generation are similar.",
+                "Intangible benefits also constitute the opportunity cost of the dam construction.",
+                "It is impossible to exploit one stretch of river for both hydroelectric generation and canoeing.");
+        eqExam(ex, 10, r1, "Where in paragraph 3 does this sentence best fit? \"Such hidden costs only come to light when one stops to think about the roles nature itself is quietly playing.\"", Competency.COMPREHENSION, "Đọc hiểu", 2,
+                "[III]", "[I]", "[II]", "[IV]");
+        eqExam(ex, 11, r1, "Which of the following best summarises paragraph 3?", Competency.COMPREHENSION, "Đọc hiểu", 1,
+                "Untouched and cultivated lands both produce benefits in the long term.",
+                "Apparently harmless developments actually come at an underlying price.",
+                "Economic benefits should never take precedence over forest and river preservation.",
+                "Ecological preservation exerts negligible influence on economic development.");
+        eqExam(ex, 12, r1, "The word \"they\" in paragraph 4 refers to ____.", Competency.COMPREHENSION, "Đọc hiểu", 0,
+                "policies", "sacrifices", "sides", "services");
+        eqExam(ex, 13, r1, "What conclusion can be drawn from paragraph 4?", Competency.COMPREHENSION, "Đọc hiểu", 1,
+                "Both excessive caution and complete ignorance regarding environmental costs cause permanent damage.",
+                "Due consideration for opportunity costs is crucial for the genuine success of development.",
+                "Putting a price on environmental services is aimed at slowing down economic projects.",
+                "Initiatives are required by law to deduct the hidden costs before claiming a positive return.");
+        eqExam(ex, 14, r1, "Which of the following is true according to the passage?", Competency.COMPREHENSION, "Đọc hiểu", 2,
+                "Keeping land intact is free of opportunity cost as there is no resource consumption.",
+                "Assigning a specific price tag to a resource is a prerequisite for calculating opportunity costs.",
+                "The positive return of every economic development must be worth what is sacrificed.",
+                "Cost-free resources can be put to alternative uses as long as this is legally permitted.");
+        eqExam(ex, 15, r1, "Which of the following can be inferred from the passage?", Competency.COMPREHENSION, "Đọc hiểu", 3,
+                "The scale of economic development inevitably suffers from strict regulations on environmental services.",
+                "The value of preserved environmental services far outweighs the benefits of industrial development.",
+                "Projects are mandated to make up for the economic losses in return for environmental preservation.",
+                "Decisions that overlook environmental opportunity costs risk overestimating the net gains they produce.");
+        eqExam(ex, 16, r1, "Which of the following would be the best title for the passage?", Competency.COMPREHENSION, "Đọc hiểu", 2,
+                "Environment: A Tower of Strength", "Natural Preservation: Ushering in a New Era",
+                "Development: Factoring in Sacrifices", "Sustainable Development: A Pipe Dream");
+        // Leaflet Green Hands (17–22)
+        String lf = """
+                Đọc tờ rơi sau và chọn đáp án đúng cho mỗi chỗ trống (17–22).
+
+                GREEN HANDS CAMPAIGN
+                The School Youth Union is officially launching the "Green Hands" eco-friendly campaign. We
+                invite every student to participate. If everyone (17)____ together, we will make a difference
+                at our school. The primary goal is to expand students' (18)____ of plastic pollution. To
+                achieve this, the school will have colour-coded bins (19)____ in the schoolyard. Also,
+                waste-disposal workshops will be held to teach students to (20)____ out plastics properly. We
+                aim to (21)____ sustainable habits through consistent daily activities. Please sign up online.
+                Your (22)____ is essential for success. Join hands with us today!""";
+        eqExam(ex, 17, lf, "Chỗ trống (17):", Competency.APPLICATION, "Ngữ pháp/Từ vựng", 3, "have worked", "work", "worked", "works");
+        eqExam(ex, 18, lf, "Chỗ trống (18):", Competency.KNOWLEDGE, "Ngữ pháp/Từ vựng", 0, "knowledge", "attention", "focus", "emphasis");
+        eqExam(ex, 19, lf, "Chỗ trống (19):", Competency.APPLICATION, "Ngữ pháp/Từ vựng", 1, "being installed", "installed", "install", "installing");
+        eqExam(ex, 20, lf, "Chỗ trống (20):", Competency.KNOWLEDGE, "Ngữ pháp/Từ vựng", 0, "sort", "catch", "check", "fill");
+        eqExam(ex, 21, lf, "Chỗ trống (21):", Competency.KNOWLEDGE, "Ngữ pháp/Từ vựng", 3, "protect", "provide", "produce", "promote");
+        eqExam(ex, 22, lf, "Chỗ trống (22):", Competency.KNOWLEDGE, "Ngữ pháp/Từ vựng", 1, "cooperative", "cooperation", "cooperate", "cooperatively");
+        // Sắp xếp câu (23–27)
+        eqExam(ex, 23, "Sắp xếp lá thư (Dear Ms Hoang):\na. A payment of $5,000 will be released in the beginning, and the remaining balance after the mid-term report.\nb. Failure to respond by the stated date will result in the offer being granted to the next candidate.\nc. We are delighted to inform you that you have been awarded the Young Researcher Grant.\nd. To confirm your acceptance, please sign the attached form and submit it by 31 August.\ne. The funding is intended to support your fieldwork and must not be used for equipment.",
+                Competency.APPLICATION, "Sắp xếp câu", 0, "c-e-a-d-b", "c-a-b-e-d", "c-a-b-d-e", "c-b-e-d-a");
+        eqExam(ex, 24, "Sắp xếp hội thoại:\na. Diner: Excuse me, I've been waiting so long for my order.\nb. Diner: Thanks for your help.\nc. Waiter: I'm sorry! I'll check with the kitchen and get back to you immediately.",
+                Competency.APPLICATION, "Sắp xếp câu", 3, "b-c-a", "c-b-a", "a-b-c", "a-c-b");
+        eqExam(ex, 25, "Sắp xếp hội thoại đổi hàng:\na. Customer: What if I don't keep the original packaging?\nb. Customer: Great. I'll bring the item and receipt tomorrow.\nc. Customer: I'd like to exchange the electric fan I bought yesterday.\nd. Manager: Sold items can be exchanged within five days, but we don't give refunds.\ne. Manager: No problem, only your receipt is needed.",
+                Competency.APPLICATION, "Sắp xếp câu", 0, "c-d-a-e-b", "c-e-a-d-b", "a-d-c-e-b", "a-e-c-d-b");
+        eqExam(ex, 26, "Sắp xếp đoạn về mạng cáp quang:\na. Initial results were impressive, as villagers reported broadband speeds comparable to city standards.\nb. For years, the isolated villages of central Marsh County struggled with unreliable copper cables.\nc. Consequently, the local council committed to laying fibre optic cables to every household within a year.\nd. To minimise disruption, cables were placed along existing verges, while community halls served as installation hubs.\ne. Encouraged by the villagers' satisfaction, neighbouring counties have requested guidance on the model.",
+                Competency.APPLICATION, "Sắp xếp câu", 1, "a-e-d-b-c", "b-c-d-a-e", "e-b-a-c-d", "d-a-e-c-b");
+        eqExam(ex, 27, "Sắp xếp đoạn về điện gió:\na. Inhabitants of coastal regions housing large-scale facilities have reported that the low hum impairs sleep.\nb. Nevertheless, the argument for transitioning is not entirely convincing when implications for residents are considered.\nc. With the infrastructure in place, operational expenditures of wind mills are substantially lower than coal or gas.\nd. Wind power has been promoted as a notably clean and economically viable substitute for fossil fuels.\ne. Progress on renewable targets necessitates balancing each initiative against burdens imposed on local populations.",
+                Competency.APPLICATION, "Sắp xếp câu", 0, "d-c-b-a-e", "a-d-c-e-b", "e-b-a-c-d", "c-e-d-b-a");
+        // Đọc hiểu notetaking (28–35) — cùng bài 1145
+        String r2 = """
+                Đọc đoạn văn và trả lời các câu hỏi (28–35).
+
+                For decades, students have been convinced that academic success is largely dependent upon
+                meticulous notetaking. What has changed in recent years is not the importance of the practice
+                but the tools used to perform it. The keyboard has subtly supplanted the pen.
+
+                Researchers in cognitive psychology have begun to examine what this change has cost learners.
+                Students taking notes by hand consistently outperformed those using laptops on questions that
+                demanded conceptual understanding. The reason, according to the researchers, lies less in the
+                technology itself than in what each method asks of the brain. Typing rewards speed; handwriting
+                forces selection.
+
+                The act of writing by hand is slower, and that slowness appears to be its hidden virtue. Unable
+                to capture every word, students are obliged to listen and condense ideas into their own phrasing.
+                This continuous filtering, referred to as encoding by psychologists, turns out to be instrumental
+                in aiding long-term recall.
+
+                It would be misleading to claim that handwriting is inherently superior. Hard-working typists can
+                summarise, while indolent writers can drift. What the research highlights is a question about
+                effort. The deeper challenge may be helping students recognise that what feels easier in the
+                moment is not always what serves them best afterwards.""";
+        eqExam(ex, 28, r2, "In paragraph 1, the writer is ____.", Competency.COMPREHENSION, "Đọc hiểu", 3,
+                "challenging a long-held assumption about academic success", "promoting the use of technology in recording lectures",
+                "questioning the significance of notetaking in education", "introducing a recent change in the way students take notes");
+        eqExam(ex, 29, r2, "The word \"those\" in paragraph 2 refers to ____.", Competency.COMPREHENSION, "Đọc hiểu", 1,
+                "notes", "students", "studies", "researchers");
+        eqExam(ex, 30, r2, "Which of the following best paraphrases the underlined sentence in paragraph 2?", Competency.COMPREHENSION, "Đọc hiểu", 1,
+                "The modern device, along with the mental requirements of each method for the brain, is responsible for the difference.",
+                "What explains the difference in student performance is the mental work each method demands, rather than the technology.",
+                "Regardless of the method of notetaking, the effects on the brain exhibit little difference as long as technology is involved.",
+                "The difference in student performance is attributable to the modern technology instead of the mental work each method requires.");
+        eqExam(ex, 31, r2, "The word \"instrumental\" in paragraph 3 is OPPOSITE in meaning to ____.", Competency.COMPREHENSION, "Đọc hiểu", 3,
+                "specific", "central", "dramatic", "trivial");
+        eqExam(ex, 32, r2, "The word \"indolent\" in paragraph 4 is closest in meaning to ____.", Competency.COMPREHENSION, "Đọc hiểu", 2,
+                "active", "serious", "lazy", "careful");
+        eqExam(ex, 33, r2, "Which of the following statements would the writer NOT agree with?", Competency.COMPREHENSION, "Đọc hiểu", 0,
+                "Universities generally approve of prohibiting laptop use in classrooms.",
+                "The slow speed of writing by hand turns out to be an advantage over typing.",
+                "Students are unaware of the change in notetaking methods in class.",
+                "Handwritten and typed notes led to varied degrees of conceptual understanding.");
+        eqExam(ex, 34, r2, "In which paragraph does the writer mention a cognitive process?", Competency.COMPREHENSION, "Đọc hiểu", 2,
+                "Paragraph 4", "Paragraph 2", "Paragraph 3", "Paragraph 1");
+        eqExam(ex, 35, r2, "In which paragraph does the writer warn against an overgeneralisation?", Competency.COMPREHENSION, "Đọc hiểu", 1,
+                "Paragraph 2", "Paragraph 4", "Paragraph 3", "Paragraph 1");
+        // Đọc điền câu (36–40) — cùng bài 1145
+        String r3 = """
+                Đọc đoạn văn và chọn câu/cụm đúng cho mỗi chỗ trống (36–40).
+
+                Money has many ironies, and here is an important one: wealth is what you do not see. On spotting
+                a Ferrari driving around, (36)____. In reality, however, many drivers of expensive cars turn out
+                to be only mediocre successes who spend a huge percentage of their paycheck on a vehicle. Yet the
+                only firm data point you have about their wealth is that they have a hundred thousand dollars
+                less than before, or more in debt. (37)____.
+                We tend to judge wealth by what we see (38)____. We cannot peer into people's bank accounts, so
+                we rely on outward appearances: cars, houses, photographs on social media. (39)____. Wealth
+                hides in the nice car not purchased and the first-class upgrade declined.
+                Hence, we should be careful (40)____. Not knowing the difference is the source of countless poor
+                money decisions.""";
+        eqExam(ex, 36, r3, "Chỗ trống (36):", Competency.COMPREHENSION, "Đọc hiểu", 0,
+                "you might assume that the owner of the car must be rich", "you might be assumed to be the rich owner of the car",
+                "the car might be assumed to be owned by a rich person", "people might assume you must be the rich owner of the car");
+        eqExam(ex, 37, r3, "Chỗ trống (37):", Competency.COMPREHENSION, "Đọc hiểu", 1,
+                "What you know is about them all", "That is all you know about them",
+                "All that you know is about them", "You know what they are all about");
+        eqExam(ex, 38, r3, "Chỗ trống (38):", Competency.COMPREHENSION, "Đọc hiểu", 2,
+                "other than external clues as the information that we only have to work with",
+                "rather than by external clues as the only information we have to work with",
+                "because external clues are the only information we have to work with",
+                "unless we only have external clues as the information to work with");
+        eqExam(ex, 39, r3, "Chỗ trống (39):", Competency.COMPREHENSION, "Đọc hiểu", 2,
+                "Likewise, the truth is that the existence of authentic wealth remains a secret",
+                "Authentic wealth, as a consequence, secretly exists by remaining truthful",
+                "However, the truth remains that authentic wealth keeps its existence a secret",
+                "Authentic wealth, similarly, keeps its existence by secretly remaining truthful");
+        eqExam(ex, 40, r3, "Chỗ trống (40):", Competency.COMPREHENSION, "Đọc hiểu", 3,
+                "being wealthy is distinguishing itself from being rich", "being wealthy and being rich distinguish themselves",
+                "for being wealthy to be distinguished from being rich", "to distinguish between being wealthy and being rich");
     }
 
     private void seedEnglish10ExamHK1(Subject anh) {
