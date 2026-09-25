@@ -1,9 +1,11 @@
 package com.pathstudy.web;
 
+import com.pathstudy.domain.Feedback;
 import com.pathstudy.domain.User;
 import com.pathstudy.repo.UserRepository;
 import com.pathstudy.service.AiStudyPlanService;
 import com.pathstudy.service.BankTransferPaymentService;
+import com.pathstudy.service.FeedbackService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,12 +29,14 @@ public class AdminController {
     private final UserRepository users;
     private final AiStudyPlanService aiStudyPlan;
     private final BankTransferPaymentService payments;
+    private final FeedbackService feedback;
 
     public AdminController(UserRepository users, AiStudyPlanService aiStudyPlan,
-                           BankTransferPaymentService payments) {
+                           BankTransferPaymentService payments, FeedbackService feedback) {
         this.users = users;
         this.aiStudyPlan = aiStudyPlan;
         this.payments = payments;
+        this.feedback = feedback;
     }
 
     /** Admin-only AI health check (see SecurityConfig: /admin/** requires ADMIN). */
@@ -95,5 +99,19 @@ public class AdminController {
             ra.addFlashAttribute("toast", "Đã thu hồi Premium của " + u.getEmail() + ".");
         }, () -> ra.addFlashAttribute("toast", "Không tìm thấy người dùng."));
         return "redirect:/admin/users";
+    }
+
+    /** Admin xem toàn bộ đánh giá/góp ý của người dùng + thống kê nhanh. */
+    @GetMapping("/admin/feedback")
+    public String feedback(Model model) {
+        List<Feedback> all = feedback.all();
+        long rated = all.stream().filter(f -> f.getRating() != null).count();
+        double avg = all.stream().filter(f -> f.getRating() != null)
+                .mapToInt(Feedback::getRating).average().orElse(0);
+        model.addAttribute("feedbacks", all);
+        model.addAttribute("total", all.size());
+        model.addAttribute("ratedCount", rated);
+        model.addAttribute("avgRating", Math.round(avg * 10) / 10.0);
+        return "admin/feedback";
     }
 }

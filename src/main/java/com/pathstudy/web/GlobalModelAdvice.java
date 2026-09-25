@@ -24,6 +24,10 @@ public class GlobalModelAdvice {
     @Value("${app.name:PathStudy}")
     private String appName;
 
+    /** GA4 Measurement ID (G-XXXXXXX). Trống = không nhúng Google Analytics. */
+    @Value("${app.analytics.ga-id:}")
+    private String gaId;
+
     public GlobalModelAdvice(CurrentUserService currentUser, BookmarkService bookmarks,
                              EnrollmentRepository enrollments, BankTransferPaymentService payments) {
         this.currentUser = currentUser;
@@ -40,6 +44,11 @@ public class GlobalModelAdvice {
     @ModelAttribute("appName")
     public String appName() {
         return appName;
+    }
+
+    @ModelAttribute("gaId")
+    public String gaId() {
+        return gaId;
     }
 
     @ModelAttribute("currentUser")

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Góp ý nhanh')}"></head>
+<body>
+<div class="shell">
+    <aside th:replace="~{fragments/layout :: sidebar('feedback')}"></aside>
+    <main class="main">
+        <header th:replace="~{fragments/layout :: topbar('Góp ý nhanh')}"></header>
+        <div class="content stack">
+            <div class="section-head">
+                <h2 style="font-size:24px">Đánh giá nhanh PathStudy</h2>
+                <p class="muted">Bạn thấy web thế nào? Ưu điểm, hạn chế, cảm nhận — chỉ 30 giây, giúp tụi mình cải thiện.</p>
+            </div>
+
+            <form method="post" th:action="@{/feedback}" class="card card-pad stack" style="gap:16px;max-width:640px">
+                <div class="stack" style="gap:8px">
+                    <label style="font-weight:700">Mức độ hài lòng</label>
+                    <div class="rating">
+                        <th:block th:each="i : ${#numbers.sequence(5,1,-1)}">
+                            <input type="radio" name="rating" th:id="'star'+${i}" th:value="${i}"/>
+                            <label th:for="'star'+${i}" title="">★</label>
+                        </th:block>
+                    </div>
+                </div>
+
+                <div class="stack" style="gap:6px">
+                    <label for="pros" style="font-weight:700">👍 Ưu điểm — bạn thích gì?</label>
+                    <textarea id="pros" name="pros" rows="2" class="textarea"
+                              placeholder="Ví dụ: bài kiểm tra chia trình độ rõ, lộ trình dễ theo..."></textarea>
+                </div>
+
+                <div class="stack" style="gap:6px">
+                    <label for="cons" style="font-weight:700">👎 Hạn chế — chỗ nào cần cải thiện?</label>
+                    <textarea id="cons" name="cons" rows="2" class="textarea"
+                              placeholder="Ví dụ: web tải chậm lúc đầu, thiếu môn Toán..."></textarea>
+                </div>
+
+                <div class="stack" style="gap:6px">
+                    <label for="comment" style="font-weight:700">💬 Cảm nhận / góp ý thêm</label>
+                    <textarea id="comment" name="comment" rows="3" class="textarea"
+                              placeholder="Bất cứ điều gì bạn muốn nhắn cho tụi mình..."></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="align-self:flex-start">Gửi góp ý →</button>
+            </form>
+        </div>
+    </main>
+</div>
+<div th:replace="~{fragments/layout :: toast}"></div>
+
+<!-- Bắn event sang Google Analytics khi gửi thành công (nếu GA đang bật) -->
+<script th:if="${justSubmitted}" th:inline="javascript">
+    if (typeof gtag === 'function') {
+        gtag('event', 'feedback_submit', { rating: /*[[${submittedRating}]]*/ 0 });
+    }
+</script>
+
+<style>
+    .rating { display:inline-flex; flex-direction:row-reverse; gap:6px; font-size:34px; line-height:1; }
+    .rating input { display:none; }
+    .rating label { color:#d5d9e4; cursor:pointer; transition:color .12s; }
+    .rating input:checked ~ label,
+    .rating label:hover, .rating label:hover ~ label { color:#f5b301; }
+</style>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

@@ -9,6 +9,16 @@
     <link rel="stylesheet"
           href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Lora:ital,wght@0,400;0,500;1,400;1,500&display=swap"/>
     <link rel="stylesheet" th:href="@{/css/app.css}"/>
+    <!-- Google Analytics 4 (chỉ nhúng khi có app.analytics.ga-id) -->
+    <th:block th:if="${gaId != null and !#strings.isEmpty(gaId)}">
+        <script async th:src="@{'https://www.googletagmanager.com/gtag/js?id=' + ${gaId}}"></script>
+        <script th:inline="javascript">
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', /*[[${gaId}]]*/ 'G-XXXXXXX');
+        </script>
+    </th:block>
     <link rel="icon"
           href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232f4bde'/%3E%3Cpath d='M8 20c4 0 4-8 8-8s4 8 8 8' stroke='white' stroke-width='2.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"/>
 </head>
@@ -37,11 +47,17 @@
         <a th:if="${currentUser != null and !isTeacher and !isPremium}" th:href="@{/upgrade}" class="nav-item" th:classappend="${active=='upgrade'} ? 'active'">
             <span th:insert="~{fragments/icons :: ic('shield')}"></span><span class="lbl">Nâng cấp</span>
         </a>
+        <a th:href="@{/feedback}" class="nav-item" th:classappend="${active=='feedback'} ? 'active'">
+            <span th:insert="~{fragments/icons :: ic('chat')}"></span><span class="lbl">Góp ý</span>
+        </a>
         <a th:if="${isTeacher}" th:href="@{/teacher}" class="nav-item" th:classappend="${active=='teacher'} ? 'active'">
             <span th:insert="~{fragments/icons :: ic('file')}"></span><span class="lbl">Quản lý nội dung</span>
         </a>
         <a th:if="${isAdmin}" th:href="@{/admin/users}" class="nav-item" th:classappend="${active=='admin'} ? 'active'">
             <span th:insert="~{fragments/icons :: ic('shield')}"></span><span class="lbl">Quản trị</span>
+        </a>
+        <a th:if="${isAdmin}" th:href="@{/admin/feedback}" class="nav-item" th:classappend="${active=='admin-feedback'} ? 'active'">
+            <span th:insert="~{fragments/icons :: ic('chart')}"></span><span class="lbl">Góp ý (admin)</span>
         </a>
     </nav>
     <div class="sidebar-foot">

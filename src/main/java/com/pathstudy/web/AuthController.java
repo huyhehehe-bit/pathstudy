@@ -2,6 +2,7 @@ package com.pathstudy.web;
 
 import com.pathstudy.domain.User;
 import com.pathstudy.repo.UserRepository;
+import com.pathstudy.service.BankTransferPaymentService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -10,6 +11,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.stereotype.Controller;
@@ -26,14 +28,21 @@ public class AuthController {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final SecurityContextRepository securityContextRepository;
+    private final BankTransferPaymentService payments;
+
+    /** Số ngày Premium tự cấp cho người dùng mới (0 = tắt). */
+    @Value("${app.signup.auto-premium-days:0}")
+    private int autoPremiumDays;
 
     public AuthController(UserRepository users, PasswordEncoder passwordEncoder,
                           AuthenticationManager authenticationManager,
-                          SecurityContextRepository securityContextRepository) {
+                          SecurityContextRepository securityContextRepository,
+                          BankTransferPaymentService payments) {
         this.users = users;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.securityContextRepository = securityContextRepository;
+        this.payments = payments;
     }
 
     @GetMapping("/login")
@@ -67,6 +76,11 @@ public class AuthController {
         u.setPasswordHash(passwordEncoder.encode(form.getPassword()));
         u.setGrade(form.getGrade());
         users.save(u);
+
+        // Ưu đãi launch: tự mở Premium miễn phí cho người dùng mới (nếu bật).
+        if (autoPremiumDays > 0) {
+            payments.grantComp(u, autoPremiumDays);
+        }
 
         autoLogin(u.getEmail(), form.getPassword(), request, response);
         return "redirect:/subjects";

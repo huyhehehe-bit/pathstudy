@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Góp ý người dùng')}"></head>
+<body>
+<div class="shell">
+    <aside th:replace="~{fragments/layout :: sidebar('admin-feedback')}"></aside>
+    <main class="main">
+        <header th:replace="~{fragments/layout :: topbar('Góp ý người dùng')}"></header>
+        <div class="content stack">
+            <div class="section-head">
+                <h2 style="font-size:24px">Đánh giá &amp; góp ý</h2>
+                <p class="muted">Dữ liệu lưu tại đây và (nếu bật webhook) đồng bộ sang Google Sheet.</p>
+            </div>
+
+            <div class="center" style="gap:12px;flex-wrap:wrap">
+                <div class="card card-pad" style="min-width:140px">
+                    <div class="faint" style="font-size:12px">Tổng góp ý</div>
+                    <strong style="font-size:26px" th:text="${total}">0</strong>
+                </div>
+                <div class="card card-pad" style="min-width:140px">
+                    <div class="faint" style="font-size:12px">Điểm hài lòng TB</div>
+                    <strong style="font-size:26px" th:text="${avgRating} + ' ★'">0 ★</strong>
+                    <div class="faint" style="font-size:12px" th:text="'(' + ${ratedCount} + ' lượt chấm sao)'"></div>
+                </div>
+            </div>
+
+            <div class="stack" style="gap:10px">
+                <p class="muted" th:if="${feedbacks.isEmpty()}">Chưa có góp ý nào.</p>
+                <div class="card card-pad stack" th:each="f : ${feedbacks}" style="gap:8px">
+                    <div class="between" style="gap:10px;flex-wrap:wrap">
+                        <strong th:text="${f.userLabel}">user@email</strong>
+                        <span class="center" style="gap:10px">
+                            <span th:if="${f.rating != null}" style="color:#f5b301;font-weight:700"
+                                  th:text="'★ ' + ${f.rating} + '/5'">★ 4/5</span>
+                            <span class="faint" style="font-size:12px"
+                                  th:text="${#temporals.format(f.createdAt, 'dd/MM/yyyy HH:mm')}">01/01</span>
+                        </span>
+                    </div>
+                    <div th:if="${f.pros != null and !f.pros.isEmpty()}">
+                        <span class="pill pill-doing">👍 Ưu điểm</span>
+                        <span th:text="${f.pros}"></span>
+                    </div>
+                    <div th:if="${f.cons != null and !f.cons.isEmpty()}">
+                        <span class="pill pill-warn">👎 Hạn chế</span>
+                        <span th:text="${f.cons}"></span>
+                    </div>
+                    <div th:if="${f.comment != null and !f.comment.isEmpty()}">
+                        <span class="pill pill-todo">💬 Cảm nhận</span>
+                        <span th:text="${f.comment}"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+<div th:replace="~{fragments/layout :: toast}"></div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>
