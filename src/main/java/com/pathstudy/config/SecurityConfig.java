@@ -12,6 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 
 @Configuration
 @EnableWebSecurity
@@ -37,6 +38,12 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        // Ép CSRF token nạp SỚM (eager) trong CsrfFilter thay vì trễ (deferred).
+        // Nếu để deferred, token chỉ được tạo khi render <form th:action>, lúc đó
+        // response có thể đã commit (vd trang có nhiều nội dung ở <head>) → lỗi
+        // "Cannot create a session after the response has been committed" → 500.
+        CsrfTokenRequestAttributeHandler csrfHandler = new CsrfTokenRequestAttributeHandler();
+        csrfHandler.setCsrfRequestAttributeName(null);
         http
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/register", "/login",
@@ -64,7 +71,9 @@ public class SecurityConfig {
                         .alwaysRemember(true)
                         .tokenValiditySeconds(60 * 60 * 24 * 14))
                 // H2 console and the payment webhook post without a CSRF token.
-                .csrf(csrf -> csrf.ignoringRequestMatchers("/h2-console/**", "/payment/webhook"))
+                .csrf(csrf -> csrf
+                        .csrfTokenRequestHandler(csrfHandler)
+                        .ignoringRequestMatchers("/h2-console/**", "/payment/webhook"))
                 .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()));
         return http.build();
     }

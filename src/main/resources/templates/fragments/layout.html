@@ -9,9 +9,11 @@
     <link rel="stylesheet"
           href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Lora:ital,wght@0,400;0,500;1,400;1,500&display=swap"/>
     <link rel="stylesheet" th:href="@{/css/app.css}"/>
-    <!-- Google Analytics 4 (chỉ nhúng khi có app.analytics.ga-id) -->
+    <!-- Google Analytics 4 (chỉ nhúng khi có app.analytics.ga-id).
+         Dùng chuỗi thường (không @{...}) để tránh response bị commit sớm làm
+         hỏng việc tạo CSRF/session ở form phía dưới. -->
     <th:block th:if="${gaId != null and !#strings.isEmpty(gaId)}">
-        <script async th:src="@{'https://www.googletagmanager.com/gtag/js?id=' + ${gaId}}"></script>
+        <script async th:src="'https://www.googletagmanager.com/gtag/js?id=' + ${gaId}"></script>
         <script th:inline="javascript">
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
