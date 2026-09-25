@@ -5,13 +5,16 @@ import com.pathstudy.domain.PremiumPlan;
 import com.pathstudy.domain.User;
 import com.pathstudy.service.BankTransferPaymentService;
 import com.pathstudy.service.CurrentUserService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -80,32 +83,44 @@ public class PaymentController {
      * service to POST here with the shared token. Accepts SePay's flat payload
      * or Casso's {data:[...]} payload.
      */
+    private static final ObjectMapper JSON = new ObjectMapper();
+
     @PostMapping("/payment/webhook")
-    @ResponseBody
-    public ResponseEntity<Map<String, Object>> webhook(
+    public void webhook(
             @RequestBody(required = false) Map<String, Object> body,
             @RequestParam(required = false) String token,
-            @RequestHeader(value = "Authorization", required = false) String auth) {
+            @RequestHeader(value = "Authorization", required = false) String auth,
+            HttpServletResponse response) throws IOException {
 
+        int status;
+        Map<String, Object> payload;
         if (!authorized(token, auth)) {
-            return ResponseEntity.status(401).body(Map.of("success", false, "message", "unauthorized"));
-        }
-        if (body == null) {
-            return ResponseEntity.ok(Map.of("success", true));
-        }
-
-        int confirmed = 0;
-        Object data = body.get("data");
-        if (data instanceof List<?> list) {
-            for (Object item : list) {
-                if (item instanceof Map<?, ?> tx && handle(tx)) {
-                    confirmed++;
+            status = 401;
+            payload = Map.of("success", false, "message", "unauthorized");
+        } else if (body == null) {
+            status = 200;
+            payload = Map.of("success", true);
+        } else {
+            int confirmed = 0;
+            Object data = body.get("data");
+            if (data instanceof List<?> list) {
+                for (Object item : list) {
+                    if (item instanceof Map<?, ?> tx && handle(tx)) {
+                        confirmed++;
+                    }
                 }
+            } else if (handle(body)) {
+                confirmed++;
             }
-        } else if (handle(body)) {
-            confirmed++;
+            status = 200;
+            payload = Map.of("success", true, "confirmed", confirmed);
         }
-        return ResponseEntity.ok(Map.of("success", true, "confirmed", confirmed));
+        // Ghi JSON thẳng vào response, KHÔNG qua content negotiation — tránh 406
+        // (và log rác HttpMessageNotWritableException) khi bot/scanner gọi webhook
+        // công khai này với header Accept: text/html.
+        response.setStatus(status);
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE + ";charset=UTF-8");
+        response.getWriter().write(JSON.writeValueAsString(payload));
     }
 
     private boolean handle(Map<?, ?> tx) {
