@@ -5,9 +5,11 @@ import com.pathstudy.domain.CourseModule;
 import com.pathstudy.domain.MaterialType;
 import com.pathstudy.domain.ReferenceMaterial;
 import com.pathstudy.domain.Subject;
+import com.pathstudy.domain.SubjectResource;
 import com.pathstudy.repo.CourseModuleRepository;
 import com.pathstudy.repo.ReferenceMaterialRepository;
 import com.pathstudy.repo.SubjectRepository;
+import com.pathstudy.repo.SubjectResourceRepository;
 import com.pathstudy.service.CurrentUserService;
 import com.pathstudy.service.MaterialService;
 import com.pathstudy.service.QuestionBankService;
@@ -24,23 +26,30 @@ import java.util.Map;
 @RequestMapping("/teacher")
 public class TeacherController {
 
+    /** Phân loại tài liệu cho kho tài liệu theo môn. */
+    private static final List<String> RESOURCE_CATEGORIES = List.of(
+            "Đề thi cuối kì", "Đề thi giữa kì", "Giáo trình", "Bài tập", "Khác");
+
     private final SubjectRepository subjects;
     private final CourseModuleRepository modules;
     private final MaterialService materials;
     private final CurrentUserService currentUser;
     private final QuestionBankService questionBank;
     private final ReferenceMaterialRepository referenceMaterials;
+    private final SubjectResourceRepository subjectResources;
 
     public TeacherController(SubjectRepository subjects, CourseModuleRepository modules,
                              MaterialService materials, CurrentUserService currentUser,
                              QuestionBankService questionBank,
-                             ReferenceMaterialRepository referenceMaterials) {
+                             ReferenceMaterialRepository referenceMaterials,
+                             SubjectResourceRepository subjectResources) {
         this.subjects = subjects;
         this.modules = modules;
         this.materials = materials;
         this.currentUser = currentUser;
         this.questionBank = questionBank;
         this.referenceMaterials = referenceMaterials;
+        this.subjectResources = subjectResources;
     }
 
     @GetMapping
@@ -165,5 +174,55 @@ public class TeacherController {
         referenceMaterials.deleteById(id);
         ra.addFlashAttribute("toast", "Đã xoá tài liệu.");
         return "redirect:/teacher/docs?subject=" + subject;
+    }
+
+    // ---------- Kho tài liệu theo môn (link ngoài: Google Drive, PDF...) ----------
+
+    @GetMapping("/resources")
+    public String resources(@RequestParam(defaultValue = "van") String subject, Model model) {
+        Subject subj = subjects.findByCode(subject)
+                .orElseGet(() -> subjects.findAllByOrderByOrderIndexAsc().get(0));
+        List<SubjectResource> all = subjectResources.findBySubjectOrderByCreatedAtDesc(subj);
+        model.addAttribute("subject", subj);
+        model.addAttribute("subjects", subjects.findAllByOrderByOrderIndexAsc());
+        model.addAttribute("categories", RESOURCE_CATEGORIES);
+        model.addAttribute("resources", all);
+        model.addAttribute("total", all.size());
+        return "teacher/resources";
+    }
+
+    @PostMapping("/resources")
+    public String addResource(@RequestParam String subject, @RequestParam String title,
+                              @RequestParam String url, @RequestParam(required = false) String category,
+                              @RequestParam(required = false) String description, RedirectAttributes ra) {
+        Subject subj = subjects.findByCode(subject).orElseThrow();
+        String link = url == null ? "" : url.strip();
+        if (title.isBlank() || link.isBlank()) {
+            ra.addFlashAttribute("toast", "Vui lòng nhập tiêu đề và liên kết tài liệu.");
+            return "redirect:/teacher/resources?subject=" + subject;
+        }
+        // Chỉ chấp nhận http/https để tránh liên kết độc hại (javascript:, data:...).
+        if (!link.startsWith("http://") && !link.startsWith("https://")) {
+            ra.addFlashAttribute("toast", "Liên kết phải bắt đầu bằng http:// hoặc https://");
+            return "redirect:/teacher/resources?subject=" + subject;
+        }
+        SubjectResource r = new SubjectResource();
+        r.setSubject(subj);
+        r.setTitle(title.strip());
+        r.setUrl(link);
+        r.setCategory(RESOURCE_CATEGORIES.contains(category) ? category : "Khác");
+        r.setDescription(description == null || description.isBlank() ? null : description.strip());
+        r.setCreatedByEmail(currentUser.current().map(u -> u.getEmail()).orElse(null));
+        subjectResources.save(r);
+        ra.addFlashAttribute("toast", "Đã thêm tài liệu vào kho.");
+        return "redirect:/teacher/resources?subject=" + subject;
+    }
+
+    @PostMapping("/resources/{id}/delete")
+    public String deleteResource(@PathVariable Long id, @RequestParam String subject,
+                                 RedirectAttributes ra) {
+        subjectResources.deleteById(id);
+        ra.addFlashAttribute("toast", "Đã xoá tài liệu.");
+        return "redirect:/teacher/resources?subject=" + subject;
     }
 }

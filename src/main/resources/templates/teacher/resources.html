@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Kho tài liệu')}"></head>
+<body>
+<div class="shell">
+    <aside th:replace="~{fragments/layout :: sidebar('teacher')}"></aside>
+    <main class="main">
+        <header th:replace="~{fragments/layout :: topbar('Kho tài liệu')}"></header>
+        <div class="content stack" style="max-width:860px">
+
+            <div class="section-head">
+                <h2 style="font-size:24px">Kho tài liệu — <span th:text="${subject.name}">Ngữ văn</span></h2>
+                <p class="muted">Thêm liên kết tài liệu (Google Drive, PDF...) theo môn: đề thi cuối kì, giáo trình, bài tập... Bấm <strong>Mở tài liệu</strong> để xem lại bất cứ lúc nào.</p>
+            </div>
+
+            <div class="row-wrap">
+                <a th:each="s : ${subjects}" th:href="@{/teacher/resources(subject=${s.code})}" class="chip"
+                   th:style="${s.code == subject.code} ? 'background:var(--primary-soft);color:var(--primary-700);border:none' : ''"
+                   th:text="${s.name}">Ngữ văn</a>
+            </div>
+
+            <div class="card card-pad stack-sm">
+                <h3 style="font-size:15px">Thêm tài liệu</h3>
+                <form th:action="@{/teacher/resources}" method="post" class="stack-sm">
+                    <input type="hidden" name="subject" th:value="${subject.code}"/>
+                    <div class="field">
+                        <label for="title">Tiêu đề</label>
+                        <input id="title" name="title" class="textarea" required
+                               placeholder="VD: Đề thi cuối kì 1 – Lớp 10 (2025)"/>
+                    </div>
+                    <div class="field">
+                        <label for="url">Liên kết (Google Drive / PDF)</label>
+                        <input id="url" name="url" class="textarea" required type="url"
+                               placeholder="https://drive.google.com/..."/>
+                    </div>
+                    <div class="field">
+                        <label for="category">Phân loại</label>
+                        <select id="category" name="category" class="textarea" style="width:auto">
+                            <option th:each="c : ${categories}" th:value="${c}" th:text="${c}">Đề thi cuối kì</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label for="description">Mô tả ngắn (tuỳ chọn)</label>
+                        <input id="description" name="description" class="textarea"
+                               placeholder="VD: 40 câu trắc nghiệm, có đáp án"/>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="align-self:flex-start">
+                        <span th:insert="~{fragments/icons :: ic('plus')}"></span> Lưu tài liệu</button>
+                </form>
+            </div>
+
+            <div class="stack-sm">
+                <h3 style="font-size:15px">Tài liệu hiện có (<span th:text="${total}">0</span>)</h3>
+                <div class="faint" th:if="${total == 0}" style="font-size:14px">Chưa có tài liệu nào cho môn này.</div>
+
+                <div class="card card-pad between" th:each="r : ${resources}" style="gap:12px">
+                    <div style="min-width:0">
+                        <div class="center" style="gap:8px">
+                            <span class="chip" th:if="${r.category != null}" th:text="${r.category}">Đề thi cuối kì</span>
+                            <strong th:text="${r.title}">Tài liệu</strong>
+                        </div>
+                        <div class="faint" style="font-size:12px" th:if="${r.description != null}"
+                             th:text="${r.description}">Mô tả</div>
+                    </div>
+                    <div class="center" style="gap:8px;flex-shrink:0">
+                        <a th:href="${r.url}" target="_blank" rel="noopener noreferrer"
+                           class="btn btn-soft">Mở tài liệu →</a>
+                        <form th:action="@{'/teacher/resources/' + ${r.id} + '/delete'}" method="post">
+                            <input type="hidden" name="subject" th:value="${subject.code}"/>
+                            <button type="submit" class="bm-btn"
+                                    style="border-color:var(--danger-soft);color:var(--danger)">Xoá</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+<div th:replace="~{fragments/layout :: toast}"></div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>
