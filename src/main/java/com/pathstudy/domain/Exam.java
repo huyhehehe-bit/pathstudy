@@ -43,6 +43,10 @@ public class Exam {
     @Column(length = 20)
     private String category;
 
+    /** Email giáo viên/admin đã tạo đề (null = đề seed sẵn). */
+    @Column(length = 160)
+    private String createdByEmail;
+
     @Column(nullable = false)
     private int orderIndex = 0;
 }

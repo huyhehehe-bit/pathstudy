@@ -2,6 +2,7 @@ package com.pathstudy.web;
 
 import com.pathstudy.domain.Competency;
 import com.pathstudy.domain.CourseModule;
+import com.pathstudy.domain.Exam;
 import com.pathstudy.domain.MaterialType;
 import com.pathstudy.domain.ReferenceMaterial;
 import com.pathstudy.domain.Subject;
@@ -11,6 +12,8 @@ import com.pathstudy.repo.ReferenceMaterialRepository;
 import com.pathstudy.repo.SubjectRepository;
 import com.pathstudy.repo.SubjectResourceRepository;
 import com.pathstudy.service.CurrentUserService;
+import com.pathstudy.service.ExamBuilderService;
+import com.pathstudy.service.ExamService;
 import com.pathstudy.service.MaterialService;
 import com.pathstudy.service.QuestionBankService;
 import org.springframework.stereotype.Controller;
@@ -30,6 +33,10 @@ public class TeacherController {
     private static final List<String> RESOURCE_CATEGORIES = List.of(
             "Đề thi cuối kì", "Đề thi giữa kì", "Giáo trình", "Bài tập", "Khác");
 
+    /** Khối cho đề thi ("" = chung mọi lớp). */
+    private static final List<String> EXAM_GRADES = List.of("Lớp 10", "Lớp 11", "Lớp 12");
+    private static final List<String> DIFFICULTIES = List.of("Cơ bản", "Trung bình", "Nâng cao");
+
     private final SubjectRepository subjects;
     private final CourseModuleRepository modules;
     private final MaterialService materials;
@@ -37,12 +44,15 @@ public class TeacherController {
     private final QuestionBankService questionBank;
     private final ReferenceMaterialRepository referenceMaterials;
     private final SubjectResourceRepository subjectResources;
+    private final ExamService examService;
+    private final ExamBuilderService examBuilder;
 
     public TeacherController(SubjectRepository subjects, CourseModuleRepository modules,
                              MaterialService materials, CurrentUserService currentUser,
                              QuestionBankService questionBank,
                              ReferenceMaterialRepository referenceMaterials,
-                             SubjectResourceRepository subjectResources) {
+                             SubjectResourceRepository subjectResources,
+                             ExamService examService, ExamBuilderService examBuilder) {
         this.subjects = subjects;
         this.modules = modules;
         this.materials = materials;
@@ -50,6 +60,8 @@ public class TeacherController {
         this.questionBank = questionBank;
         this.referenceMaterials = referenceMaterials;
         this.subjectResources = subjectResources;
+        this.examService = examService;
+        this.examBuilder = examBuilder;
     }
 
     @GetMapping
@@ -224,5 +236,109 @@ public class TeacherController {
         subjectResources.deleteById(id);
         ra.addFlashAttribute("toast", "Đã xoá tài liệu.");
         return "redirect:/teacher/resources?subject=" + subject;
+    }
+
+    // ---------- Tạo đề thi (AI soạn theo form) ----------
+
+    @GetMapping("/exams")
+    public String exams(@RequestParam(defaultValue = "van") String subject, Model model) {
+        Subject subj = subjects.findByCode(subject)
+                .orElseGet(() -> subjects.findAllByOrderByOrderIndexAsc().get(0));
+        List<Exam> list = examService.listExams(subj);
+        Map<Long, Integer> counts = new LinkedHashMap<>();
+        for (Exam e : list) {
+            counts.put(e.getId(), examService.questionsFor(e).size());
+        }
+        model.addAttribute("subject", subj);
+        model.addAttribute("subjects", subjects.findAllByOrderByOrderIndexAsc());
+        model.addAttribute("exams", list);
+        model.addAttribute("counts", counts);
+        return "teacher/exams";
+    }
+
+    @GetMapping("/exams/new")
+    public String examForm(@RequestParam(defaultValue = "van") String subject, Model model) {
+        Subject subj = subjects.findByCode(subject)
+                .orElseGet(() -> subjects.findAllByOrderByOrderIndexAsc().get(0));
+        model.addAttribute("subject", subj);
+        model.addAttribute("subjects", subjects.findAllByOrderByOrderIndexAsc());
+        model.addAttribute("grades", EXAM_GRADES);
+        model.addAttribute("difficulties", DIFFICULTIES);
+        model.addAttribute("aiEnabled", examBuilder.aiEnabled());
+        return "teacher/exam-new";
+    }
+
+    @PostMapping("/exams/generate")
+    public String generateExam(@RequestParam String subject, @RequestParam String title,
+                               @RequestParam(required = false) String grade,
+                               @RequestParam(required = false) String description,
+                               @RequestParam(required = false) String topic,
+                               @RequestParam(defaultValue = "10") int count,
+                               @RequestParam(required = false) String difficulty,
+                               @RequestParam(defaultValue = "true") boolean premium,
+                               RedirectAttributes ra) {
+        Subject subj = subjects.findByCode(subject).orElseThrow();
+        if (title.isBlank()) {
+            ra.addFlashAttribute("toast", "Vui lòng nhập tên đề.");
+            return "redirect:/teacher/exams/new?subject=" + subject;
+        }
+        int n = Math.max(1, Math.min(count, 40));
+        String createdBy = currentUser.current().map(u -> u.getEmail()).orElse(null);
+        Exam exam = examBuilder.createExam(subj, title, grade, description, premium, createdBy);
+        if (examBuilder.aiEnabled()) {
+            int added = examBuilder.generateQuestions(exam, topic, n, difficulty);
+            ra.addFlashAttribute("toast", added > 0
+                    ? "AI đã soạn " + added + " câu. Xem lại và chỉnh nếu cần."
+                    : "AI chưa soạn được câu nào (thử lại hoặc thêm tay). Xem /admin/ai-check.");
+        } else {
+            ra.addFlashAttribute("toast", "AI chưa bật — đề đã tạo, hãy thêm câu hỏi thủ công.");
+        }
+        return "redirect:/teacher/exams/" + exam.getId();
+    }
+
+    @GetMapping("/exams/{id}")
+    public String examView(@PathVariable Long id, Model model, RedirectAttributes ra) {
+        Exam exam = examService.exam(id).orElse(null);
+        if (exam == null) {
+            ra.addFlashAttribute("toast", "Không tìm thấy đề.");
+            return "redirect:/teacher/exams";
+        }
+        model.addAttribute("exam", exam);
+        model.addAttribute("questions", examService.questionsFor(exam));
+        model.addAttribute("competencies", Competency.values());
+        return "teacher/exam-view";
+    }
+
+    @PostMapping("/exams/{id}/question")
+    public String addExamQuestion(@PathVariable Long id, @RequestParam String text,
+                                  @RequestParam String optA, @RequestParam String optB,
+                                  @RequestParam String optC, @RequestParam String optD,
+                                  @RequestParam int correct, @RequestParam String competency,
+                                  @RequestParam(required = false) String topic, RedirectAttributes ra) {
+        Exam exam = examService.exam(id).orElseThrow();
+        if (text.isBlank() || optA.isBlank() || optB.isBlank() || optC.isBlank() || optD.isBlank()) {
+            ra.addFlashAttribute("toast", "Vui lòng nhập câu hỏi và đủ 4 đáp án.");
+            return "redirect:/teacher/exams/" + id;
+        }
+        examBuilder.addManualQuestion(exam, text, List.of(optA, optB, optC, optD),
+                Math.max(0, Math.min(correct, 3)), Competency.valueOf(competency), topic);
+        ra.addFlashAttribute("toast", "Đã thêm câu hỏi.");
+        return "redirect:/teacher/exams/" + id;
+    }
+
+    @PostMapping("/exams/{id}/question/{qid}/delete")
+    public String deleteExamQuestion(@PathVariable Long id, @PathVariable Long qid,
+                                     RedirectAttributes ra) {
+        examBuilder.deleteQuestion(qid);
+        ra.addFlashAttribute("toast", "Đã xoá câu hỏi.");
+        return "redirect:/teacher/exams/" + id;
+    }
+
+    @PostMapping("/exams/{id}/delete")
+    public String deleteExam(@PathVariable Long id, @RequestParam String subject,
+                             RedirectAttributes ra) {
+        examService.exam(id).ifPresent(examBuilder::deleteExam);
+        ra.addFlashAttribute("toast", "Đã xoá đề.");
+        return "redirect:/teacher/exams?subject=" + subject;
     }
 }

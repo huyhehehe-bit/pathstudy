@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Đề thi')}"></head>
+<body>
+<div class="shell">
+    <aside th:replace="~{fragments/layout :: sidebar('teacher')}"></aside>
+    <main class="main">
+        <header th:replace="~{fragments/layout :: topbar('Đề thi')}"></header>
+        <div class="content stack" style="max-width:820px">
+
+            <div class="section-head">
+                <h2 style="font-size:24px">Đề thi — <span th:text="${subject.name}">Ngữ văn</span></h2>
+                <p class="muted">Tạo đề để học sinh làm online (chấm điểm + chỉ điểm yếu). Có thể để <strong>AI soạn câu hỏi</strong> theo form, rồi xem lại và chỉnh.</p>
+            </div>
+
+            <div class="row-wrap">
+                <a th:each="s : ${subjects}" th:href="@{/teacher/exams(subject=${s.code})}" class="chip"
+                   th:style="${s.code == subject.code} ? 'background:var(--primary-soft);color:var(--primary-700);border:none' : ''"
+                   th:text="${s.name}">Ngữ văn</a>
+            </div>
+
+            <a th:href="@{/teacher/exams/new(subject=${subject.code})}" class="btn btn-primary" style="align-self:flex-start">
+                <span th:insert="~{fragments/icons :: ic('plus')}"></span> Tạo đề mới (AI soạn)</a>
+
+            <div class="stack-sm">
+                <h3 style="font-size:15px">Đề hiện có (<span th:text="${#lists.size(exams)}">0</span>)</h3>
+                <div class="faint" th:if="${#lists.isEmpty(exams)}" style="font-size:14px">Chưa có đề nào cho môn này.</div>
+                <a th:each="e : ${exams}" th:href="@{'/teacher/exams/' + ${e.id}}" class="card card-pad between" style="gap:12px">
+                    <div style="min-width:0">
+                        <strong th:text="${e.title}">Đề thi</strong>
+                        <div class="row-wrap" style="gap:6px;margin-top:4px">
+                            <span class="chip" th:if="${e.grade != null}" th:text="${e.grade}">Lớp 10</span>
+                            <span class="chip" th:if="${e.category == 'THPT'}" style="background:var(--warn-soft);color:var(--warn);border:none">THPT</span>
+                            <span class="chip" th:text="${e.premium} ? 'Premium' : 'Miễn phí'">Premium</span>
+                            <span class="chip" th:if="${e.createdByEmail != null}" style="background:var(--primary-soft);color:var(--primary-700);border:none">GV tạo</span>
+                        </div>
+                    </div>
+                    <span class="chip" th:text="${counts.get(e.id)} + ' câu'">0 câu</span>
+                </a>
+            </div>
+        </div>
+    </main>
+</div>
+<div th:replace="~{fragments/layout :: toast}"></div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

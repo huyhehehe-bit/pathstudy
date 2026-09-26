@@ -46,6 +46,17 @@
                     </div>
                     <span th:insert="~{fragments/icons :: ic('arrow')}"></span>
                 </a>
+                <a th:href="@{/teacher/exams(subject=${subject.code})}" class="card card-pad between" style="gap:14px">
+                    <div class="center" style="gap:12px">
+                        <span class="tile tile-violet" style="width:38px;height:38px;border-radius:11px"
+                              th:insert="~{fragments/icons :: ic('sparkles')}"></span>
+                        <div>
+                            <strong>Tạo đề thi (AI)</strong>
+                            <div class="faint" style="font-size:12px">AI soạn câu hỏi theo form, học sinh làm online</div>
+                        </div>
+                    </div>
+                    <span th:insert="~{fragments/icons :: ic('arrow')}"></span>
+                </a>
             </div>
 
             <div class="stack" style="gap:10px">

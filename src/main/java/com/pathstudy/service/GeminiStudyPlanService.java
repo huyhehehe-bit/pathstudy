@@ -1,6 +1,7 @@
 package com.pathstudy.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientResponseException;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -36,6 +38,7 @@ public class GeminiStudyPlanService implements AiStudyPlanService {
     private String model;
 
     private final RestClient rest = RestClient.create();
+    private final ObjectMapper mapper = new ObjectMapper();
 
     /** Reason the last generatePlan call produced no AI text (shown in /admin/ai-check). */
     private volatile String lastError = "(chưa gọi generatePlan)";
@@ -154,6 +157,104 @@ public class GeminiStudyPlanService implements AiStudyPlanService {
             log.warn("Gemini call failed (model={}): {}", model, lastError);
             return null;
         }
+    }
+
+    @Override
+    public List<GeneratedQuestion> generateExam(String subjectName, String grade, String topic,
+                                                int count, String difficulty, String referenceMaterial) {
+        if (!isEnabled()) {
+            return List.of();
+        }
+        int n = Math.max(1, Math.min(count, 40));
+        String material = referenceMaterial == null ? "" : referenceMaterial;
+        if (material.length() > 60000) {
+            material = material.substring(0, 60000);
+        }
+        String prompt = """
+                Bạn là giáo viên ra đề trắc nghiệm môn %s cho học sinh THPT Việt Nam.
+                %s
+                %s
+                %s
+                TÀI LIỆU THAM KHẢO (bám sát nếu có, để trống thì dùng kiến thức chuẩn):
+                ====== TÀI LIỆU ======
+                %s
+                ====== HẾT TÀI LIỆU ======
+                Hãy soạn CHÍNH XÁC %d câu hỏi trắc nghiệm, mỗi câu có ĐÚNG 4 lựa chọn và 1 đáp án đúng.
+                Đáp án phải chính xác về mặt kiến thức.
+                CHỈ TRẢ VỀ một mảng JSON hợp lệ (không kèm chữ nào khác, KHÔNG dùng ```), theo đúng dạng:
+                [
+                  {"text":"nội dung câu hỏi","options":["A","B","C","D"],"correctIndex":0,"topic":"chủ đề ngắn","competency":"KNOWLEDGE"}
+                ]
+                Trong đó correctIndex là số 0-3 (vị trí đáp án đúng trong options).
+                competency chỉ nhận 1 trong: KNOWLEDGE, COMPREHENSION, ANALYSIS, APPLICATION.
+                topic là tên chủ đề NGẮN, KHÔNG chứa dấu phẩy.
+                """.formatted(
+                        subjectName,
+                        grade == null || grade.isBlank() ? "" : "Khối lớp: " + grade + ".",
+                        topic == null || topic.isBlank() ? "" : "Chủ đề trọng tâm: " + topic + ".",
+                        difficulty == null || difficulty.isBlank() ? "" : "Độ khó: " + difficulty + ".",
+                        material, n);
+        try {
+            JsonNode resp = generateContent(prompt);
+            String text = extractText(resp);
+            List<GeneratedQuestion> out = parseQuestions(text);
+            lastError = out.isEmpty() ? "generateExam: không parse được câu hỏi từ phản hồi" : "OK";
+            return out;
+        } catch (RestClientResponseException e) {
+            lastError = "generateExam HTTP " + e.getStatusCode().value() + " - " + e.getResponseBodyAsString();
+            log.warn("Gemini generateExam error (model={}): {}", model, lastError);
+            return List.of();
+        } catch (RuntimeException e) {
+            lastError = "generateExam: " + e;
+            log.warn("Gemini generateExam failed (model={}): {}", model, lastError);
+            return List.of();
+        }
+    }
+
+    /** Bóc mảng JSON câu hỏi từ text (chịu được ```json fences hoặc chữ thừa quanh mảng). */
+    private List<GeneratedQuestion> parseQuestions(String text) {
+        List<GeneratedQuestion> out = new ArrayList<>();
+        if (text == null) {
+            return out;
+        }
+        int start = text.indexOf('[');
+        int end = text.lastIndexOf(']');
+        if (start < 0 || end <= start) {
+            return out;
+        }
+        String json = text.substring(start, end + 1);
+        JsonNode arr;
+        try {
+            arr = mapper.readTree(json);
+        } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+            return out;
+        }
+        if (!arr.isArray()) {
+            return out;
+        }
+        for (JsonNode q : arr) {
+            String qtext = q.path("text").asText("").strip();
+            JsonNode opts = q.path("options");
+            if (qtext.isEmpty() || !opts.isArray() || opts.size() != 4) {
+                continue;
+            }
+            List<String> options = new ArrayList<>();
+            for (JsonNode o : opts) {
+                options.add(o.asText("").strip());
+            }
+            if (options.stream().anyMatch(String::isEmpty)) {
+                continue;
+            }
+            int correct = q.path("correctIndex").asInt(-1);
+            if (correct < 0 || correct > 3) {
+                continue;
+            }
+            String qtopic = q.path("topic").asText("").replace(",", " ").strip();
+            String comp = q.path("competency").asText("KNOWLEDGE").strip().toUpperCase();
+            out.add(new GeneratedQuestion(qtext, options, correct,
+                    qtopic.isEmpty() ? null : qtopic, comp));
+        }
+        return out;
     }
 
     /**

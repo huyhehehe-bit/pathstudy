@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Tạo đề mới')}"></head>
+<body>
+<div class="shell">
+    <aside th:replace="~{fragments/layout :: sidebar('teacher')}"></aside>
+    <main class="main">
+        <header th:replace="~{fragments/layout :: topbar('Tạo đề mới')}"></header>
+        <div class="content stack" style="max-width:720px">
+
+            <div class="section-head">
+                <h2 style="font-size:24px">Tạo đề — <span th:text="${subject.name}">Ngữ văn</span></h2>
+                <p class="muted">Điền form, AI (Gemini) sẽ soạn câu hỏi trắc nghiệm đúng định dạng. Sau đó bạn xem lại, sửa/xoá câu chưa ưng, hoặc thêm câu thủ công.</p>
+            </div>
+
+            <div class="card card-pad" th:unless="${aiEnabled}"
+                 style="background:var(--warn-soft);border:none">
+                <strong>⚠ AI chưa bật.</strong> Đề vẫn tạo được nhưng sẽ trống — bạn thêm câu hỏi thủ công ở bước sau.
+                (Bật bằng biến môi trường GEMINI_API_KEY, kiểm tra tại /admin/ai-check.)
+            </div>
+
+            <form th:action="@{/teacher/exams/generate}" method="post" class="card card-pad stack-sm">
+                <input type="hidden" name="subject" th:value="${subject.code}"/>
+                <div class="field">
+                    <label for="title">Tên đề</label>
+                    <input id="title" name="title" class="textarea" required
+                           placeholder="VD: Đề ôn tập cuối kì 1 – Lớp 10"/>
+                </div>
+                <div class="row" style="gap:12px;flex-wrap:wrap">
+                    <div class="field" style="flex:1;min-width:160px">
+                        <label for="grade">Khối</label>
+                        <select id="grade" name="grade" class="textarea">
+                            <option value="">Chung (mọi lớp)</option>
+                            <option th:each="g : ${grades}" th:value="${g}" th:text="${g}">Lớp 10</option>
+                        </select>
+                    </div>
+                    <div class="field" style="flex:1;min-width:120px">
+                        <label for="count">Số câu</label>
+                        <input id="count" name="count" type="number" min="1" max="40" value="10" class="textarea"/>
+                    </div>
+                    <div class="field" style="flex:1;min-width:140px">
+                        <label for="difficulty">Độ khó</label>
+                        <select id="difficulty" name="difficulty" class="textarea">
+                            <option th:each="d : ${difficulties}" th:value="${d}" th:text="${d}">Trung bình</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="field">
+                    <label for="topic">Chủ đề trọng tâm (tuỳ chọn)</label>
+                    <input id="topic" name="topic" class="textarea"
+                           placeholder="VD: Thì quá khứ, câu điều kiện... (để trống = tổng hợp)"/>
+                </div>
+                <div class="field">
+                    <label for="description">Mô tả (tuỳ chọn)</label>
+                    <input id="description" name="description" class="textarea" placeholder="VD: 40 câu, thời gian 50 phút"/>
+                </div>
+                <label class="center" style="gap:8px">
+                    <input type="checkbox" name="premium" value="true" checked/>
+                    <span>Chỉ dành cho học viên Premium</span>
+                </label>
+                <button type="submit" class="btn btn-primary" style="align-self:flex-start">
+                    <span th:insert="~{fragments/icons :: ic('sparkles')}"></span>
+                    <span th:text="${aiEnabled} ? 'Tạo đề + AI soạn câu hỏi' : 'Tạo đề (trống)'">Tạo đề</span></button>
+                <p class="faint" style="font-size:12px" th:if="${aiEnabled}">AI soạn có thể mất 10–30 giây tuỳ số câu.</p>
+            </form>
+
+            <a th:href="@{/teacher/exams(subject=${subject.code})}" class="btn btn-ghost" style="align-self:flex-start">← Về danh sách đề</a>
+        </div>
+    </main>
+</div>
+<div th:replace="~{fragments/layout :: toast}"></div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

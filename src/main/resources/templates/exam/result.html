@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Kết quả đề')}"></head>
+<body>
+<div class="shell">
+    <aside th:replace="~{fragments/layout :: sidebar('path')}"></aside>
+    <main class="main">
+        <header th:replace="~{fragments/layout :: topbar('Kết quả & điểm yếu')}"></header>
+        <div class="content">
+            <div class="card card-pad stack" style="max-width:680px;margin:10px auto">
+                <div class="between">
+                    <h2 style="font-size:22px" th:text="${outcome.exam.title}">Kết quả đề</h2>
+                    <span class="pill pill-done">Đã chấm</span>
+                </div>
+
+                <div class="row" style="align-items:center;gap:26px;flex-wrap:wrap">
+                    <div class="ring" th:style="'--p:' + ${outcome.score}">
+                        <div class="ring-label">
+                            <div class="ring-value tnum" th:text="${outcome.score} + '%'">72%</div>
+                            <div class="ring-cap">Điểm</div>
+                        </div>
+                    </div>
+                    <div class="grow stack-sm">
+                        <div class="k muted" style="font-weight:600">Mức</div>
+                        <div style="font-size:28px;font-weight:800;color:var(--primary)" th:text="${outcome.level}">Khá</div>
+                        <div class="faint" style="font-size:13px" th:text="'Đúng ' + ${outcome.correct} + '/' + ${outcome.total} + ' câu'">Đúng 6/8 câu</div>
+                    </div>
+                </div>
+
+                <hr class="sep"/>
+
+                <div th:if="${!outcome.weakTopics.isEmpty()}" class="stack-sm">
+                    <div class="eyebrow" style="color:var(--warn)">Điểm yếu (chủ đề làm sai)</div>
+                    <div class="row-wrap">
+                        <span class="chip" th:each="t : ${outcome.weakTopics}"
+                              style="background:var(--warn-soft);color:var(--warn);border:none" th:text="${t}">Chủ đề</span>
+                    </div>
+                </div>
+                <div th:if="${outcome.weakTopics.isEmpty()}" class="banner banner-success">
+                    <span th:insert="~{fragments/icons :: ic('check')}"></span> Rất tốt! Bạn không có chủ đề nào bị yếu rõ rệt.
+                </div>
+
+                <div th:if="${outcome.studyPlan != null and !outcome.studyPlan.isBlank()}" class="panel" style="padding:16px 18px">
+                    <div class="eyebrow" style="margin-bottom:8px">Giáo trình &amp; bài tập đề xuất</div>
+                    <div style="white-space:pre-line;font-size:14px;line-height:1.7" th:text="${outcome.studyPlan}">Lộ trình…</div>
+                </div>
+
+                <div class="row" style="gap:12px;flex-wrap:wrap">
+                    <a th:href="@{'/exam/' + ${outcome.exam.id}}" class="btn btn-ghost grow">Làm lại đề</a>
+                    <a th:href="@{/path}" class="btn btn-primary grow">Về trang chủ</a>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

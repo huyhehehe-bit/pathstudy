@@ -19,6 +19,14 @@ public interface AiStudyPlanService {
     String generatePlan(String subjectName, int score, String level, List<String> weakTopics,
                         String referenceMaterial);
 
+    /**
+     * Sinh {@code count} câu hỏi trắc nghiệm (4 lựa chọn) cho một đề thi, theo môn/
+     * khối/chủ đề/độ khó giáo viên yêu cầu, bám tài liệu nguồn nếu có.
+     * @return danh sách câu hỏi hợp lệ (có thể ít hơn count, hoặc rỗng nếu AI tắt/lỗi).
+     */
+    List<GeneratedQuestion> generateExam(String subjectName, String grade, String topic,
+                                         int count, String difficulty, String referenceMaterial);
+
     /** Admin diagnostic: human-readable status of the AI configuration + a live ping. */
     String diagnose();
 }
