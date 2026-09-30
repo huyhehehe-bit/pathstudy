@@ -34,6 +34,10 @@ public class AuthController {
     @Value("${app.signup.auto-premium-days:0}")
     private int autoPremiumDays;
 
+    /** Mã đăng ký giáo viên. Trống = KHÔNG cho tự đăng ký GV (chỉ admin cấp quyền). */
+    @Value("${app.signup.teacher-code:}")
+    private String teacherCode;
+
     public AuthController(UserRepository users, PasswordEncoder passwordEncoder,
                           AuthenticationManager authenticationManager,
                           SecurityContextRepository securityContextRepository,
@@ -50,6 +54,12 @@ public class AuthController {
         return "auth/login";
     }
 
+    /** Có cho phép tự đăng ký giáo viên không (khi đã cấu hình mã GV). */
+    @ModelAttribute("teacherSignupEnabled")
+    public boolean teacherSignupEnabled() {
+        return teacherCode != null && !teacherCode.isBlank();
+    }
+
     @GetMapping("/register")
     public String registerForm(Model model) {
         if (!model.containsAttribute("form")) {
@@ -63,8 +73,18 @@ public class AuthController {
                            BindingResult binding,
                            HttpServletRequest request,
                            HttpServletResponse response) {
+        boolean asTeacher = "TEACHER".equals(form.getRole());
         if (users.existsByEmail(form.getEmail())) {
             binding.rejectValue("email", "exists", "Email này đã được đăng ký");
+        }
+        if (asTeacher) {
+            if (!teacherSignupEnabled()) {
+                binding.rejectValue("teacherCode", "disabled", "Đăng ký giáo viên hiện chưa mở.");
+            } else if (form.getTeacherCode() == null || !teacherCode.equals(form.getTeacherCode().strip())) {
+                binding.rejectValue("teacherCode", "invalid", "Mã giáo viên không đúng.");
+            }
+        } else if (form.getGrade() == null || form.getGrade().isBlank()) {
+            binding.rejectValue("grade", "required", "Vui lòng chọn khối lớp.");
         }
         if (binding.hasErrors()) {
             return "auth/register";
@@ -74,16 +94,21 @@ public class AuthController {
         u.setFullName(form.getFullName().strip());
         u.setEmail(form.getEmail().strip().toLowerCase());
         u.setPasswordHash(passwordEncoder.encode(form.getPassword()));
-        u.setGrade(form.getGrade());
+        if (asTeacher) {
+            u.setRole("TEACHER");
+            u.setGrade(null);
+        } else {
+            u.setGrade(form.getGrade());
+        }
         users.save(u);
 
-        // Ưu đãi launch: tự mở Premium miễn phí cho người dùng mới (nếu bật).
-        if (autoPremiumDays > 0) {
+        // Ưu đãi launch: tự mở Premium miễn phí cho HỌC SINH mới (GV không cần).
+        if (!asTeacher && autoPremiumDays > 0) {
             payments.grantComp(u, autoPremiumDays);
         }
 
         autoLogin(u.getEmail(), form.getPassword(), request, response);
-        return "redirect:/subjects";
+        return "redirect:/start";
     }
 
     private void autoLogin(String email, String rawPassword,

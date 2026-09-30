@@ -21,7 +21,13 @@ public class RegisterForm {
     @Size(min = 6, message = "Mật khẩu tối thiểu 6 ký tự")
     private String password;
 
-    /** Khối lớp học sinh chọn khi đăng ký: "Lớp 10"/"Lớp 11"/"Lớp 12". */
-    @NotBlank(message = "Vui lòng chọn khối lớp")
+    /** "STUDENT" (mặc định) hoặc "TEACHER". */
+    private String role = "STUDENT";
+
+    /** Khối lớp học sinh chọn khi đăng ký ("Lớp 10/11/12"). Bắt buộc với học sinh,
+     *  bỏ trống với giáo viên — kiểm tra ở controller theo role. */
     private String grade;
+
+    /** Mã xác thực giáo viên (chỉ dùng khi role=TEACHER). */
+    private String teacherCode;
 }
