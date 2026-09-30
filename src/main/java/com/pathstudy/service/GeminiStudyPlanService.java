@@ -68,13 +68,26 @@ public class GeminiStudyPlanService implements AiStudyPlanService {
         return sb.length() == 0 ? null : sb.toString();
     }
 
-    /**
-     * POSTs a single-prompt generateContent request, retrying on transient
-     * overload (HTTP 503 UNAVAILABLE / 429 rate limit) up to 3 attempts.
-     */
+    /** Text-only generateContent. */
     private JsonNode generateContent(String promptText) {
-        Map<String, Object> body = Map.of(
-                "contents", List.of(Map.of("parts", List.of(Map.of("text", promptText)))));
+        return postGenerate(Map.of("contents",
+                List.of(Map.of("parts", List.of(Map.of("text", promptText))))));
+    }
+
+    /** Multimodal generateContent: một file (PDF/ảnh) inline + prompt text. */
+    private JsonNode generateContentWithFile(byte[] fileBytes, String mimeType, String promptText) {
+        String base64 = java.util.Base64.getEncoder().encodeToString(fileBytes);
+        List<Object> parts = List.of(
+                Map.of("inline_data", Map.of("mime_type", mimeType, "data", base64)),
+                Map.of("text", promptText));
+        return postGenerate(Map.of("contents", List.of(Map.of("parts", parts))));
+    }
+
+    /**
+     * POSTs a generateContent body, retrying on transient overload
+     * (HTTP 503 UNAVAILABLE / 429 rate limit) up to 3 attempts.
+     */
+    private JsonNode postGenerate(Map<String, Object> body) {
         RestClientResponseException lastEx = null;
         for (int attempt = 1; attempt <= 3; attempt++) {
             try {
@@ -207,6 +220,52 @@ public class GeminiStudyPlanService implements AiStudyPlanService {
         } catch (RuntimeException e) {
             lastError = "generateExam: " + e;
             log.warn("Gemini generateExam failed (model={}): {}", model, lastError);
+            return List.of();
+        }
+    }
+
+    @Override
+    public List<GeneratedQuestion> generateExamFromFile(String subjectName, String grade, String topic,
+                                                        int count, String difficulty,
+                                                        byte[] fileBytes, String mimeType) {
+        if (!isEnabled() || fileBytes == null || fileBytes.length == 0) {
+            return List.of();
+        }
+        int n = Math.max(1, Math.min(count, 40));
+        String prompt = """
+                Bạn là giáo viên ra đề trắc nghiệm môn %s cho học sinh THPT Việt Nam.
+                Hãy ĐỌC KỸ tài liệu đính kèm (đề thi / trang sách giáo khoa) và soạn câu hỏi BÁM SÁT nội dung trong tài liệu đó.
+                %s
+                %s
+                %s
+                Hãy soạn CHÍNH XÁC %d câu hỏi trắc nghiệm, mỗi câu có ĐÚNG 4 lựa chọn và 1 đáp án đúng, dựa trên tài liệu đính kèm.
+                Đáp án phải chính xác về mặt kiến thức.
+                CHỈ TRẢ VỀ một mảng JSON hợp lệ (không kèm chữ nào khác, KHÔNG dùng ```), theo đúng dạng:
+                [
+                  {"text":"nội dung câu hỏi","options":["A","B","C","D"],"correctIndex":0,"topic":"chủ đề ngắn","competency":"KNOWLEDGE"}
+                ]
+                correctIndex là số 0-3 (vị trí đáp án đúng trong options).
+                competency chỉ nhận 1 trong: KNOWLEDGE, COMPREHENSION, ANALYSIS, APPLICATION.
+                topic là tên chủ đề NGẮN, KHÔNG chứa dấu phẩy.
+                """.formatted(
+                        subjectName,
+                        grade == null || grade.isBlank() ? "" : "Khối lớp: " + grade + ".",
+                        topic == null || topic.isBlank() ? "" : "Chủ đề trọng tâm: " + topic + ".",
+                        difficulty == null || difficulty.isBlank() ? "" : "Độ khó: " + difficulty + ".",
+                        n);
+        try {
+            JsonNode resp = generateContentWithFile(fileBytes, mimeType, prompt);
+            List<GeneratedQuestion> out = parseQuestions(extractText(resp));
+            lastError = out.isEmpty() ? "generateExamFromFile: không parse được câu hỏi" : "OK";
+            return out;
+        } catch (RestClientResponseException e) {
+            lastError = "generateExamFromFile HTTP " + e.getStatusCode().value() + " - "
+                    + e.getResponseBodyAsString();
+            log.warn("Gemini generateExamFromFile error (model={}): {}", model, lastError);
+            return List.of();
+        } catch (RuntimeException e) {
+            lastError = "generateExamFromFile: " + e;
+            log.warn("Gemini generateExamFromFile failed (model={}): {}", model, lastError);
             return List.of();
         }
     }

@@ -27,6 +27,16 @@ public interface AiStudyPlanService {
     List<GeneratedQuestion> generateExam(String subjectName, String grade, String topic,
                                          int count, String difficulty, String referenceMaterial);
 
+    /**
+     * Như {@link #generateExam} nhưng Gemini ĐỌC TRỰC TIẾP một file PDF/ảnh
+     * (đề thi, trang SGK...) để bám sát nội dung file đó khi soạn câu hỏi.
+     * @param fileBytes nội dung file, {@code mimeType} ví dụ "application/pdf".
+     * @return danh sách câu hỏi hợp lệ (rỗng nếu AI tắt/lỗi).
+     */
+    List<GeneratedQuestion> generateExamFromFile(String subjectName, String grade, String topic,
+                                                 int count, String difficulty,
+                                                 byte[] fileBytes, String mimeType);
+
     /** Admin diagnostic: human-readable status of the AI configuration + a live ping. */
     String diagnose();
 }

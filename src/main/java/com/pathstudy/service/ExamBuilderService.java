@@ -74,6 +74,22 @@ public class ExamBuilderService {
         return added;
     }
 
+    /** Gọi AI ĐỌC FILE (PDF/ảnh) soạn câu hỏi bám nội dung file, lưu vào đề. Trả về số câu. */
+    @Transactional
+    public int generateQuestionsFromFile(Exam exam, String topic, int count, String difficulty,
+                                         byte[] fileBytes, String mimeType) {
+        List<GeneratedQuestion> generated = ai.generateExamFromFile(
+                exam.getSubject().getName(), exam.getGrade(), topic, count, difficulty, fileBytes, mimeType);
+        int start = questions.findByExamOrderByOrderIndexAsc(exam).size();
+        int added = 0;
+        for (GeneratedQuestion g : generated) {
+            addQuestion(exam, start + added + 1, g.text(), g.options(), g.correctIndex(),
+                    parseCompetency(g.competency()), g.topic());
+            added++;
+        }
+        return added;
+    }
+
     @Transactional
     public void addManualQuestion(Exam exam, String text, List<String> options, int correctIndex,
                                   Competency competency, String topic) {

@@ -10,7 +10,7 @@
 
             <div class="section-head">
                 <h2 style="font-size:24px">Tạo đề — <span th:text="${subject.name}">Ngữ văn</span></h2>
-                <p class="muted">Điền form, AI (Gemini) sẽ soạn câu hỏi trắc nghiệm đúng định dạng. Sau đó bạn xem lại, sửa/xoá câu chưa ưng, hoặc thêm câu thủ công.</p>
+                <p class="muted">Điền form, AI (Gemini) sẽ soạn câu hỏi trắc nghiệm. Có thể <strong>tải lên PDF đề thi / trang SGK</strong> để AI đọc và bám sát nội dung. Sau đó xem lại, sửa/xoá, hoặc thêm câu thủ công.</p>
             </div>
 
             <div class="card card-pad" th:unless="${aiEnabled}"
@@ -19,12 +19,17 @@
                 (Bật bằng biến môi trường GEMINI_API_KEY, kiểm tra tại /admin/ai-check.)
             </div>
 
-            <form th:action="@{/teacher/exams/generate}" method="post" class="card card-pad stack-sm">
+            <form th:action="@{/teacher/exams/generate}" method="post" enctype="multipart/form-data" class="card card-pad stack-sm">
                 <input type="hidden" name="subject" th:value="${subject.code}"/>
                 <div class="field">
                     <label for="title">Tên đề</label>
                     <input id="title" name="title" class="textarea" required
                            placeholder="VD: Đề ôn tập cuối kì 1 – Lớp 10"/>
+                </div>
+                <div class="field" th:if="${aiEnabled}">
+                    <label for="pdf">Tải lên PDF đề thi / trang SGK (tuỳ chọn)</label>
+                    <input id="pdf" name="pdf" type="file" accept="application/pdf,image/*" class="textarea"/>
+                    <p class="faint" style="font-size:12px">AI sẽ đọc file và soạn câu bám sát nội dung. Tối đa 14MB — sách dày thì cắt theo chương. Để trống = AI tự soạn theo chủ đề bên dưới.</p>
                 </div>
                 <div class="row" style="gap:12px;flex-wrap:wrap">
                     <div class="field" style="flex:1;min-width:160px">

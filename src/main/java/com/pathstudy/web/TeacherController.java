@@ -19,8 +19,10 @@ import com.pathstudy.service.QuestionBankService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -268,6 +270,9 @@ public class TeacherController {
         return "teacher/exam-new";
     }
 
+    /** Kích thước file tối đa gửi cho Gemini inline (~14MB, base64 nở ~33% vẫn dưới 20MB). */
+    private static final long MAX_AI_FILE_BYTES = 14L * 1024 * 1024;
+
     @PostMapping("/exams/generate")
     public String generateExam(@RequestParam String subject, @RequestParam String title,
                                @RequestParam(required = false) String grade,
@@ -276,6 +281,7 @@ public class TeacherController {
                                @RequestParam(defaultValue = "10") int count,
                                @RequestParam(required = false) String difficulty,
                                @RequestParam(defaultValue = "true") boolean premium,
+                               @RequestParam(required = false) MultipartFile pdf,
                                RedirectAttributes ra) {
         Subject subj = subjects.findByCode(subject).orElseThrow();
         if (title.isBlank()) {
@@ -283,9 +289,48 @@ public class TeacherController {
             return "redirect:/teacher/exams/new?subject=" + subject;
         }
         int n = Math.max(1, Math.min(count, 40));
+        boolean hasFile = pdf != null && !pdf.isEmpty();
+
+        // Validate file trước khi tạo đề để không tạo đề rác khi file sai.
+        if (hasFile) {
+            if (!examBuilder.aiEnabled()) {
+                ra.addFlashAttribute("toast", "AI chưa bật nên chưa đọc được PDF. Xem /admin/ai-check.");
+                return "redirect:/teacher/exams/new?subject=" + subject;
+            }
+            String ct = pdf.getContentType() == null ? "" : pdf.getContentType();
+            String name = pdf.getOriginalFilename() == null ? "" : pdf.getOriginalFilename().toLowerCase();
+            boolean okType = ct.equals("application/pdf") || name.endsWith(".pdf")
+                    || ct.startsWith("image/");
+            if (!okType) {
+                ra.addFlashAttribute("toast", "Chỉ nhận file PDF hoặc ảnh (PNG/JPG).");
+                return "redirect:/teacher/exams/new?subject=" + subject;
+            }
+            if (pdf.getSize() > MAX_AI_FILE_BYTES) {
+                ra.addFlashAttribute("toast", "File quá lớn (>14MB). Hãy chia nhỏ (theo chương/vài chục trang) rồi thử lại.");
+                return "redirect:/teacher/exams/new?subject=" + subject;
+            }
+        }
+
         String createdBy = currentUser.current().map(u -> u.getEmail()).orElse(null);
         Exam exam = examBuilder.createExam(subj, title, grade, description, premium, createdBy);
-        if (examBuilder.aiEnabled()) {
+
+        if (hasFile) {
+            String mime = pdf.getContentType() == null ? "application/pdf" : pdf.getContentType();
+            if (mime.isBlank() || mime.equals("application/octet-stream")) {
+                mime = "application/pdf";
+            }
+            int added;
+            try {
+                added = examBuilder.generateQuestionsFromFile(exam, topic, n, difficulty,
+                        pdf.getBytes(), mime);
+            } catch (IOException e) {
+                ra.addFlashAttribute("toast", "Không đọc được file tải lên. Đề đã tạo (trống), thêm câu thủ công.");
+                return "redirect:/teacher/exams/" + exam.getId();
+            }
+            ra.addFlashAttribute("toast", added > 0
+                    ? "AI đã đọc file và soạn " + added + " câu. Xem lại và chỉnh nếu cần."
+                    : "AI chưa soạn được câu nào từ file (thử file rõ hơn/nhỏ hơn, hoặc thêm tay). Xem /admin/ai-check.");
+        } else if (examBuilder.aiEnabled()) {
             int added = examBuilder.generateQuestions(exam, topic, n, difficulty);
             ra.addFlashAttribute("toast", added > 0
                     ? "AI đã soạn " + added + " câu. Xem lại và chỉnh nếu cần."
