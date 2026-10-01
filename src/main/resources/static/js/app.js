@@ -25,6 +25,19 @@
             });
         });
 
+        // Subject picker highlight (không phụ thuộc CSS :has — tránh bug invalidation)
+        var pickRadios = document.querySelectorAll('.pick input[type=radio]');
+        if (pickRadios.length) {
+            var syncPicks = function () {
+                pickRadios.forEach(function (r) {
+                    var label = r.closest('.pick');
+                    if (label) label.classList.toggle('is-picked', r.checked);
+                });
+            };
+            pickRadios.forEach(function (r) { r.addEventListener('change', syncPicks); });
+            syncPicks();
+        }
+
         // Smooth-scroll to a bookmarked section anchor
         if (window.location.hash) {
             var el = document.querySelector(window.location.hash);
