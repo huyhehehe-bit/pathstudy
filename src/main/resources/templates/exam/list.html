@@ -18,13 +18,16 @@
                 <a th:href="@{/subjects}" class="btn btn-soft" style="margin-top:8px">Chọn / thêm môn</a>
             </div>
 
-            <th:block th:each="g : ${groups}">
+            <th:block th:each="g, gi : ${groups}">
                 <div class="stack-sm">
                     <h3 style="font-size:17px" th:text="${g.subject.name}">Môn</h3>
 
                     <div class="stack-sm" th:if="${!g.practice.isEmpty()}">
                         <div class="eyebrow">Đề luyện tập</div>
-                        <a th:each="e : ${g.practice}" th:href="@{'/exam/' + ${e.id}}" class="card card-pad between" style="gap:12px">
+                        <a th:each="e, st : ${g.practice}" th:href="@{'/exam/' + ${e.id}}"
+                           class="card card-pad between" style="gap:12px"
+                           th:classappend="${st.index >= 3} ? ' js-more-prac-' + ${gi.index}"
+                           th:attrappend="style=${st.index >= 3} ? ';display:none' : ''">
                             <div style="min-width:0">
                                 <strong th:text="${e.title}">Đề</strong>
                                 <div class="row-wrap" style="gap:6px;margin-top:4px">
@@ -35,17 +38,28 @@
                             </div>
                             <span class="btn btn-soft">Làm đề →</span>
                         </a>
+                        <button type="button" class="btn btn-soft js-reveal"
+                                th:attr="data-target='js-more-prac-' + ${gi.index}"
+                                th:if="${#lists.size(g.practice) > 3}" style="align-self:flex-start"
+                                th:text="'Xem thêm ' + (${#lists.size(g.practice)} - 3) + ' đề →'">Xem thêm</button>
                     </div>
 
                     <div class="stack-sm" th:if="${!g.national.isEmpty()}">
                         <div class="eyebrow">Đề thi THPT Quốc gia · miễn phí</div>
-                        <a th:each="e : ${g.national}" th:href="@{'/exam/' + ${e.id}}" class="card card-pad between" style="gap:12px">
+                        <a th:each="e, st : ${g.national}" th:href="@{'/exam/' + ${e.id}}"
+                           class="card card-pad between" style="gap:12px"
+                           th:classappend="${st.index >= 3} ? ' js-more-thpt-' + ${gi.index}"
+                           th:attrappend="style=${st.index >= 3} ? ';display:none' : ''">
                             <div style="min-width:0">
                                 <strong th:text="${e.title}">Đề THPT</strong>
                                 <div class="faint" style="font-size:12px" th:if="${e.description != null}" th:text="${e.description}">Mô tả</div>
                             </div>
                             <span class="btn btn-soft">Làm đề →</span>
                         </a>
+                        <button type="button" class="btn btn-soft js-reveal"
+                                th:attr="data-target='js-more-thpt-' + ${gi.index}"
+                                th:if="${#lists.size(g.national) > 3}" style="align-self:flex-start"
+                                th:text="'Xem thêm ' + (${#lists.size(g.national)} - 3) + ' đề →'">Xem thêm</button>
                     </div>
                 </div>
             </th:block>
@@ -53,6 +67,16 @@
     </main>
 </div>
 <div th:replace="~{fragments/layout :: toast}"></div>
+<script>
+    document.querySelectorAll('.js-reveal').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            document.querySelectorAll('.' + btn.dataset.target).forEach(function (el) {
+                el.style.display = '';
+            });
+            btn.style.display = 'none';
+        });
+    });
+</script>
 <script th:src="@{/js/app.js}"></script>
 </body>
 </html>
