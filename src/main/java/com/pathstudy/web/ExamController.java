@@ -1,7 +1,9 @@
 package com.pathstudy.web;
 
 import com.pathstudy.domain.Exam;
+import com.pathstudy.domain.Subject;
 import com.pathstudy.domain.User;
+import com.pathstudy.repo.SubjectRepository;
 import com.pathstudy.service.BankTransferPaymentService;
 import com.pathstudy.service.CurrentUserService;
 import com.pathstudy.service.ExamService;
@@ -14,6 +16,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -27,12 +32,42 @@ public class ExamController {
     private final ExamService examService;
     private final BankTransferPaymentService payments;
     private final CurrentUserService currentUser;
+    private final SubjectRepository subjects;
 
     public ExamController(ExamService examService, BankTransferPaymentService payments,
-                          CurrentUserService currentUser) {
+                          CurrentUserService currentUser, SubjectRepository subjects) {
         this.examService = examService;
         this.payments = payments;
         this.currentUser = currentUser;
+        this.subjects = subjects;
+    }
+
+    /**
+     * Trang "Đề thi" cho học sinh: gom đề theo TỪNG MÔN có đề khớp khối của học
+     * sinh (không cần đăng ký môn) — đề luyện tập (khớp khối hoặc đề chung) + đề
+     * THPT Quốc gia. Bấm vào là làm (/exam/{id}).
+     */
+    @GetMapping("/exams")
+    public String list(Model model) {
+        User user = currentUser.require();
+        String grade = user.getGrade();
+        List<Map<String, Object>> groups = new ArrayList<>();
+        for (Subject s : subjects.findAllByOrderByOrderIndexAsc()) {
+            List<Exam> practice = examService.listExams(s, grade);
+            List<Exam> national = examService.listNationalExams(s);
+            if (practice.isEmpty() && national.isEmpty()) {
+                continue;
+            }
+            Map<String, Object> g = new LinkedHashMap<>();
+            g.put("subject", s);
+            g.put("practice", practice);
+            g.put("national", national);
+            groups.add(g);
+        }
+        model.addAttribute("groups", groups);
+        model.addAttribute("grade", grade);
+        model.addAttribute("isPremiumUser", payments.hasPremiumAccess(user));
+        return "exam/list";
     }
 
     /** true nếu được phép làm đề (THPT miễn phí, hoặc không premium, hoặc có Premium). */

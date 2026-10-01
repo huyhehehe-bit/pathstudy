@@ -39,6 +39,9 @@
         <a th:href="@{/progress}" class="nav-item" th:classappend="${active=='progress'} ? 'active'">
             <span th:insert="~{fragments/icons :: ic('chart')}"></span><span class="lbl">Tiến độ</span>
         </a>
+        <a th:if="${currentUser != null and !isTeacher}" th:href="@{/exams}" class="nav-item" th:classappend="${active=='exams'} ? 'active'">
+            <span th:insert="~{fragments/icons :: ic('clipboard-check')}"></span><span class="lbl">Đề thi</span>
+        </a>
         <a th:href="@{/library}" class="nav-item" th:classappend="${active=='library'} ? 'active'">
             <span th:insert="~{fragments/icons :: ic('library')}"></span><span class="lbl">Thư viện</span>
             <span class="nav-badge" th:if="${bookmarkCount > 0}" th:text="${bookmarkCount}">0</span>
