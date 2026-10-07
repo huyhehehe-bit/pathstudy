@@ -92,22 +92,51 @@ public class DataSeeder implements CommandLineRunner {
         appSettings.save(new AppSetting("seedVersion", SEED_VERSION));
     }
 
-    /** Removes seeded content and learning progress (FK-safe order). Keeps user accounts. */
+    /**
+     * Xoá nội dung SEED + tiến độ học (thứ tự an toàn khoá ngoại), GIỮ tài khoản.
+     * QUAN TRỌNG: GIỮ nội dung do giáo viên/admin tạo — đề (createdByEmail != null)
+     * + câu hỏi của đề đó, tài liệu nguồn của GV, kho tài liệu (subject_resources),
+     * và GIỮ subjects (upsert ở seedSubjects) để không gãy khoá ngoại.
+     */
     private void wipeContent() {
+        // Tiến độ học + tài liệu theo module (tạo lại cùng nội dung seed).
         bookmarks.deleteAll();
         estimateResults.deleteAll();
         placementResults.deleteAll();
         moduleProgress.deleteAll();
         enrollments.deleteAll();
         materials.deleteAll();
-        referenceMaterials.deleteAll();
-        questions.deleteAll();
-        exams.deleteAll();
+
+        // Chỉ xoá nội dung SEED (createdByEmail == null). Đề của giáo viên và câu
+        // hỏi thuộc đề đó được GIỮ lại.
+        var teacherExamIds = exams.findAll().stream()
+                .filter(e -> e.getCreatedByEmail() != null)
+                .map(Exam::getId)
+                .collect(java.util.stream.Collectors.toSet());
+        // Xoá mọi câu hỏi KHÔNG thuộc đề của giáo viên (placement, estimate, đề seed)
+        // — làm trước để gỡ tham chiếu tới đề/module seed sắp xoá.
+        var seededQuestions = questions.findAll().stream()
+                .filter(q -> q.getExam() == null || !teacherExamIds.contains(q.getExam().getId()))
+                .toList();
+        questions.deleteAll(seededQuestions);
+        // Xoá đề seed (giữ đề giáo viên tạo).
+        var seededExams = exams.findAll().stream()
+                .filter(e -> e.getCreatedByEmail() == null)
+                .toList();
+        exams.deleteAll(seededExams);
+        // Xoá tài liệu nguồn seed (giữ tài liệu nguồn GV tự nhập).
+        var seededRefs = referenceMaterials.findAll().stream()
+                .filter(r -> r.getCreatedByEmail() == null)
+                .toList();
+        referenceMaterials.deleteAll(seededRefs);
+
+        // Giáo trình/bài học seed — tham chiếu subjects (được GIỮ) nên xoá an toàn.
         englishLessons.deleteAll();
         sections.deleteAll();
         lessons.deleteAll();
         modules.deleteAll();
-        subjects.deleteAll();
+        // KHÔNG xoá subjects (upsert) và KHÔNG xoá subject_resources (kho tài liệu GV).
+
         // Force the deletes to hit the DB now. Otherwise Hibernate defers them and,
         // within one transaction, executes the seed INSERTs before these DELETEs,
         // causing a duplicate-key error when data already exists (e.g. on redeploy).
@@ -2696,7 +2725,10 @@ public class DataSeeder implements CommandLineRunner {
 
     private Subject subject(String code, String name, String icon, String color,
                             int idx, boolean active, String desc) {
-        Subject s = new Subject();
+        // Upsert theo code: GIỮ bản ghi (và ID) qua các lần reseed để nội dung do
+        // giáo viên tạo (đề, kho tài liệu, tài liệu nguồn) tham chiếu subject không
+        // bị gãy khoá ngoại và không bị mất.
+        Subject s = subjects.findByCode(code).orElseGet(Subject::new);
         s.setCode(code);
         s.setName(name);
         s.setIconKey(icon);
