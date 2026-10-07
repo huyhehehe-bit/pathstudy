@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Bảng số liệu')}"></head>
+<body>
+<div class="shell">
+    <aside th:replace="~{fragments/layout :: sidebar('admin-dashboard')}"></aside>
+    <main class="main">
+        <header th:replace="~{fragments/layout :: topbar('Bảng số liệu')}"></header>
+        <div class="content stack">
+            <div class="section-head">
+                <h2 style="font-size:24px">Số liệu tổng quan</h2>
+                <p class="muted">KPI nội bộ phục vụ báo cáo. Lượt truy cập/nguồn traffic xem ở Google Analytics.</p>
+            </div>
+
+            <h3 style="font-size:15px">Người dùng</h3>
+            <div class="row-wrap" style="gap:12px">
+                <div class="card card-pad" style="min-width:150px">
+                    <div class="faint" style="font-size:12px">Tổng tài khoản</div>
+                    <strong style="font-size:28px" th:text="${k.totalUsers}">0</strong>
+                </div>
+                <div class="card card-pad" style="min-width:150px">
+                    <div class="faint" style="font-size:12px">Học sinh</div>
+                    <strong style="font-size:28px" th:text="${k.students}">0</strong>
+                </div>
+                <div class="card card-pad" style="min-width:150px">
+                    <div class="faint" style="font-size:12px">Giáo viên</div>
+                    <strong style="font-size:28px" th:text="${k.teachers}">0</strong>
+                </div>
+                <div class="card card-pad" style="min-width:150px">
+                    <div class="faint" style="font-size:12px">Đăng ký 7 ngày qua</div>
+                    <strong style="font-size:28px;color:var(--primary)" th:text="${k.newUsers7d}">0</strong>
+                </div>
+            </div>
+
+            <h3 style="font-size:15px">Premium &amp; Doanh thu</h3>
+            <div class="row-wrap" style="gap:12px">
+                <div class="card card-pad" style="min-width:150px">
+                    <div class="faint" style="font-size:12px">Đang Premium</div>
+                    <strong style="font-size:28px;color:var(--success)" th:text="${k.activePremium}">0</strong>
+                </div>
+                <div class="card card-pad" style="min-width:150px">
+                    <div class="faint" style="font-size:12px">Đơn đã thanh toán</div>
+                    <strong style="font-size:28px" th:text="${k.paidOrders}">0</strong>
+                </div>
+                <div class="card card-pad" style="min-width:150px">
+                    <div class="faint" style="font-size:12px">Đơn chờ thanh toán</div>
+                    <strong style="font-size:28px;color:var(--warn)" th:text="${k.pendingOrders}">0</strong>
+                </div>
+                <div class="card card-pad" style="min-width:190px">
+                    <div class="faint" style="font-size:12px">Doanh thu (đ)</div>
+                    <strong style="font-size:28px;color:var(--success)"
+                            th:text="${#numbers.formatInteger(k.revenue, 1, 'POINT')}">0</strong>
+                </div>
+            </div>
+
+            <h3 style="font-size:15px">Nội dung giáo viên</h3>
+            <div class="row-wrap" style="gap:12px">
+                <div class="card card-pad" style="min-width:150px">
+                    <div class="faint" style="font-size:12px">Đề thi (GV tạo)</div>
+                    <strong style="font-size:28px" th:text="${k.teacherExams}">0</strong>
+                </div>
+                <div class="card card-pad" style="min-width:150px">
+                    <div class="faint" style="font-size:12px">Kho tài liệu</div>
+                    <strong style="font-size:28px" th:text="${k.subjectResources}">0</strong>
+                </div>
+                <div class="card card-pad" style="min-width:150px">
+                    <div class="faint" style="font-size:12px">Tài liệu nguồn (AI)</div>
+                    <strong style="font-size:28px" th:text="${k.teacherDocs}">0</strong>
+                </div>
+            </div>
+
+            <h3 style="font-size:15px">Feedback</h3>
+            <div class="row-wrap" style="gap:12px">
+                <div class="card card-pad" style="min-width:150px">
+                    <div class="faint" style="font-size:12px">Tổng góp ý</div>
+                    <strong style="font-size:28px" th:text="${k.feedbackCount}">0</strong>
+                </div>
+                <div class="card card-pad" style="min-width:180px">
+                    <div class="faint" style="font-size:12px">Điểm hài lòng TB</div>
+                    <strong style="font-size:28px;color:#f5b301" th:text="${k.avgRating} + ' ★'">0 ★</strong>
+                    <div class="faint" style="font-size:12px" th:text="'(' + ${k.ratedCount} + ' lượt)'"></div>
+                </div>
+            </div>
+
+            <div class="row-wrap" style="gap:8px">
+                <a th:href="@{/admin/users}" class="btn btn-soft">Quản lý người dùng</a>
+                <a th:href="@{/admin/feedback}" class="btn btn-soft">Xem góp ý</a>
+                <a th:href="@{/admin/backup}" class="btn btn-soft">⬇ Tải backup</a>
+            </div>
+        </div>
+    </main>
+</div>
+<div th:replace="~{fragments/layout :: toast}"></div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

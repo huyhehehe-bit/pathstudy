@@ -41,7 +41,7 @@ public class HomeController {
     public String start() {
         User user = currentUser.require();
         if ("ADMIN".equals(user.getRole())) {
-            return "redirect:/admin/users";
+            return "redirect:/admin/dashboard";
         }
         if ("TEACHER".equals(user.getRole())) {
             return "redirect:/teacher";

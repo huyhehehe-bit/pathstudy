@@ -8,6 +8,7 @@ import com.pathstudy.service.AiStudyPlanService;
 import com.pathstudy.service.BackupService;
 import com.pathstudy.service.BankTransferPaymentService;
 import com.pathstudy.service.FeedbackService;
+import com.pathstudy.service.KpiService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -38,15 +39,24 @@ public class AdminController {
     private final BankTransferPaymentService payments;
     private final FeedbackService feedback;
     private final BackupService backup;
+    private final KpiService kpi;
 
     public AdminController(UserRepository users, AiStudyPlanService aiStudyPlan,
                            BankTransferPaymentService payments, FeedbackService feedback,
-                           BackupService backup) {
+                           BackupService backup, KpiService kpi) {
         this.users = users;
         this.aiStudyPlan = aiStudyPlan;
         this.payments = payments;
         this.feedback = feedback;
         this.backup = backup;
+        this.kpi = kpi;
+    }
+
+    /** Dashboard KPI nội bộ (người dùng, Premium, doanh thu, nội dung, feedback). */
+    @GetMapping("/admin/dashboard")
+    public String dashboard(Model model) {
+        model.addAttribute("k", kpi.metrics());
+        return "admin/dashboard";
     }
 
     /** Tải bản sao dữ liệu quan trọng (JSON) về máy. Admin-only (/admin/**). */
