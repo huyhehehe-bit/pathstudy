@@ -1,11 +1,14 @@
 package com.pathstudy.web;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pathstudy.domain.Feedback;
 import com.pathstudy.domain.User;
 import com.pathstudy.repo.UserRepository;
 import com.pathstudy.service.AiStudyPlanService;
+import com.pathstudy.service.BackupService;
 import com.pathstudy.service.BankTransferPaymentService;
 import com.pathstudy.service.FeedbackService;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.IOException;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -26,17 +31,31 @@ public class AdminController {
     private static final List<String> ROLES = List.of("STUDENT", "TEACHER", "ADMIN");
     private static final DateTimeFormatter DF = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
+    private static final ObjectMapper JSON = new ObjectMapper();
+
     private final UserRepository users;
     private final AiStudyPlanService aiStudyPlan;
     private final BankTransferPaymentService payments;
     private final FeedbackService feedback;
+    private final BackupService backup;
 
     public AdminController(UserRepository users, AiStudyPlanService aiStudyPlan,
-                           BankTransferPaymentService payments, FeedbackService feedback) {
+                           BankTransferPaymentService payments, FeedbackService feedback,
+                           BackupService backup) {
         this.users = users;
         this.aiStudyPlan = aiStudyPlan;
         this.payments = payments;
         this.feedback = feedback;
+        this.backup = backup;
+    }
+
+    /** Tải bản sao dữ liệu quan trọng (JSON) về máy. Admin-only (/admin/**). */
+    @GetMapping("/admin/backup")
+    public void backup(HttpServletResponse response) throws IOException {
+        String fileName = "pathstudy-backup-" + LocalDate.now() + ".json";
+        response.setContentType("application/json;charset=UTF-8");
+        response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
+        JSON.writerWithDefaultPrettyPrinter().writeValue(response.getWriter(), backup.export());
     }
 
     /** Admin-only AI health check (see SecurityConfig: /admin/** requires ADMIN). */

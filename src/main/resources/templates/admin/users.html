@@ -7,9 +7,12 @@
     <main class="main">
         <header th:replace="~{fragments/layout :: topbar('Quản trị người dùng')}"></header>
         <div class="content stack">
-            <div class="section-head">
-                <h2 style="font-size:24px">Người dùng</h2>
-                <p class="muted">Phân vai trò và quản lý Premium: Học sinh · Giáo viên · Admin.</p>
+            <div class="section-head between" style="flex-wrap:wrap;gap:10px">
+                <div>
+                    <h2 style="font-size:24px">Người dùng</h2>
+                    <p class="muted">Phân vai trò và quản lý Premium: Học sinh · Giáo viên · Admin.</p>
+                </div>
+                <a th:href="@{/admin/backup}" class="btn btn-soft">⬇ Tải backup (JSON)</a>
             </div>
 
             <div class="stack" style="gap:10px">
