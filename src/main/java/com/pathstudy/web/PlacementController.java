@@ -110,7 +110,9 @@ public class PlacementController {
         if (grade != null && grade.isBlank()) {
             grade = null;
         }
-        if (grade == null && "anh".equals(subject.getCode()) && user.getGrade() != null) {
+        // Môn có đề theo khối (Tiếng Anh, Toán): lấy khối từ tài khoản nếu thiếu.
+        if (grade == null && user.getGrade() != null
+                && ("anh".equals(subject.getCode()) || "toan".equals(subject.getCode()))) {
             grade = user.getGrade();
         }
         return grade;

@@ -24,7 +24,7 @@ import java.util.List;
 @Component
 public class DataSeeder implements CommandLineRunner {
 
-    private static final String SEED_VERSION = "2026-10-08-toan-lop10";
+    private static final String SEED_VERSION = "2026-10-08-toan-full";
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -149,7 +149,7 @@ public class DataSeeder implements CommandLineRunner {
                 "Đọc hiểu, phân tích tác phẩm và nghị luận theo chương trình THPT (lớp 10–11–12).");
         subject("anh", "Tiếng Anh", "flag", "rose", 2, true,
                 "Kiểm tra chẩn đoán, phân tích điểm yếu và lộ trình ôn tập cá nhân hoá (Lớp 10–11–12).");
-        subject("toan", "Toán", "calculator", "sky", 3, true, "Đại số, hình học, thống kê & xác suất theo chương trình Lớp 10 (Kết nối tri thức).");
+        subject("toan", "Toán", "calculator", "sky", 3, true, "Đại số, hình học, thống kê & xác suất Lớp 10–11–12 (Kết nối tri thức).");
         subject("ly", "Vật lý", "atom", "violet", 4, false, "Cơ, điện, quang và luyện đề. Sắp ra mắt.");
         subject("hoa", "Hóa học", "flask", "amber", 5, false, "Hoá vô cơ, hữu cơ và bài tập. Sắp ra mắt.");
         subject("sinh", "Sinh học", "leaf", "green", 6, false, "Di truyền, sinh thái và luyện đề. Sắp ra mắt.");
@@ -2873,12 +2873,21 @@ public class DataSeeder implements CommandLineRunner {
                         { "[−1;1]", "[0;1]", "(0;1)", "[0;100]" } });
 
         seedToan10Placement(toan);
+        seedToan11Content(toan);
+        seedToan12Content(toan);
+    }
+
+    /** 1 chương Toán Lớp 10 (overload mặc định G10). */
+    private void toanChapter(Subject toan, String title, String subtitle, String icon, String branch,
+                             String theory, String example, String[] qTexts, int[] qCorrect, String[][] qOpts) {
+        toanChapter(toan, G10, title, subtitle, icon, branch, theory, example, qTexts, qCorrect, qOpts);
     }
 
     /** 1 chương Toán = module + lesson (lý thuyết + ví dụ) + các câu tự đánh giá. */
-    private void toanChapter(Subject toan, String title, String subtitle, String icon, String branch,
-                             String theory, String example, String[] qTexts, int[] qCorrect, String[][] qOpts) {
-        CourseModule m = module(toan, G10, title, subtitle, icon, 60);
+    private void toanChapter(Subject toan, String grade, String title, String subtitle, String icon,
+                             String branch, String theory, String example,
+                             String[] qTexts, int[] qCorrect, String[][] qOpts) {
+        CourseModule m = module(toan, grade, title, subtitle, icon, 60);
         Lesson l = lesson(m, title, null, branch, 30, theory.lines().findFirst().orElse(title),
                 "Tóm tắt lý thuyết trọng tâm và ví dụ cho chương " + title + ".");
         section(l, 1, SectionType.VOCAB, "Lý thuyết trọng tâm", theory);
@@ -2921,6 +2930,264 @@ public class DataSeeder implements CommandLineRunner {
                 "16", "12", "24", "4");
         pqTopic(toan, G10, 15, "Gieo một xúc xắc cân đối, xác suất ra số lẻ là:", Competency.APPLICATION, "Xác suất", 1,
                 "1/6", "1/2", "1/3", "2/3");
+    }
+
+    /** Giáo trình Toán Lớp 11 (bám SGK Kết nối tri thức — lý thuyết tự soạn cô đọng). */
+    private void seedToan11Content(Subject toan) {
+        toanChapter(toan, G11, "Hàm số lượng giác & phương trình lượng giác", "Lượng giác", "target", "Đại số",
+                """
+                Góc lượng giác đo bằng radian (180° = π rad). Các hàm y = sinx, cosx có tập giá trị [−1;1],
+                tuần hoàn chu kì 2π; y = tanx, cotx tuần hoàn chu kì π.
+                Phương trình cơ bản: sinx = m có nghiệm khi |m| ≤ 1; cosx = m tương tự. Ví dụ sinx = sinα
+                ⇔ x = α + k2π hoặc x = π − α + k2π (k ∈ Z).""",
+                "sinx = 1/2 ⇔ x = π/6 + k2π hoặc x = 5π/6 + k2π (k ∈ Z).",
+                new String[]{ "180° bằng bao nhiêu radian?", "Tập giá trị của hàm y = cosx là:" },
+                new int[]{ 2, 1 },
+                new String[][]{
+                        { "π/2", "2π", "π", "π/3" },
+                        { "R", "[−1;1]", "[0;1]", "(−1;1)" } });
+
+        toanChapter(toan, G11, "Dãy số. Cấp số cộng & cấp số nhân", "Dãy số", "layers", "Đại số",
+                """
+                CẤP SỐ CỘNG: mỗi số hạng bằng số hạng trước cộng công sai d. Số hạng tổng quát
+                u_n = u_1 + (n−1)d; tổng n số hạng S_n = n(u_1 + u_n)/2.
+                CẤP SỐ NHÂN: mỗi số hạng bằng số hạng trước nhân công bội q. u_n = u_1·q^(n−1);
+                tổng S_n = u_1·(1 − q^n)/(1 − q) với q ≠ 1.""",
+                "CSC: 2, 5, 8, 11,... có d = 3, u_5 = 2 + 4·3 = 14. CSN: 3, 6, 12,... có q = 2, u_4 = 3·2³ = 24.",
+                new String[]{ "Cấp số cộng 3, 7, 11,... có công sai d bằng:", "Số hạng tổng quát của cấp số nhân là:" },
+                new int[]{ 1, 2 },
+                new String[][]{
+                        { "3", "4", "7", "10" },
+                        { "u_1 + (n−1)d", "u_1·n", "u_1·q^(n−1)", "u_1 + q" } });
+
+        toanChapter(toan, G11, "Mẫu số liệu ghép nhóm", "Thống kê ghép nhóm", "chart", "Thống kê",
+                """
+                Mẫu số liệu GHÉP NHÓM chia dữ liệu thành các khoảng (nhóm) kèm tần số.
+                Số trung bình ≈ Σ(tần số × giá trị đại diện nhóm)/N (giá trị đại diện = trung điểm nhóm).
+                Mốt và trung vị được ước lượng theo công thức nội suy trong nhóm chứa chúng.""",
+                "Nhóm [0;10) có 3 bạn, [10;20) có 5 bạn: trung bình ≈ (3·5 + 5·15)/8 = 90/8 = 11,25.",
+                new String[]{ "Giá trị đại diện của một nhóm [a;b) thường lấy là:", "Mẫu ghép nhóm dùng khi:" },
+                new int[]{ 2, 1 },
+                new String[][]{
+                        { "a", "b", "(a+b)/2", "b − a" },
+                        { "Dữ liệu rất ít", "Dữ liệu nhiều, chia khoảng", "Chỉ có 1 giá trị", "Không có tần số" } });
+
+        toanChapter(toan, G11, "Quan hệ song song trong không gian", "Hình không gian", "compass", "Hình học",
+                """
+                Hai đường thẳng trong không gian có thể: cắt nhau, song song, trùng nhau hoặc CHÉO NHAU
+                (không cùng mặt phẳng). Đường thẳng song song mặt phẳng khi không có điểm chung.
+                Hai mặt phẳng song song khi không cắt nhau. Định lí Ta-lét trong không gian về tỉ lệ đoạn thẳng.""",
+                "Hai đường thẳng chéo nhau là hai đường KHÔNG cùng nằm trong một mặt phẳng (vừa không cắt vừa không song song).",
+                new String[]{ "Hai đường thẳng không cùng mặt phẳng gọi là:", "Đường thẳng song song mặt phẳng khi:" },
+                new int[]{ 2, 0 },
+                new String[][]{
+                        { "Song song", "Cắt nhau", "Chéo nhau", "Trùng nhau" },
+                        { "Không có điểm chung", "Có 1 điểm chung", "Nằm trong mặt phẳng", "Vuông góc" } });
+
+        toanChapter(toan, G11, "Giới hạn. Hàm số liên tục", "Giới hạn", "clock", "Đại số",
+                """
+                Giới hạn dãy số: lim(1/n) = 0 khi n → ∞. Giới hạn hàm số mô tả giá trị f(x) tiến tới khi x → a.
+                Hàm số LIÊN TỤC tại x0 khi lim(x→x0) f(x) = f(x0). Hàm đa thức liên tục trên R; hàm phân thức
+                liên tục tại mọi điểm làm mẫu khác 0.""",
+                "lim(x→2) (x² − 4)/(x − 2) = lim(x→2) (x + 2) = 4 (rút gọn trước khi thay).",
+                new String[]{ "lim(1/n) khi n → ∞ bằng:", "Hàm số f liên tục tại x0 khi:" },
+                new int[]{ 0, 1 },
+                new String[][]{
+                        { "0", "1", "∞", "n" },
+                        { "f(x0) không xác định", "lim(x→x0) f(x) = f(x0)", "f tăng", "f = 0" } });
+
+        toanChapter(toan, G11, "Hàm số mũ & lôgarit", "Mũ - Lôgarit", "layout", "Đại số",
+                """
+                Hàm mũ y = a^x (a > 0, a ≠ 1) luôn dương, đồng biến khi a > 1. Lôgarit: log_a(b) = c ⇔ a^c = b.
+                Tính chất: log_a(xy) = log_a x + log_a y; log_a(x/y) = log_a x − log_a y; log_a(x^n) = n·log_a x.
+                Lôgarit thập phân log x (cơ số 10), lôgarit tự nhiên ln x (cơ số e).""",
+                "log_2(8) = 3 vì 2³ = 8. log(100) = 2. ln(e) = 1.",
+                new String[]{ "log_2(8) bằng:", "log_a(xy) bằng:" },
+                new int[]{ 2, 0 },
+                new String[][]{
+                        { "2", "4", "3", "8" },
+                        { "log_a x + log_a y", "log_a x · log_a y", "log_a(x−y)", "log_a x − log_a y" } });
+
+        toanChapter(toan, G11, "Quan hệ vuông góc trong không gian", "Hình không gian", "target", "Hình học",
+                """
+                Đường thẳng vuông góc mặt phẳng khi vuông góc với MỌI đường thẳng trong mặt phẳng đó
+                (đủ khi vuông góc với hai đường cắt nhau). Góc giữa đường và mặt, góc giữa hai mặt phẳng.
+                Khoảng cách từ điểm đến mặt phẳng là độ dài đoạn vuông góc hạ từ điểm đó.""",
+                "Để chứng minh d ⊥ (P), chỉ cần chứng minh d vuông góc với HAI đường thẳng cắt nhau nằm trong (P).",
+                new String[]{ "Đường thẳng vuông góc mặt phẳng khi vuông góc với:", "Khoảng cách từ điểm đến mặt phẳng là:" },
+                new int[]{ 1, 2 },
+                new String[][]{
+                        { "Một đường trong mặt phẳng", "Hai đường cắt nhau trong mặt phẳng", "Một điểm", "Mép mặt phẳng" },
+                        { "Đoạn xiên bất kì", "Đoạn dài nhất", "Đoạn vuông góc hạ xuống", "Nửa chu vi" } });
+
+        toanChapter(toan, G11, "Các quy tắc tính xác suất", "Xác suất", "layers", "Thống kê",
+                """
+                Biến cố hợp A ∪ B, biến cố giao A ∩ B. Quy tắc cộng: nếu A, B XUNG KHẮC thì
+                P(A ∪ B) = P(A) + P(B); tổng quát P(A∪B) = P(A) + P(B) − P(A∩B).
+                Hai biến cố ĐỘC LẬP: P(A ∩ B) = P(A)·P(B).""",
+                "Gieo 2 đồng xu, xác suất cả hai ra mặt ngửa = (1/2)·(1/2) = 1/4 (hai biến cố độc lập).",
+                new String[]{ "Nếu A, B xung khắc thì P(A∪B) bằng:", "Hai biến cố độc lập thì P(A∩B) bằng:" },
+                new int[]{ 0, 2 },
+                new String[][]{
+                        { "P(A) + P(B)", "P(A)·P(B)", "P(A) − P(B)", "1" },
+                        { "P(A) + P(B)", "0", "P(A)·P(B)", "1" } });
+
+        toanChapter(toan, G11, "Đạo hàm", "Đạo hàm", "chart", "Đại số",
+                """
+                Đạo hàm f'(x) đo tốc độ biến thiên của hàm số. Công thức: (x^n)' = n·x^(n−1); (sinx)' = cosx;
+                (cosx)' = −sinx. Quy tắc: (u+v)' = u' + v'; (uv)' = u'v + uv'; (u/v)' = (u'v − uv')/v².
+                Ý nghĩa hình học: f'(x0) là hệ số góc tiếp tuyến của đồ thị tại điểm có hoành độ x0.""",
+                "f(x) = x³ → f'(x) = 3x². Tại x = 2: f'(2) = 12 là hệ số góc tiếp tuyến.",
+                new String[]{ "Đạo hàm của x³ là:", "(sinx)' bằng:" },
+                new int[]{ 1, 0 },
+                new String[][]{
+                        { "x²", "3x²", "3x", "x³/3" },
+                        { "cosx", "−cosx", "−sinx", "tanx" } });
+
+        seedToan11Placement(toan);
+    }
+
+    private void seedToan11Placement(Subject toan) {
+        pqTopic(toan, G11, 1, "180° bằng bao nhiêu radian?", Competency.KNOWLEDGE, "Lượng giác", 2,
+                "π/2", "2π", "π", "π/3");
+        pqTopic(toan, G11, 2, "Nghiệm của sinx = 0 là:", Competency.APPLICATION, "Lượng giác", 1,
+                "x = π/2 + kπ", "x = kπ", "x = π + k2π", "x = k2π");
+        pqTopic(toan, G11, 3, "Cấp số cộng 2, 5, 8,... có công sai d =", Competency.KNOWLEDGE, "Dãy số", 0,
+                "3", "2", "5", "7");
+        pqTopic(toan, G11, 4, "Cấp số nhân 2, 6, 18,... có công bội q =", Competency.KNOWLEDGE, "Dãy số", 2,
+                "2", "4", "3", "6");
+        pqTopic(toan, G11, 5, "Số hạng thứ 5 của CSC u_1=1, d=2 là:", Competency.APPLICATION, "Dãy số", 1,
+                "7", "9", "11", "5");
+        pqTopic(toan, G11, 6, "Hai đường thẳng không cùng mặt phẳng gọi là:", Competency.COMPREHENSION, "Hình không gian", 2,
+                "Song song", "Cắt nhau", "Chéo nhau", "Trùng nhau");
+        pqTopic(toan, G11, 7, "lim(1/n) khi n → ∞ bằng:", Competency.KNOWLEDGE, "Giới hạn", 0,
+                "0", "1", "∞", "−1");
+        pqTopic(toan, G11, 8, "lim(x→1)(x²−1)/(x−1) =", Competency.APPLICATION, "Giới hạn", 1,
+                "0", "2", "1", "∞");
+        pqTopic(toan, G11, 9, "log_2(16) bằng:", Competency.KNOWLEDGE, "Mũ - Lôgarit", 2,
+                "2", "3", "4", "8");
+        pqTopic(toan, G11, 10, "log(1000) bằng:", Competency.KNOWLEDGE, "Mũ - Lôgarit", 1,
+                "2", "3", "10", "100");
+        pqTopic(toan, G11, 11, "Để d ⊥ (P), cần d vuông góc với:", Competency.COMPREHENSION, "Hình không gian", 1,
+                "Một đường trong (P)", "Hai đường cắt nhau trong (P)", "Một điểm", "Mép (P)");
+        pqTopic(toan, G11, 12, "A, B xung khắc thì P(A∪B) =", Competency.KNOWLEDGE, "Xác suất", 0,
+                "P(A)+P(B)", "P(A)·P(B)", "P(A)−P(B)", "1");
+        pqTopic(toan, G11, 13, "Gieo 2 đồng xu, xác suất cả hai ngửa =", Competency.APPLICATION, "Xác suất", 2,
+                "1/2", "1/3", "1/4", "1");
+        pqTopic(toan, G11, 14, "Đạo hàm của x^4 là:", Competency.KNOWLEDGE, "Đạo hàm", 1,
+                "4x", "4x³", "x³", "3x²");
+        pqTopic(toan, G11, 15, "(cosx)' bằng:", Competency.KNOWLEDGE, "Đạo hàm", 2,
+                "cosx", "sinx", "−sinx", "−cosx");
+    }
+
+    /** Giáo trình Toán Lớp 12 (bám SGK Kết nối tri thức — lý thuyết tự soạn cô đọng). */
+    private void seedToan12Content(Subject toan) {
+        toanChapter(toan, G12, "Ứng dụng đạo hàm để khảo sát hàm số", "Khảo sát hàm số", "chart", "Đại số",
+                """
+                Dùng đạo hàm để xét tính đơn điệu: f'(x) > 0 trên khoảng ⇒ hàm ĐỒNG BIẾN; f'(x) < 0 ⇒ NGHỊCH BIẾN.
+                Cực trị tại điểm f' đổi dấu. Tìm giá trị lớn nhất/nhỏ nhất trên đoạn. Tiệm cận đứng/ngang của đồ thị.
+                Các bước khảo sát và vẽ đồ thị: tập xác định → đạo hàm, cực trị → tiệm cận → bảng biến thiên → đồ thị.""",
+                "y = x³ − 3x có y' = 3x² − 3 = 0 ⇔ x = ±1 → cực đại tại x = −1, cực tiểu tại x = 1.",
+                new String[]{ "Hàm số đồng biến trên khoảng khi trên đó:", "Hàm đạt cực trị tại điểm mà đạo hàm:" },
+                new int[]{ 0, 1 },
+                new String[][]{
+                        { "f'(x) > 0", "f'(x) < 0", "f'(x) = 0 mọi nơi", "f(x) < 0" },
+                        { "luôn dương", "đổi dấu", "không đổi", "bằng hằng số" } });
+
+        toanChapter(toan, G12, "Vectơ & toạ độ trong không gian", "Toạ độ Oxyz", "compass", "Hình học",
+                """
+                Trong không gian Oxyz, vectơ a = (x;y;z). Độ dài |a| = √(x²+y²+z²).
+                Tích vô hướng a·b = x1x2 + y1y2 + z1z2; a ⊥ b ⇔ a·b = 0.
+                Toạ độ trung điểm, trọng tâm tính trung bình các toạ độ tương ứng.""",
+                "a = (1;2;2) có |a| = √(1+4+4) = 3. Nếu a·b = 0 thì a vuông góc b.",
+                new String[]{ "Độ dài vectơ a=(2;3;6) là:", "a ⊥ b khi a·b bằng:" },
+                new int[]{ 2, 0 },
+                new String[][]{
+                        { "11", "√11", "7", "6" },
+                        { "0", "1", "|a||b|", "−1" } });
+
+        toanChapter(toan, G12, "Số đặc trưng đo độ phân tán (mẫu ghép nhóm)", "Thống kê", "chart", "Thống kê",
+                """
+                Với mẫu số liệu ghép nhóm: khoảng biến thiên, khoảng tứ phân vị (Q3 − Q1), phương sai và
+                độ lệch chuẩn được tính dựa trên tần số và giá trị đại diện các nhóm.
+                Độ lệch chuẩn lớn ⇒ số liệu phân tán rộng quanh trung bình; nhỏ ⇒ tập trung.""",
+                "Hai lớp cùng điểm trung bình nhưng lớp có độ lệch chuẩn nhỏ hơn thì điểm đồng đều hơn.",
+                new String[]{ "Khoảng tứ phân vị bằng:", "Độ lệch chuẩn nhỏ nghĩa là số liệu:" },
+                new int[]{ 1, 0 },
+                new String[][]{
+                        { "Q3 + Q1", "Q3 − Q1", "max − min", "trung vị" },
+                        { "tập trung quanh trung bình", "phân tán rộng", "không có mốt", "luôn tăng" } });
+
+        toanChapter(toan, G12, "Nguyên hàm & tích phân", "Tích phân", "layout", "Đại số",
+                """
+                NGUYÊN HÀM F của f thoả F'(x) = f(x). Ví dụ ∫x^n dx = x^(n+1)/(n+1) + C (n ≠ −1).
+                TÍCH PHÂN xác định ∫[a→b] f(x)dx = F(b) − F(a) (công thức Newton–Leibniz).
+                Ứng dụng: tính diện tích hình phẳng, thể tích khối tròn xoay.""",
+                "∫[0→1] x² dx = [x³/3] từ 0 đến 1 = 1/3 − 0 = 1/3.",
+                new String[]{ "∫ x² dx bằng:", "Tích phân ∫[a→b] f dx = F(b) − F(a) khi F là:" },
+                new int[]{ 1, 2 },
+                new String[][]{
+                        { "2x + C", "x³/3 + C", "x² + C", "3x² + C" },
+                        { "đạo hàm của f", "giá trị của f", "nguyên hàm của f", "bình phương f" } });
+
+        toanChapter(toan, G12, "Phương pháp toạ độ trong không gian", "Mặt phẳng, mặt cầu", "target", "Hình học",
+                """
+                MẶT PHẲNG: phương trình Ax + By + Cz + D = 0 có vectơ pháp tuyến (A;B;C).
+                ĐƯỜNG THẲNG cho bởi điểm và vectơ chỉ phương (phương trình tham số).
+                MẶT CẦU tâm I(a;b;c) bán kính R: (x−a)² + (y−b)² + (z−c)² = R².""",
+                "Mặt cầu (x−1)² + y² + (z+2)² = 9 có tâm I(1;0;−2), bán kính R = 3.",
+                new String[]{ "Vectơ pháp tuyến của mp 2x − y + 3z + 1 = 0 là:", "Mặt cầu x²+y²+z²=25 có bán kính:" },
+                new int[]{ 0, 2 },
+                new String[][]{
+                        { "(2;−1;3)", "(2;1;3)", "(−1;3;1)", "(1;2;3)" },
+                        { "25", "√5", "5", "625" } });
+
+        toanChapter(toan, G12, "Xác suất có điều kiện", "Xác suất", "layers", "Thống kê",
+                """
+                Xác suất có điều kiện P(A|B) = P(A ∩ B)/P(B) (xác suất của A khi biết B đã xảy ra, P(B) > 0).
+                Công thức nhân: P(A ∩ B) = P(B)·P(A|B). Công thức xác suất toàn phần và công thức Bayes
+                giúp tính xác suất qua các trường hợp phân chia.""",
+                "Rút 2 lá bài không hoàn lại: P(lá 2 là Át | lá 1 là Át) = 3/51 (đã bớt 1 Át và 1 lá).",
+                new String[]{ "Công thức xác suất có điều kiện P(A|B) =", "Công thức nhân P(A∩B) =" },
+                new int[]{ 0, 1 },
+                new String[][]{
+                        { "P(A∩B)/P(B)", "P(A)+P(B)", "P(A)·P(B)", "P(B)/P(A)" },
+                        { "P(A)+P(B)", "P(B)·P(A|B)", "P(A)/P(B)", "P(A)−P(B)" } });
+
+        seedToan12Placement(toan);
+    }
+
+    private void seedToan12Placement(Subject toan) {
+        pqTopic(toan, G12, 1, "Hàm số đồng biến trên khoảng khi trên đó:", Competency.KNOWLEDGE, "Khảo sát hàm số", 0,
+                "f'(x) > 0", "f'(x) < 0", "f'(x) = 0", "f(x) < 0");
+        pqTopic(toan, G12, 2, "y = x³ − 3x có điểm cực trị tại x =", Competency.APPLICATION, "Khảo sát hàm số", 1,
+                "0", "±1", "±3", "2");
+        pqTopic(toan, G12, 3, "Hàm đạt cực trị tại điểm mà đạo hàm:", Competency.COMPREHENSION, "Khảo sát hàm số", 1,
+                "luôn dương", "đổi dấu", "không đổi", "bằng hằng số");
+        pqTopic(toan, G12, 4, "Độ dài vectơ a=(2;3;6) trong Oxyz là:", Competency.APPLICATION, "Toạ độ Oxyz", 2,
+                "11", "√11", "7", "6");
+        pqTopic(toan, G12, 5, "a ⊥ b khi a·b bằng:", Competency.KNOWLEDGE, "Toạ độ Oxyz", 0,
+                "0", "1", "|a||b|", "−1");
+        pqTopic(toan, G12, 6, "Khoảng tứ phân vị bằng:", Competency.KNOWLEDGE, "Thống kê", 1,
+                "Q3 + Q1", "Q3 − Q1", "max − min", "trung vị");
+        pqTopic(toan, G12, 7, "Độ lệch chuẩn nhỏ nghĩa là số liệu:", Competency.COMPREHENSION, "Thống kê", 0,
+                "tập trung quanh trung bình", "phân tán rộng", "không có mốt", "luôn tăng");
+        pqTopic(toan, G12, 8, "∫ x² dx bằng:", Competency.KNOWLEDGE, "Tích phân", 1,
+                "2x + C", "x³/3 + C", "x² + C", "3x² + C");
+        pqTopic(toan, G12, 9, "∫[0→2] x dx bằng:", Competency.APPLICATION, "Tích phân", 2,
+                "1", "4", "2", "0");
+        pqTopic(toan, G12, 10, "Nguyên hàm của cosx là:", Competency.KNOWLEDGE, "Tích phân", 0,
+                "sinx + C", "−sinx + C", "cosx + C", "−cosx + C");
+        pqTopic(toan, G12, 11, "Vectơ pháp tuyến của mp 2x − y + 3z + 1 = 0 là:", Competency.COMPREHENSION, "Toạ độ Oxyz", 0,
+                "(2;−1;3)", "(2;1;3)", "(−1;3;1)", "(1;2;3)");
+        pqTopic(toan, G12, 12, "Mặt cầu x²+y²+z²=25 có bán kính:", Competency.KNOWLEDGE, "Toạ độ Oxyz", 2,
+                "25", "√5", "5", "625");
+        pqTopic(toan, G12, 13, "P(A|B) bằng:", Competency.KNOWLEDGE, "Xác suất", 0,
+                "P(A∩B)/P(B)", "P(A)+P(B)", "P(A)·P(B)", "P(B)/P(A)");
+        pqTopic(toan, G12, 14, "Công thức nhân P(A∩B) =", Competency.APPLICATION, "Xác suất", 1,
+                "P(A)+P(B)", "P(B)·P(A|B)", "P(A)/P(B)", "P(A)−P(B)");
+        pqTopic(toan, G12, 15, "Giá trị lớn nhất của hàm trên đoạn [a;b] đạt tại:", Competency.APPLICATION, "Khảo sát hàm số", 3,
+                "chỉ điểm giữa", "chỉ đầu mút", "điểm bất kì", "điểm tới hạn hoặc đầu mút");
     }
 
     private CourseModule module(Subject subject, String grade, String title, String subtitle,
