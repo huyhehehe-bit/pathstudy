@@ -27,6 +27,8 @@
                     </div>
                 </div>
 
+                <div class="encourage" th:attr="data-score=${outcome.score}"></div>
+
                 <hr class="sep"/>
 
                 <div th:if="${!outcome.weakTopics.isEmpty()}" class="stack-sm">

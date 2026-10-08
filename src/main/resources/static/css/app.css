@@ -438,3 +438,19 @@ hr.sep { border: none; border-top: 1px solid var(--border); margin: 0; }
     .subject-grid { grid-template-columns: repeat(2, 1fr); }
     .metric { grid-template-columns: 100px 1fr 44px; }
 }
+
+/* Câu nhận xét/động viên sau khi xem kết quả (Gen Z) */
+.encourage {
+    border-radius: 12px; padding: 12px 16px; margin: 4px 0;
+    font-size: 15px; font-weight: 600; line-height: 1.5;
+    background: var(--primary-soft); color: var(--primary);
+}
+.encourage:empty { display: none; } /* trống (JS chưa điền) thì ẩn hẳn */
+.encourage.enc-in { animation: encourageIn .45s ease; }
+.encourage--excellent, .encourage--great { background: var(--success-soft); color: var(--success); }
+/* Chỉ animate transform — KHÔNG đụng opacity — để câu luôn hiện kể cả khi
+   animation bị trình duyệt tạm dừng (tab ẩn). */
+@keyframes encourageIn {
+    from { transform: translateY(8px); }
+    to   { transform: none; }
+}
