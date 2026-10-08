@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Quản lý môn học')}"></head>
+<body>
+<div class="shell">
+    <aside th:replace="~{fragments/layout :: sidebar('admin-subjects')}"></aside>
+    <main class="main">
+        <header th:replace="~{fragments/layout :: topbar('Quản lý môn học')}"></header>
+        <div class="content stack" style="max-width:760px">
+            <div class="section-head">
+                <h2 style="font-size:24px">Môn học</h2>
+                <p class="muted">Bật/tắt để <strong>mở môn cho học sinh</strong> vào học. Môn đang ẩn ("Sắp ra mắt") học sinh chưa chọn được.</p>
+            </div>
+
+            <div class="banner banner-info">
+                <span th:insert="~{fragments/icons :: ic('clipboard-check')}"></span>
+                Lưu ý: nên thêm <strong>câu hỏi kiểm tra đầu vào</strong> (Quản lý nội dung → Ngân hàng đề) và <strong>đề/tài liệu</strong> cho môn trước khi mở, để học sinh có nội dung học.
+            </div>
+
+            <div class="stack-sm">
+                <div class="card card-pad between" th:each="s : ${subjects}" style="gap:14px">
+                    <div class="center" style="gap:12px">
+                        <span class="tile" th:classappend="'tile-' + ${s.colorKey}" style="width:40px;height:40px;border-radius:11px"
+                              th:insert="~{fragments/icons :: ic(${s.iconKey})}"></span>
+                        <div>
+                            <strong th:text="${s.name}">Ngữ văn</strong>
+                            <div class="faint" style="font-size:12px" th:text="${s.description}">Mô tả</div>
+                        </div>
+                    </div>
+                    <div class="center" style="gap:10px">
+                        <span class="pill" th:if="${s.active}" style="background:var(--success-soft);color:var(--success);border:none">Đang mở</span>
+                        <span class="pill" th:unless="${s.active}" style="background:var(--warn-soft);color:var(--warn);border:none">Đang ẩn</span>
+                        <form th:action="@{'/admin/subjects/' + ${s.id} + '/toggle'}" method="post">
+                            <button type="submit" th:class="${s.active} ? 'btn btn-ghost' : 'btn btn-primary'"
+                                    th:text="${s.active} ? 'Ẩn môn' : 'Mở cho học sinh'">Mở cho học sinh</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+<div th:replace="~{fragments/layout :: toast}"></div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

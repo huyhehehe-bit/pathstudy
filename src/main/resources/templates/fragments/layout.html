@@ -61,6 +61,9 @@
         <a th:if="${isAdmin}" th:href="@{/admin/dashboard}" class="nav-item" th:classappend="${active=='admin-dashboard'} ? 'active'">
             <span th:insert="~{fragments/icons :: ic('chart')}"></span><span class="lbl">Số liệu</span>
         </a>
+        <a th:if="${isAdmin}" th:href="@{/admin/subjects}" class="nav-item" th:classappend="${active=='admin-subjects'} ? 'active'">
+            <span th:insert="~{fragments/icons :: ic('layers')}"></span><span class="lbl">Môn học</span>
+        </a>
         <a th:if="${isAdmin}" th:href="@{/admin/users}" class="nav-item" th:classappend="${active=='admin'} ? 'active'">
             <span th:insert="~{fragments/icons :: ic('shield')}"></span><span class="lbl">Quản trị</span>
         </a>

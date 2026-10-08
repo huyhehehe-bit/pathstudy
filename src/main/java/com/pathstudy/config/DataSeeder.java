@@ -2728,13 +2728,18 @@ public class DataSeeder implements CommandLineRunner {
         // Upsert theo code: GIỮ bản ghi (và ID) qua các lần reseed để nội dung do
         // giáo viên tạo (đề, kho tài liệu, tài liệu nguồn) tham chiếu subject không
         // bị gãy khoá ngoại và không bị mất.
-        Subject s = subjects.findByCode(code).orElseGet(Subject::new);
+        Subject existing = subjects.findByCode(code).orElse(null);
+        Subject s = existing != null ? existing : new Subject();
         s.setCode(code);
         s.setName(name);
         s.setIconKey(icon);
         s.setColorKey(color);
         s.setOrderIndex(idx);
-        s.setActive(active);
+        // Chỉ đặt 'active' cho subject MỚI. Với subject đã có, GIỮ trạng thái
+        // admin đã bật/tắt (để admin mở môn cho học sinh không bị reseed ghi đè).
+        if (existing == null) {
+            s.setActive(active);
+        }
         s.setDescription(desc);
         return subjects.save(s);
     }

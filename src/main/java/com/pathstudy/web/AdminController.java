@@ -2,7 +2,9 @@ package com.pathstudy.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pathstudy.domain.Feedback;
+import com.pathstudy.domain.Subject;
 import com.pathstudy.domain.User;
+import com.pathstudy.repo.SubjectRepository;
 import com.pathstudy.repo.UserRepository;
 import com.pathstudy.service.AiStudyPlanService;
 import com.pathstudy.service.BackupService;
@@ -40,16 +42,37 @@ public class AdminController {
     private final FeedbackService feedback;
     private final BackupService backup;
     private final KpiService kpi;
+    private final SubjectRepository subjects;
 
     public AdminController(UserRepository users, AiStudyPlanService aiStudyPlan,
                            BankTransferPaymentService payments, FeedbackService feedback,
-                           BackupService backup, KpiService kpi) {
+                           BackupService backup, KpiService kpi, SubjectRepository subjects) {
         this.users = users;
         this.aiStudyPlan = aiStudyPlan;
         this.payments = payments;
         this.feedback = feedback;
         this.backup = backup;
         this.kpi = kpi;
+        this.subjects = subjects;
+    }
+
+    /** Quản lý môn học: bật/tắt để mở môn cho học sinh vào học. */
+    @GetMapping("/admin/subjects")
+    public String subjects(Model model) {
+        model.addAttribute("subjects", subjects.findAllByOrderByOrderIndexAsc());
+        return "admin/subjects";
+    }
+
+    @PostMapping("/admin/subjects/{id}/toggle")
+    public String toggleSubject(@PathVariable Long id, RedirectAttributes ra) {
+        subjects.findById(id).ifPresent(s -> {
+            s.setActive(!s.isActive());
+            subjects.save(s);
+            ra.addFlashAttribute("toast", s.isActive()
+                    ? "Đã MỞ môn " + s.getName() + " cho học sinh."
+                    : "Đã ẩn môn " + s.getName() + ".");
+        });
+        return "redirect:/admin/subjects";
     }
 
     /** Dashboard KPI nội bộ (người dùng, Premium, doanh thu, nội dung, feedback). */
