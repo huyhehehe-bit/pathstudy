@@ -24,7 +24,7 @@ import java.util.List;
 @Component
 public class DataSeeder implements CommandLineRunner {
 
-    private static final String SEED_VERSION = "2026-09-24-thpt-3ma-full";
+    private static final String SEED_VERSION = "2026-10-08-toan-lop10";
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -89,6 +89,7 @@ public class DataSeeder implements CommandLineRunner {
         seedUsers();
         seedVanContent(subjects.findByCode("van").orElseThrow());
         seedEnglish(subjects.findByCode("anh").orElseThrow());
+        seedToanContent(subjects.findByCode("toan").orElseThrow());
         appSettings.save(new AppSetting("seedVersion", SEED_VERSION));
     }
 
@@ -148,7 +149,7 @@ public class DataSeeder implements CommandLineRunner {
                 "Đọc hiểu, phân tích tác phẩm và nghị luận theo chương trình THPT (lớp 10–11–12).");
         subject("anh", "Tiếng Anh", "flag", "rose", 2, true,
                 "Kiểm tra chẩn đoán, phân tích điểm yếu và lộ trình ôn tập cá nhân hoá (Lớp 10–11–12).");
-        subject("toan", "Toán", "calculator", "sky", 3, false, "Đại số, hình học và luyện đề THPT. Sắp ra mắt.");
+        subject("toan", "Toán", "calculator", "sky", 3, true, "Đại số, hình học, thống kê & xác suất theo chương trình Lớp 10 (Kết nối tri thức).");
         subject("ly", "Vật lý", "atom", "violet", 4, false, "Cơ, điện, quang và luyện đề. Sắp ra mắt.");
         subject("hoa", "Hóa học", "flask", "amber", 5, false, "Hoá vô cơ, hữu cơ và bài tập. Sắp ra mắt.");
         subject("sinh", "Sinh học", "leaf", "green", 6, false, "Di truyền, sinh thái và luyện đề. Sắp ra mắt.");
@@ -574,7 +575,8 @@ public class DataSeeder implements CommandLineRunner {
             rm.setSubject(anh);
             rm.setTitle("Các thành phần cơ bản trong câu tiếng Anh");
             rm.setContent(grammar);
-            rm.setCreatedByEmail("admin@pathstudy.vn");
+            // null = nội dung SEED (reseed sẽ xoá + tạo lại, không nhân đôi).
+            rm.setCreatedByEmail(null);
             referenceMaterials.save(rm);
         }
 
@@ -2742,6 +2744,183 @@ public class DataSeeder implements CommandLineRunner {
         }
         s.setDescription(desc);
         return subjects.save(s);
+    }
+
+    /**
+     * Giáo trình Toán Lớp 10 (bám cấu trúc SGK Kết nối tri thức — lý thuyết tự soạn
+     * cô đọng, KHÔNG sao chép nguyên văn). Mỗi chương = 1 module có lý thuyết + ví
+     * dụ + câu hỏi tự đánh giá. Kèm ngân hàng câu kiểm tra đầu vào (placement).
+     */
+    private void seedToanContent(Subject toan) {
+        toanChapter(toan, "Mệnh đề và tập hợp", "Logic · Tập hợp", "layers", "Đại số",
+                """
+                MỆNH ĐỀ là câu khẳng định có tính đúng hoặc sai (không vừa đúng vừa sai).
+                - Phủ định của P kí hiệu là "không P".
+                - Mệnh đề kéo theo: "Nếu P thì Q" (P ⇒ Q); P là giả thiết, Q là kết luận.
+                - P ⇔ Q (tương đương) khi cả P ⇒ Q và Q ⇒ P đều đúng.
+                TẬP HỢP là một nhóm các phần tử. Các phép toán: hợp (∪), giao (∩), hiệu (\\), phần bù.
+                Tập con: A ⊂ B nếu mọi phần tử của A đều thuộc B.""",
+                "Cho A = {1;2;3}, B = {2;3;4}. Khi đó A ∩ B = {2;3}; A ∪ B = {1;2;3;4}; A \\ B = {1}.",
+                new String[]{ "Mệnh đề \"5 là số chẵn\" là mệnh đề gì?", "Phủ định của \"Mọi số tự nhiên đều chia hết cho 2\" là gì?", "Cho A={1;2;3}, B={2;3;4}. A ∩ B = ?" },
+                new int[]{ 1, 2, 2 },
+                new String[][]{
+                        { "Mệnh đề đúng", "Mệnh đề sai", "Không phải mệnh đề", "Vừa đúng vừa sai" },
+                        { "Mọi số tự nhiên đều chẵn", "Không có số nào chẵn", "Tồn tại số tự nhiên không chia hết cho 2", "Mọi số đều lẻ" },
+                        { "{1;2;3;4}", "{1;4}", "{2;3}", "{1}" } });
+
+        toanChapter(toan, "Bất phương trình bậc nhất hai ẩn", "Miền nghiệm", "chart", "Đại số",
+                """
+                Bất phương trình bậc nhất hai ẩn có dạng ax + by ≤ c (hoặc <, ≥, >).
+                MIỀN NGHIỆM là tập các điểm (x;y) trên mặt phẳng toạ độ thoả mãn bất phương trình.
+                Cách xác định: vẽ đường thẳng ax + by = c, chọn một điểm thử (thường là gốc O(0;0))
+                thay vào; nếu thoả thì nửa mặt phẳng chứa điểm đó là miền nghiệm.
+                HỆ bất phương trình: miền nghiệm là GIAO các miền nghiệm của từng bất phương trình.""",
+                "Xét x + y ≤ 2. Thay O(0;0): 0 ≤ 2 đúng → miền nghiệm là nửa mặt phẳng chứa O (kể cả đường x+y=2).",
+                new String[]{ "Điểm nào sau đây thuộc miền nghiệm của x + y ≤ 2?", "Miền nghiệm của một bất phương trình bậc nhất hai ẩn là:" },
+                new int[]{ 0, 1 },
+                new String[][]{
+                        { "(0;0)", "(3;0)", "(2;1)", "(1;2)" },
+                        { "Một điểm", "Một nửa mặt phẳng", "Một đoạn thẳng", "Toàn mặt phẳng" } });
+
+        toanChapter(toan, "Hệ thức lượng trong tam giác", "Định lí sin, cosin", "target", "Hình học",
+                """
+                Trong tam giác ABC với các cạnh a, b, c đối diện các góc A, B, C:
+                - Định lí cosin: a² = b² + c² − 2bc·cosA.
+                - Định lí sin: a/sinA = b/sinB = c/sinC = 2R (R là bán kính đường tròn ngoại tiếp).
+                - Diện tích: S = (1/2)·a·b·sinC = (a·b·c)/(4R) = p·r (p nửa chu vi, r bán kính nội tiếp).""",
+                "Tam giác có b=3, c=4, A=90°. Theo cosin: a² = 9 + 16 − 2·3·4·cos90° = 25 → a = 5.",
+                new String[]{ "Định lí cosin: a² = ?", "Công thức tính diện tích tam giác theo hai cạnh và góc xen giữa là:" },
+                new int[]{ 2, 1 },
+                new String[][]{
+                        { "b² + c²", "b² − c²", "b² + c² − 2bc·cosA", "b·c·sinA" },
+                        { "S = a·b·c", "S = (1/2)·a·b·sinC", "S = a + b + c", "S = (1/2)(a+b+c)" } });
+
+        toanChapter(toan, "Vectơ", "Tổng, hiệu, tích vô hướng", "compass", "Hình học",
+                """
+                VECTƠ là đoạn thẳng có hướng. Hai vectơ bằng nhau khi cùng hướng và cùng độ dài.
+                - Quy tắc ba điểm: AB + BC = AC. Quy tắc hình bình hành cho tổng hai vectơ chung gốc.
+                - Tích của vectơ với số k: k·a cùng/ngược hướng a tuỳ k>0 hay k<0.
+                - Tích vô hướng: a·b = |a||b|cosθ. Hai vectơ vuông góc ⇔ a·b = 0.""",
+                "Với A, B, C bất kì: AB + BC = AC (quy tắc ba điểm). Nếu a·b = 0 thì a ⊥ b.",
+                new String[]{ "Theo quy tắc ba điểm, AB + BC = ?", "Hai vectơ vuông góc khi tích vô hướng của chúng bằng:" },
+                new int[]{ 2, 0 },
+                new String[][]{
+                        { "BA", "CA", "AC", "0" },
+                        { "0", "1", "|a||b|", "−1" } });
+
+        toanChapter(toan, "Các số đặc trưng của mẫu số liệu", "Thống kê mô tả", "chart", "Thống kê",
+                """
+                Đo XU THẾ TRUNG TÂM: số trung bình (x̄ = tổng/số phần tử), trung vị (giá trị giữa khi
+                sắp xếp), mốt (giá trị xuất hiện nhiều nhất).
+                Đo ĐỘ PHÂN TÁN: khoảng biến thiên (max − min), khoảng tứ phân vị, phương sai và
+                độ lệch chuẩn (căn bậc hai của phương sai). Phương sai càng lớn, số liệu càng phân tán.""",
+                "Mẫu 2, 4, 4, 6, 9: trung bình = 25/5 = 5; trung vị = 4; mốt = 4; khoảng biến thiên = 9 − 2 = 7.",
+                new String[]{ "Số trung bình của mẫu 2, 4, 6 là:", "Mốt của mẫu số liệu là:", "Độ lệch chuẩn là:" },
+                new int[]{ 1, 2, 0 },
+                new String[][]{
+                        { "3", "4", "6", "12" },
+                        { "Giá trị lớn nhất", "Giá trị ở giữa", "Giá trị xuất hiện nhiều nhất", "Trung bình cộng" },
+                        { "Căn bậc hai của phương sai", "Bình phương phương sai", "Max − min", "Giá trị giữa" } });
+
+        toanChapter(toan, "Hàm số và đồ thị", "Hàm số bậc hai", "layout", "Đại số",
+                """
+                HÀM SỐ y = f(x) cho mỗi x đúng một giá trị y. Tập xác định là tập các x mà f(x) có nghĩa.
+                HÀM SỐ BẬC HAI y = ax² + bx + c (a ≠ 0) có đồ thị là parabol:
+                - Đỉnh I(−b/2a ; −Δ/4a), trục đối xứng x = −b/2a.
+                - a > 0: parabol quay bề lõm lên (có giá trị nhỏ nhất); a < 0: bề lõm xuống.""",
+                "y = x² − 2x + 1 có a=1>0, đỉnh I(1;0), trục đối xứng x=1, đạt giá trị nhỏ nhất 0 tại x=1.",
+                new String[]{ "Đồ thị hàm số bậc hai là:", "Parabol y=ax²+bx+c có bề lõm hướng lên khi:" },
+                new int[]{ 1, 0 },
+                new String[][]{
+                        { "Đường thẳng", "Parabol", "Đường tròn", "Hypebol" },
+                        { "a > 0", "a < 0", "a = 0", "b > 0" } });
+
+        toanChapter(toan, "Phương pháp toạ độ trong mặt phẳng", "Đường thẳng, đường tròn", "target", "Hình học",
+                """
+                ĐƯỜNG THẲNG: phương trình tổng quát ax + by + c = 0 có vectơ pháp tuyến (a;b).
+                Khoảng cách từ điểm M(x0;y0) đến đường thẳng: |a·x0 + b·y0 + c| / √(a²+b²).
+                ĐƯỜNG TRÒN tâm I(a;b) bán kính R: (x − a)² + (y − b)² = R².""",
+                "Đường tròn (x−1)² + (y+2)² = 9 có tâm I(1; −2) và bán kính R = 3.",
+                new String[]{ "Đường tròn (x−1)²+(y+2)²=9 có bán kính:", "Vectơ pháp tuyến của đường thẳng 2x − 3y + 1 = 0 là:" },
+                new int[]{ 2, 1 },
+                new String[][]{
+                        { "9", "1", "3", "81" },
+                        { "(2;3)", "(2;−3)", "(−3;2)", "(3;2)" } });
+
+        toanChapter(toan, "Đại số tổ hợp", "Hoán vị, chỉnh hợp, tổ hợp", "layers", "Đại số",
+                """
+                QUY TẮC ĐẾM: quy tắc cộng (các trường hợp rời nhau) và quy tắc nhân (các công đoạn liên tiếp).
+                - Hoán vị của n phần tử: Pn = n! (sắp xếp có thứ tự tất cả n phần tử).
+                - Chỉnh hợp chập k của n: A(n,k) = n!/(n−k)! (chọn k, CÓ thứ tự).
+                - Tổ hợp chập k của n: C(n,k) = n!/(k!(n−k)!) (chọn k, KHÔNG thứ tự).""",
+                "Số cách chọn 2 trong 5 bạn (không phân biệt thứ tự) là C(5,2) = 5!/(2!·3!) = 10.",
+                new String[]{ "Số hoán vị của 3 phần tử là:", "Chọn 2 trong 4 bạn không kể thứ tự có số cách là:" },
+                new int[]{ 2, 1 },
+                new String[][]{
+                        { "3", "9", "6", "12" },
+                        { "8", "6", "12", "4" } });
+
+        toanChapter(toan, "Xác suất", "Biến cố và xác suất cổ điển", "target", "Thống kê",
+                """
+                Phép thử ngẫu nhiên có KHÔNG GIAN MẪU Ω là tập mọi kết quả có thể. BIẾN CỐ là tập con của Ω.
+                Định nghĩa cổ điển (các kết quả đồng khả năng): P(A) = n(A)/n(Ω) (số kết quả thuận lợi /
+                tổng số kết quả). Luôn có 0 ≤ P(A) ≤ 1; biến cố chắc chắn có xác suất 1, biến cố không thể có xác suất 0.""",
+                "Gieo một con xúc xắc cân đối, xác suất ra mặt chẵn = 3/6 = 1/2.",
+                new String[]{ "Gieo 1 xúc xắc, xác suất ra số 6 là:", "Xác suất của một biến cố luôn nằm trong khoảng:" },
+                new int[]{ 0, 1 },
+                new String[][]{
+                        { "1/6", "1/2", "1/3", "6" },
+                        { "[−1;1]", "[0;1]", "(0;1)", "[0;100]" } });
+
+        seedToan10Placement(toan);
+    }
+
+    /** 1 chương Toán = module + lesson (lý thuyết + ví dụ) + các câu tự đánh giá. */
+    private void toanChapter(Subject toan, String title, String subtitle, String icon, String branch,
+                             String theory, String example, String[] qTexts, int[] qCorrect, String[][] qOpts) {
+        CourseModule m = module(toan, G10, title, subtitle, icon, 60);
+        Lesson l = lesson(m, title, null, branch, 30, theory.lines().findFirst().orElse(title),
+                "Tóm tắt lý thuyết trọng tâm và ví dụ cho chương " + title + ".");
+        section(l, 1, SectionType.VOCAB, "Lý thuyết trọng tâm", theory);
+        section(l, 2, SectionType.EXAMPLE, "Ví dụ minh hoạ", example);
+        for (int i = 0; i < qTexts.length; i++) {
+            eq(m, i + 1, qTexts[i], i == qTexts.length - 1 ? Competency.APPLICATION : Competency.KNOWLEDGE,
+                    qCorrect[i], qOpts[i]);
+        }
+    }
+
+    /** Ngân hàng câu kiểm tra đầu vào Toán Lớp 10 (placement) — đủ để random mỗi lần. */
+    private void seedToan10Placement(Subject toan) {
+        pqTopic(toan, G10, 1, "Cho A={1;2;3;4}, B={3;4;5}. A ∩ B = ?", Competency.KNOWLEDGE, "Tập hợp", 2,
+                "{1;2}", "{1;2;3;4;5}", "{3;4}", "{5}");
+        pqTopic(toan, G10, 2, "Phủ định của mệnh đề \"Mọi học sinh đều đi học\" là:", Competency.COMPREHENSION, "Mệnh đề", 1,
+                "Mọi học sinh đều không đi học", "Tồn tại học sinh không đi học", "Không học sinh nào đi học", "Một số học sinh đi học");
+        pqTopic(toan, G10, 3, "Điểm nào thuộc miền nghiệm của x + y ≤ 3?", Competency.APPLICATION, "Bất phương trình", 0,
+                "(1;1)", "(2;2)", "(3;1)", "(2;3)");
+        pqTopic(toan, G10, 4, "Tam giác có b=6, c=8, A=90°. Cạnh a = ?", Competency.APPLICATION, "Hệ thức lượng", 2,
+                "7", "12", "10", "14");
+        pqTopic(toan, G10, 5, "Theo quy tắc ba điểm, MN + NP = ?", Competency.KNOWLEDGE, "Vectơ", 1,
+                "NM", "MP", "PM", "0");
+        pqTopic(toan, G10, 6, "Hai vectơ a, b vuông góc khi a·b bằng:", Competency.KNOWLEDGE, "Vectơ", 0,
+                "0", "1", "|a||b|", "−1");
+        pqTopic(toan, G10, 7, "Số trung bình của 3, 5, 7, 9 là:", Competency.KNOWLEDGE, "Thống kê", 1,
+                "5", "6", "7", "24");
+        pqTopic(toan, G10, 8, "Mốt của mẫu 2; 3; 3; 5; 7 là:", Competency.KNOWLEDGE, "Thống kê", 0,
+                "3", "5", "7", "4");
+        pqTopic(toan, G10, 9, "Đỉnh của parabol y = x² − 4x + 3 có hoành độ:", Competency.APPLICATION, "Hàm số bậc hai", 1,
+                "−2", "2", "4", "3");
+        pqTopic(toan, G10, 10, "Đồ thị hàm số y = ax² + bx + c (a≠0) là:", Competency.KNOWLEDGE, "Hàm số bậc hai", 2,
+                "Đường thẳng", "Đường tròn", "Parabol", "Hypebol");
+        pqTopic(toan, G10, 11, "Đường tròn (x−2)² + (y−1)² = 16 có bán kính:", Competency.KNOWLEDGE, "Toạ độ phẳng", 1,
+                "16", "4", "2", "8");
+        pqTopic(toan, G10, 12, "Vectơ pháp tuyến của đường thẳng 3x − 4y + 5 = 0 là:", Competency.COMPREHENSION, "Toạ độ phẳng", 0,
+                "(3;−4)", "(−4;3)", "(4;3)", "(3;4)");
+        pqTopic(toan, G10, 13, "Số cách chọn 2 trong 6 bạn (không kể thứ tự) là:", Competency.APPLICATION, "Tổ hợp", 2,
+                "12", "36", "15", "30");
+        pqTopic(toan, G10, 14, "Số hoán vị của 4 phần tử là:", Competency.KNOWLEDGE, "Tổ hợp", 2,
+                "16", "12", "24", "4");
+        pqTopic(toan, G10, 15, "Gieo một xúc xắc cân đối, xác suất ra số lẻ là:", Competency.APPLICATION, "Xác suất", 1,
+                "1/6", "1/2", "1/3", "2/3");
     }
 
     private CourseModule module(Subject subject, String grade, String title, String subtitle,
