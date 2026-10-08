@@ -7,10 +7,12 @@ import com.pathstudy.repo.QuestionRepository;
 import com.pathstudy.repo.ReferenceMaterialRepository;
 import com.pathstudy.web.dto.PlacementOutcome;
 import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -20,6 +22,11 @@ import java.util.Map;
 public class PlacementService {
 
     public static final int ATTEMPTS_MAX = 3;
+
+    /** Số câu mỗi LẦN làm bài. Nếu ngân hàng nhiều hơn số này → mỗi lần random khác
+     *  nhau (hết lặp). Chỉnh qua env PLACEMENT_TEST_SIZE. */
+    @Value("${app.placement.test-size:20}")
+    private int testSize;
 
     private final QuestionRepository questions;
     private final PlacementResultRepository results;
@@ -44,13 +51,68 @@ public class PlacementService {
         return questions.findByScopeAndSubjectOrderByOrderIndexAsc(QuizScope.PLACEMENT, subject);
     }
 
-    /** Grade-scoped question set (English). When grade is null/blank, returns all. */
+    /** Toàn bộ ngân hàng câu hỏi placement của môn/khối (grade null/blank = tất cả). */
     @Transactional(readOnly = true)
     public List<Question> questionsFor(Subject subject, String grade) {
         if (grade == null || grade.isBlank()) {
             return questionsFor(subject);
         }
         return questions.findByScopeAndSubjectAndGradeOrderByOrderIndexAsc(QuizScope.PLACEMENT, subject, grade);
+    }
+
+    /**
+     * Bộ đề cho MỘT lần làm: RANDOM từ ngân hàng (giữ nguyên nhóm câu dùng chung
+     * đoạn văn), tối đa {@code testSize} câu. Ngân hàng > testSize → mỗi lần khác
+     * nhau; ngân hàng ≤ testSize → lấy hết nhưng xáo trộn thứ tự nhóm.
+     */
+    @Transactional(readOnly = true)
+    public List<Question> randomTestFor(Subject subject, String grade) {
+        return sample(questionsFor(subject, grade), Math.max(1, testSize));
+    }
+
+    /** Số câu một lần test sẽ hiện (để trang intro hiển thị + guard 0 câu). */
+    @Transactional(readOnly = true)
+    public int testQuestionCount(Subject subject, String grade) {
+        return Math.min(questionsFor(subject, grade).size(), Math.max(1, testSize));
+    }
+
+    /** Chọn ngẫu nhiên ~size câu, giữ các câu cùng đoạn văn (passage) liền nhau. */
+    private List<Question> sample(List<Question> pool, int size) {
+        if (pool.size() <= size) {
+            // Không đủ để bớt — vẫn xáo nhóm để thứ tự đỡ lặp giữa các lần.
+            List<List<Question>> gs = groupByPassage(pool);
+            Collections.shuffle(gs);
+            List<Question> out = new ArrayList<>();
+            gs.forEach(out::addAll);
+            return out;
+        }
+        List<List<Question>> groups = groupByPassage(pool);
+        Collections.shuffle(groups);
+        List<Question> out = new ArrayList<>();
+        for (List<Question> g : groups) {
+            if (out.size() >= size) {
+                break;
+            }
+            out.addAll(g);
+        }
+        return out;
+    }
+
+    /** Gom các câu LIÊN TIẾP dùng chung đoạn văn thành 1 nhóm; câu lẻ = nhóm 1 câu. */
+    private List<List<Question>> groupByPassage(List<Question> pool) {
+        List<List<Question>> groups = new ArrayList<>();
+        for (Question q : pool) {
+            String p = q.getPassage();
+            if (p != null && !p.isBlank() && !groups.isEmpty()
+                    && p.equals(groups.get(groups.size() - 1).get(0).getPassage())) {
+                groups.get(groups.size() - 1).add(q);
+            } else {
+                List<Question> g = new ArrayList<>();
+                g.add(q);
+                groups.add(g);
+            }
+        }
+        return groups;
     }
 
     @Transactional(readOnly = true)
@@ -86,7 +148,11 @@ public class PlacementService {
         if (grade != null && grade.isBlank()) {
             grade = null;
         }
-        List<Question> qs = questionsFor(subject, grade);
+        // Chấm đúng những câu HỌC SINH ĐÃ LÀM (lọc từ ngân hàng theo id đã nộp),
+        // không phụ thuộc bộ random đã hiển thị. Cũng loại id giả nếu có.
+        List<Question> qs = questionsFor(subject, grade).stream()
+                .filter(q -> answers.containsKey(q.getId()))
+                .collect(Collectors.toList());
 
         int correct = 0;
         Map<Competency, int[]> tally = new EnumMap<>(Competency.class); // [correct, total]

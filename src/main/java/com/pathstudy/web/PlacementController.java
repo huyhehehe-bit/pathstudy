@@ -48,7 +48,7 @@ public class PlacementController {
         model.addAttribute("attemptsUsed", used);
         model.addAttribute("attemptsMax", PlacementService.ATTEMPTS_MAX);
         model.addAttribute("canAttempt", used < PlacementService.ATTEMPTS_MAX);
-        model.addAttribute("questionCount", placement.questionsFor(subject, grade).size());
+        model.addAttribute("questionCount", placement.testQuestionCount(subject, grade));
         return "placement/intro";
     }
 
@@ -67,7 +67,7 @@ public class PlacementController {
         }
         model.addAttribute("subject", subject);
         model.addAttribute("grade", grade);
-        model.addAttribute("questions", placement.questionsFor(subject, grade));
+        model.addAttribute("questions", placement.randomTestFor(subject, grade));
         model.addAttribute("attemptNo", placement.attemptsUsed(user, subject, grade) + 1);
         return "placement/test";
     }
