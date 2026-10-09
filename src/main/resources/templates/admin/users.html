@@ -23,6 +23,11 @@
                         <div>
                             <strong th:text="${u.fullName}">Nguyễn An</strong>
                             <div class="faint" style="font-size:12px" th:text="${u.email}">email</div>
+                            <!-- Mục tiêu học sinh chọn ở landing/đăng ký -->
+                            <div class="faint" style="font-size:12px" th:if="${u.goal != null}">
+                                <span th:text="${u.grade}">Lớp 10</span> ·
+                                <span th:text="${goalLabels.get(u.goal)} ?: ${u.goal}">Ôn thi tốt nghiệp THPT</span>
+                            </div>
                         </div>
                     </div>
                     <div class="center" style="gap:10px;flex-wrap:wrap">

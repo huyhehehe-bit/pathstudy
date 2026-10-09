@@ -409,6 +409,46 @@ button { font-family: inherit; }
     width: 6px; height: 6px; border-radius: 2px; background: var(--ink-3);
 }
 
+/* ===== Chương bung ra trong lộ trình (module → phần học + đề) ===== */
+.mod-detail { margin-top: 12px; border-top: var(--bw) solid var(--border); padding-top: 10px; }
+.mod-detail > summary {
+    display: flex; align-items: center; gap: 8px; cursor: pointer; list-style: none;
+    font-family: var(--display); font-weight: 700; font-size: 14px; color: var(--primary-700);
+    padding: 6px 2px; border-radius: var(--r-sm);
+}
+.mod-detail > summary::-webkit-details-marker { display: none; }
+.mod-detail > summary:hover { background: var(--primary-tint); }
+.mod-detail > summary svg { width: 18px; height: 18px; flex: none; }
+.mod-detail .mod-count { margin-left: auto; font-size: 12px; font-weight: 600; color: var(--ink-3); }
+.mod-detail[open] > summary { margin-bottom: 8px; }
+.mod-detail-body { display: flex; flex-direction: column; gap: 12px; padding: 2px 2px 6px; }
+.mod-detail-h {
+    font-size: 11px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase;
+    color: var(--ink-3); margin-bottom: 6px;
+}
+.mod-list { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 4px; }
+.mod-list li { font-size: 13.5px; color: var(--ink-2); }
+.mod-exams { display: flex; flex-wrap: wrap; gap: 8px; }
+.mod-exams .chip:hover { border-color: var(--primary); color: var(--primary-700); }
+
+/* ===== Landing: thẻ chọn mục tiêu ===== */
+.goal-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; }
+.goal-card {
+    display: flex; flex-direction: column; gap: 9px; padding: 18px;
+    background: var(--surface); border: var(--bw) solid var(--border);
+    border-radius: var(--r); box-shadow: 0 4px 0 var(--lift);
+    transition: transform .08s ease, box-shadow .08s ease, border-color .12s ease;
+}
+.goal-card strong { font-family: var(--display); font-size: 17px; }
+.goal-card:hover { border-color: var(--primary); box-shadow: 0 4px 0 var(--primary-edge); }
+.goal-card:active { transform: translateY(4px); box-shadow: none; }
+.goal-go {
+    margin-top: auto; padding-top: 6px;
+    font-family: var(--display); font-weight: 700; font-size: 14px; color: var(--primary);
+    display: inline-flex; align-items: center; gap: 6px;
+}
+.goal-go svg { width: 16px; height: 16px; }
+
 /* ===== Tools grid (module support tools) ===== */
 .tool-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
 .tool {
@@ -627,6 +667,65 @@ hr.sep { border: none; border-top: var(--bw) solid var(--border); margin: 0; }
     .shell { grid-template-columns: 216px 1fr; }
     .content { padding: 24px 22px; }
     .topbar { padding: 13px 22px; }
+}
+
+/* =======================================================================
+   SIDEBAR THU GỌN (desktop có chuột): mặc định chỉ còn cột icon hẹp,
+   trỏ chuột vào thì trượt rộng ra đè lên nội dung (không đẩy layout).
+   Chỉ bật khi thiết bị THẬT SỰ có chuột — máy cảm ứng không hover được
+   thì giữ nguyên sidebar đầy đủ.
+   ======================================================================= */
+@media (hover: hover) and (pointer: fine) and (min-width: 901px) {
+    :root { --rail: 76px; --rail-open: 248px; }
+
+    .shell { grid-template-columns: var(--rail) 1fr; }
+
+    /* .sidebar là position:fixed nên KHÔNG còn chiếm ô lưới nào — phải đặt
+       .main vào cột 2 thủ công, nếu không nó rơi vào cột 1 (rộng 76px). */
+    .main { grid-column: 2; }
+
+    .sidebar {
+        position: fixed; left: 0; top: 0; bottom: 0;
+        width: var(--rail); height: auto; z-index: 30;
+        overflow: hidden; white-space: nowrap;
+        transition: width .18s ease, box-shadow .18s ease;
+    }
+    .sidebar:hover, .sidebar:focus-within {
+        width: var(--rail-open);
+        box-shadow: 10px 0 30px -22px rgba(29, 35, 64, .55);
+    }
+
+    /* Thu gọn: chỉ còn icon, căn giữa */
+    .sidebar .nav-item { justify-content: center; padding-left: 0; padding-right: 0; }
+    .sidebar .brand { justify-content: center; padding: 0; gap: 0; }
+    .sidebar .brand > span:not(.logo) { display: none; }
+    .sidebar .nav-item .lbl,
+    .sidebar .nav-item .lbl-sm { display: none; }
+
+    /* Badge co thành chấm nhỏ khi thu gọn */
+    .sidebar .nav-badge {
+        position: absolute; top: 4px; right: 14px; margin: 0;
+        min-width: 8px; height: 8px; padding: 0; font-size: 0; border-radius: 50%;
+    }
+
+    /* Mở ra: trả lại nhãn + căn trái */
+    .sidebar:hover .nav-item,
+    .sidebar:focus-within .nav-item { justify-content: flex-start; padding-left: 12px; padding-right: 12px; }
+    .sidebar:hover .brand,
+    .sidebar:focus-within .brand { justify-content: flex-start; padding: 0 8px; gap: 10px; }
+    .sidebar:hover .brand > span:not(.logo),
+    .sidebar:focus-within .brand > span:not(.logo) { display: inline; }
+    .sidebar:hover .nav-item .lbl,
+    .sidebar:focus-within .nav-item .lbl { display: inline; }
+    .sidebar:hover .nav-badge,
+    .sidebar:focus-within .nav-badge {
+        position: static; margin-left: auto;
+        min-width: 0; height: auto; padding: 4px 6px; font-size: 9px; border-radius: 6px;
+    }
+
+    /* .lbl-sm chỉ dành cho bottom-bar mobile, desktop luôn dùng .lbl */
+    .sidebar:hover .nav-item .lbl-sm,
+    .sidebar:focus-within .nav-item .lbl-sm { display: none; }
 }
 
 /* --- Tablet/phone: sidebar -> bottom bar --- */

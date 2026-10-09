@@ -19,13 +19,18 @@ public class StudyPathService {
     private final CourseModuleRepository modules;
     private final ModuleProgressRepository progress;
     private final LessonRepository lessons;
+    private final LessonSectionRepository sections;
+    private final ExamRepository exams;
 
     public StudyPathService(EnrollmentRepository enrollments, CourseModuleRepository modules,
-                            ModuleProgressRepository progress, LessonRepository lessons) {
+                            ModuleProgressRepository progress, LessonRepository lessons,
+                            LessonSectionRepository sections, ExamRepository exams) {
         this.enrollments = enrollments;
         this.modules = modules;
         this.progress = progress;
         this.lessons = lessons;
+        this.sections = sections;
+        this.exams = exams;
     }
 
     @Transactional
@@ -60,6 +65,12 @@ public class StudyPathService {
     @Transactional(readOnly = true)
     public PathSummary getPathSummary(User user, Subject subject) {
         List<CourseModule> mods = modules.findBySubjectOrderByOrderIndexAsc(subject);
+
+        // Đề của cả môn, nạp 1 lần rồi lọc theo khối của từng chương (tránh N+1).
+        // Bỏ đề THPT (category != null) vì đó là mục riêng, không gắn chương.
+        List<Exam> subjectExams = exams.findBySubjectOrderByOrderIndexAsc(subject).stream()
+                .filter(x -> x.getCategory() == null)
+                .toList();
         Map<Long, ModuleProgress> byModule = new HashMap<>();
         for (ModuleProgress mp : progress.findByUser(user)) {
             byModule.put(mp.getModule().getId(), mp);
@@ -77,8 +88,17 @@ public class StudyPathService {
             int pct = mp != null ? mp.getPercent() : 0;
             boolean locked = status == ProgressStatus.LOCKED;
             boolean isCurrent = status == ProgressStatus.IN_PROGRESS;
-            String lessonTitle = lessons.findFirstByModuleOrderByOrderIndexAsc(m)
-                    .map(Lesson::getTitle).orElse(null);
+            Lesson first = lessons.findFirstByModuleOrderByOrderIndexAsc(m).orElse(null);
+            String lessonTitle = first != null ? first.getTitle() : null;
+
+            List<String> sectionTitles = first == null ? List.of()
+                    : sections.findByLessonOrderByOrderIndexAsc(first).stream()
+                            .map(LessonSection::getTitle)
+                            .filter(t -> t != null && !t.isBlank())
+                            .toList();
+            List<Exam> moduleExams = subjectExams.stream()
+                    .filter(x -> x.getGrade() == null || x.getGrade().equals(m.getGrade()))
+                    .toList();
 
             if (isCurrent && current == null) {
                 current = m;
@@ -90,7 +110,8 @@ public class StudyPathService {
             } else {
                 sumPercent += pct;
             }
-            cards.add(new ModuleCard(m, status, pct, isCurrent, locked, lessonTitle));
+            cards.add(new ModuleCard(m, status, pct, isCurrent, locked, lessonTitle,
+                    sectionTitles, moduleExams));
         }
 
         int overall = mods.isEmpty() ? 0 : Math.round(sumPercent / (float) mods.size());

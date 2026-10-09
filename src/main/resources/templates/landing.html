@@ -63,6 +63,25 @@
     </section>
 </div>
 
+<!-- Hỏi mục tiêu ngay ở trang chủ: học sinh tự nói mình đang cần gì,
+     mục tiêu được mang sang form đăng ký và lưu vào tài khoản. -->
+<div class="hero-wrap" id="goal">
+    <div class="section-head" style="margin-bottom:16px">
+        <span class="eyebrow">Bắt đầu từ bạn</span>
+        <h2>Bạn đang cần gì?</h2>
+        <p class="muted">Chọn một mục tiêu để PathStudy biết nên dẫn bạn đi đường nào.</p>
+    </div>
+    <div class="goal-grid">
+        <a th:each="g : ${goals}" class="goal-card"
+           th:href="@{/register(goal=${g.key})}">
+            <span class="tile tile-violet" th:insert="~{fragments/icons :: ic('target')}"></span>
+            <strong th:text="${g.value}">Mình đang mất gốc</strong>
+            <span class="muted" style="font-size:13.5px" th:text="${blurbs.get(g.key)}">Mô tả ngắn</span>
+            <span class="goal-go">Bắt đầu <span th:insert="~{fragments/icons :: ic('arrow')}"></span></span>
+        </a>
+    </div>
+</div>
+
 <div class="hero-wrap" id="how">
     <div class="grid-3">
         <div class="card card-pad">

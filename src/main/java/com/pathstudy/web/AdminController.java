@@ -110,6 +110,7 @@ public class AdminController {
         model.addAttribute("users", all);
         model.addAttribute("roles", ROLES);
         model.addAttribute("premiumUntil", premiumUntil);
+        model.addAttribute("goalLabels", StudyGoal.ALL);
         return "admin/users";
     }
 

@@ -65,6 +65,35 @@
                             <ul class="sublist" th:if="${card.module.subtitle}">
                                 <li th:each="t : ${#strings.arraySplit(card.module.subtitle, '·')}" th:text="${#strings.trim(t)}">Thơ</li>
                             </ul>
+
+                            <!-- Bấm để bung: chương này gồm những phần nào + đề luyện cùng khối -->
+                            <details class="mod-detail" th:if="${card.hasDetail}">
+                                <summary>
+                                    <span th:insert="~{fragments/icons :: ic('layers')}"></span>
+                                    <span>Xem nội dung chương</span>
+                                    <span class="mod-count"
+                                          th:text="${#lists.size(card.sectionTitles)} + ' phần · ' + ${#lists.size(card.exams)} + ' đề'">3 phần · 2 đề</span>
+                                </summary>
+                                <div class="mod-detail-body">
+                                    <div th:if="${!#lists.isEmpty(card.sectionTitles)}">
+                                        <div class="mod-detail-h">Trong chương</div>
+                                        <ol class="mod-list">
+                                            <li th:each="s : ${card.sectionTitles}" th:text="${s}">Lý thuyết trọng tâm</li>
+                                        </ol>
+                                    </div>
+                                    <div th:if="${!#lists.isEmpty(card.exams)}">
+                                        <div class="mod-detail-h">
+                                            Đề luyện<span th:if="${card.module.grade}" th:text="' · ' + ${card.module.grade}"></span>
+                                        </div>
+                                        <div class="mod-exams">
+                                            <a th:each="ex : ${card.exams}" class="chip" th:href="@{'/exam/' + ${ex.id}}">
+                                                <span th:insert="~{fragments/icons :: ic('clipboard-check')}"></span>
+                                                <span th:text="${ex.title}">Đề kiểm tra</span>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </details>
                             <div style="margin-top:12px" th:if="${card.module.hasContent and card.status.name() != 'LOCKED' and (!card.module.premiumContent or isPremium)}">
                                 <a th:href="@{'/module/' + ${card.module.id}}"
                                    th:class="${card.current} ? 'btn btn-primary' : 'btn btn-soft'">

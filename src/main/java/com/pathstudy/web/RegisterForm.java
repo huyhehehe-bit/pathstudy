@@ -30,4 +30,7 @@ public class RegisterForm {
 
     /** Mã xác thực giáo viên (chỉ dùng khi role=TEACHER). */
     private String teacherCode;
+
+    /** Mục tiêu học (mã trong StudyGoal) — chọn ở landing hoặc ngay trong form. */
+    private String goal;
 }

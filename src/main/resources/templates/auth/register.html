@@ -58,6 +58,14 @@
                     <span class="err" th:if="${#fields.hasErrors('grade')}" th:errors="*{grade}"></span>
                 </div>
 
+                <div id="studentGoal" class="field">
+                    <label for="goal">Mục tiêu của bạn</label>
+                    <select id="goal" th:field="*{goal}">
+                        <option value="">— Chưa rõ, mình muốn xem thử —</option>
+                        <option th:each="g : ${goals}" th:value="${g.key}" th:text="${g.value}">Mục tiêu</option>
+                    </select>
+                </div>
+
                 <div id="teacherFields" class="field" th:if="${teacherSignupEnabled}" style="display:none">
                     <label for="teacherCode">Mã giáo viên</label>
                     <input id="teacherCode" th:field="*{teacherCode}" type="text" placeholder="Nhập mã do quản trị cấp"/>
@@ -77,11 +85,13 @@
 (function () {
     var studentF = document.getElementById('studentFields');
     var teacherF = document.getElementById('teacherFields');
+    var goalF = document.getElementById('studentGoal');
     function sync() {
         var r = document.querySelector('input[name="role"]:checked');
         var isTeacher = r && r.value === 'TEACHER';
         if (teacherF) teacherF.style.display = isTeacher ? '' : 'none';
         if (studentF) studentF.style.display = isTeacher ? 'none' : '';
+        if (goalF) goalF.style.display = isTeacher ? 'none' : '';
     }
     document.querySelectorAll('input[name="role"]').forEach(function (el) {
         el.addEventListener('change', sync);

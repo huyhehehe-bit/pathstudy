@@ -20,6 +20,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class AuthController {
@@ -61,16 +62,20 @@ public class AuthController {
     }
 
     @GetMapping("/register")
-    public String registerForm(Model model) {
+    public String registerForm(@RequestParam(required = false) String goal, Model model) {
         if (!model.containsAttribute("form")) {
-            model.addAttribute("form", new RegisterForm());
+            RegisterForm f = new RegisterForm();
+            f.setGoal(StudyGoal.normalize(goal)); // mục tiêu chọn từ landing
+            model.addAttribute("form", f);
         }
+        model.addAttribute("goals", StudyGoal.ALL);
         return "auth/register";
     }
 
     @PostMapping("/register")
     public String register(@Valid @ModelAttribute("form") RegisterForm form,
                            BindingResult binding,
+                           Model model,
                            HttpServletRequest request,
                            HttpServletResponse response) {
         boolean asTeacher = "TEACHER".equals(form.getRole());
@@ -87,6 +92,7 @@ public class AuthController {
             binding.rejectValue("grade", "required", "Vui lòng chọn khối lớp.");
         }
         if (binding.hasErrors()) {
+            model.addAttribute("goals", StudyGoal.ALL);
             return "auth/register";
         }
 
@@ -99,6 +105,7 @@ public class AuthController {
             u.setGrade(null);
         } else {
             u.setGrade(form.getGrade());
+            u.setGoal(StudyGoal.normalize(form.getGoal()));
         }
         users.save(u);
 

@@ -34,6 +34,11 @@ public class User {
     @Column(length = 20)
     private String grade;
 
+    /** Mục tiêu học sinh chọn ở landing/đăng ký (mã trong StudyGoal). Nullable:
+        tài khoản cũ và GV/Admin không có. */
+    @Column(length = 40)
+    private String goal;
+
     @Column(nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 }

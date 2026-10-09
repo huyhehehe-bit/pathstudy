@@ -33,6 +33,8 @@ public class HomeController {
         }
         List<Subject> list = subjects.findAllByOrderByOrderIndexAsc();
         model.addAttribute("subjects", list);
+        model.addAttribute("goals", StudyGoal.ALL);
+        model.addAttribute("blurbs", StudyGoal.BLURB);
         return "landing";
     }
 
