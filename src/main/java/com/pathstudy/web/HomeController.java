@@ -35,6 +35,7 @@ public class HomeController {
         model.addAttribute("subjects", list);
         model.addAttribute("goals", StudyGoal.ALL);
         model.addAttribute("blurbs", StudyGoal.BLURB);
+        model.addAttribute("goalIcons", StudyGoal.ICON);
         return "landing";
     }
 

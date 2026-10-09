@@ -21,18 +21,25 @@ public final class StudyGoal {
     /** mã -> mô tả ngắn hiện trên thẻ ở landing. */
     public static final Map<String, String> BLURB = new LinkedHashMap<>();
 
+    /** mã -> tên sprite pixel trong fragments/icons.html. */
+    public static final Map<String, String> ICON = new LinkedHashMap<>();
+
     static {
         ALL.put("mat-goc", "Mình đang mất gốc");
         BLURB.put("mat-goc", "Xây lại nền từ kiến thức cơ bản nhất, đi chậm mà chắc.");
+        ICON.put("mat-goc", "px-book");
 
         ALL.put("len-diem", "Muốn cải thiện điểm trên lớp");
         BLURB.put("len-diem", "Vá đúng chỗ hổng để lên điểm kiểm tra và thi học kì.");
+        ICON.put("len-diem", "px-star");
 
         ALL.put("thi-thpt", "Ôn thi tốt nghiệp THPT");
         BLURB.put("thi-thpt", "Luyện theo cấu trúc đề thi tốt nghiệp, bám sát trọng tâm.");
+        ICON.put("thi-thpt", "px-trophy");
 
         ALL.put("kiem-tra", "Chỉ muốn kiểm tra trình độ");
         BLURB.put("kiem-tra", "Làm bài test đầu vào miễn phí để biết mình đang ở đâu.");
+        ICON.put("kiem-tra", "px-flag");
     }
 
     /** Hợp lệ hoá mã nhận từ URL/form; không hợp lệ thì trả null. */

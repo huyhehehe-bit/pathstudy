@@ -10,7 +10,10 @@
 
             <div class="between" style="flex-wrap:wrap">
                 <div class="stack-sm">
-                    <h2 style="font-size:24px">Lộ trình <span th:text="${summary.subject.name}">Ngữ văn</span> của bạn</h2>
+                    <h2 style="font-size:24px;display:flex;align-items:center;gap:10px">
+                        <span class="px-md" th:insert="~{fragments/icons :: ic('mascot')}" aria-hidden="true"></span>
+                        <span>Lộ trình <span th:text="${summary.subject.name}">Ngữ văn</span> của bạn</span>
+                    </h2>
                     <p class="muted" th:if="${summary.hasPlacement}">
                         Trình độ hiện tại: <strong th:text="${summary.level}">Khá</strong> ·
                         Mục tiêu: nâng cao kỹ năng phân tích và nghị luận văn học.</p>
@@ -25,7 +28,7 @@
             </div>
 
             <div th:unless="${summary.hasPlacement}" class="banner banner-info">
-                <span th:insert="~{fragments/icons :: ic('clipboard-check')}"></span>
+                <span class="px-md" th:insert="~{fragments/icons :: ic('px-chest')}" aria-hidden="true"></span>
                 Hãy làm bài kiểm tra đầu vào để định vị trình độ.
                 <a th:href="@{'/placement/' + ${summary.subject.code}}" style="margin-left:auto;font-weight:700">Làm bài →</a>
             </div>

@@ -31,6 +31,15 @@
                 <a th:href="@{/login}" class="btn btn-ghost btn-lg">Tôi đã có tài khoản</a>
             </div>
             <p class="hero-note">Miễn phí bài kiểm tra đầu vào · Tập trung 1 môn để học hiệu quả</p>
+
+            <!-- Dải nhân vật pixel cho đỡ trống, thuần trang trí -->
+            <div class="px-scene" aria-hidden="true">
+                <span class="px-lg px-float" th:insert="~{fragments/icons :: ic('px-cloud')}"></span>
+                <span class="px-lg" th:insert="~{fragments/icons :: ic('mascot')}"></span>
+                <span class="px-lg" th:insert="~{fragments/icons :: ic('mascot2')}"></span>
+                <span class="px-md px-float" th:insert="~{fragments/icons :: ic('px-star')}"></span>
+                <span class="px-lg" th:insert="~{fragments/icons :: ic('px-flag')}"></span>
+            </div>
         </div>
 
         <div class="preview-card">
@@ -74,7 +83,7 @@
     <div class="goal-grid">
         <a th:each="g : ${goals}" class="goal-card"
            th:href="@{/register(goal=${g.key})}">
-            <span class="tile tile-violet" th:insert="~{fragments/icons :: ic('target')}"></span>
+            <span class="px-badge" th:insert="~{fragments/icons :: ic(${goalIcons.get(g.key)})}"></span>
             <strong th:text="${g.value}">Mình đang mất gốc</strong>
             <span class="muted" style="font-size:13.5px" th:text="${blurbs.get(g.key)}">Mô tả ngắn</span>
             <span class="goal-go">Bắt đầu <span th:insert="~{fragments/icons :: ic('arrow')}"></span></span>

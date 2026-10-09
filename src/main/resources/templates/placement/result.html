@@ -20,6 +20,9 @@
                             <div class="ring-cap">Tổng điểm</div>
                         </div>
                     </div>
+                    <!-- Sprite đổi theo điểm: cúp khi giỏi, sao khi khá, rương khi cần cố thêm -->
+                    <span class="px-xl" aria-hidden="true"
+                          th:insert="~{fragments/icons :: ic(${outcome.score >= 80} ? 'px-trophy' : (${outcome.score >= 50} ? 'px-star' : 'px-chest'))}"></span>
                     <div class="grow stack-sm">
                         <div class="k muted" style="font-weight:600">Mức hiện tại</div>
                         <div style="font-size:30px;font-weight:800;color:var(--primary)" th:text="${outcome.level}">Khá</div>

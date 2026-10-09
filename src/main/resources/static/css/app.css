@@ -430,6 +430,32 @@ button { font-family: inherit; }
     width: 6px; height: 6px; border-radius: 0; background: var(--ink-3);
 }
 
+/* ===== Sprite pixel trang trí =====
+   .px-* chỉ quy định KÍCH THƯỚC; màu nằm trong chính sprite. */
+.px-sm, .px-md, .px-lg, .px-xl, .px-badge { display: inline-flex; flex: none; line-height: 0; }
+.px-sm svg { width: 22px; height: 22px; image-rendering: pixelated; }
+.px-md svg { width: 32px; height: 32px; image-rendering: pixelated; }
+.px-lg svg { width: 56px; height: 56px; image-rendering: pixelated; }
+.px-xl svg { width: 72px; height: 72px; image-rendering: pixelated; }
+
+/* Khung vuông cho sprite đứng đầu thẻ mục tiêu */
+.px-badge {
+    width: 46px; height: 46px; padding: 5px;
+    background: var(--surface-2); border: var(--bw) solid var(--outline);
+    box-shadow: 2px 2px 0 var(--outline);
+}
+.px-badge svg { width: 100%; height: 100%; image-rendering: pixelated; }
+
+/* Dải nhân vật ở landing: nhân vật đứng trên một "mặt đất" chung, còn mây và
+   sao thì bay lên trên cho có lớp. */
+.px-scene { display: flex; align-items: flex-end; gap: 12px; margin-top: 22px; min-height: 74px; }
+.px-scene .px-float { align-self: flex-start; }
+.px-float { animation: pxFloat 3.2s ease-in-out infinite; }
+@keyframes pxFloat {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-5px); }
+}
+
 /* ===== Mục lục lộ trình (gọn như mục lục SGK, 2 cột) =====
    Thay cho dãy thẻ to: 24 chương giờ nằm vừa 1-2 màn hình, học sinh quét mắt
    là thấy bài cần học. */
