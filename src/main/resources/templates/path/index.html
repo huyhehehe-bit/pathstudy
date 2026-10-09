@@ -30,90 +30,65 @@
                 <a th:href="@{'/placement/' + ${summary.subject.code}}" style="margin-left:auto;font-weight:700">Làm bài →</a>
             </div>
 
-            <div class="path" style="margin-top:6px">
+            <!-- Mục lục gọn kiểu sách giáo khoa: chương + các bài bên dưới, 2 cột.
+                 Học sinh quét mắt tìm bài, không phải cuộn qua 24 thẻ to. -->
+            <div class="toc" style="margin-top:6px">
               <th:block th:each="card, stat : ${summary.modules}">
-                <div class="grade-header"
+                <div class="toc-grade"
                      th:if="${card.module.grade != null and (stat.first or card.module.grade != summary.modules[stat.index - 1].module.grade)}"
                      th:text="${card.module.grade}">Lớp 10</div>
-                <div class="pnode"
-                     th:classappend="${card.status.name() == 'COMPLETED'} ? 'done' : (${card.current} ? 'doing' : '')">
-                    <div class="rail">
-                        <div class="marker">
-                            <span th:if="${card.status.name() == 'COMPLETED'}" th:insert="~{fragments/icons :: ic('check')}"></span>
-                            <span th:unless="${card.status.name() == 'COMPLETED'}" th:text="${card.stepLabel}">01</span>
-                        </div>
-                        <div class="line"></div>
-                    </div>
-                    <div class="body">
-                        <div class="module-card" th:classappend="${card.locked and !card.module.hasContent} ? 'locked' : ''">
-                            <div class="between">
-                                <div class="center" style="gap:12px">
-                                    <span class="tile" style="width:38px;height:38px;border-radius:11px"
-                                          th:insert="~{fragments/icons :: ic(${card.module.iconKey})}"></span>
-                                    <div>
-                                        <strong th:text="${card.module.title}">Phân tích tác phẩm</strong>
-                                        <div class="faint" style="font-size:12px" th:if="${card.lessonTitle != null and card.lessonTitle != card.module.title}" th:text="${card.lessonTitle}">Sóng – Xuân Quỳnh</div>
-                                    </div>
-                                </div>
-                                <div class="center" style="gap:8px">
-                                    <span th:if="${card.module.premiumContent}" class="pill pill-warn">Premium</span>
-                                    <span th:if="${card.status.name() == 'COMPLETED'}" class="pill pill-done">Hoàn thành</span>
-                                    <span th:if="${card.status.name() == 'IN_PROGRESS'}" class="pill pill-doing" th:text="${card.percent} + '%'">55%</span>
-                                    <span th:if="${card.status.name() == 'LOCKED'}" class="pill pill-todo">Chưa bắt đầu</span>
-                                </div>
-                            </div>
-                            <ul class="sublist" th:if="${card.module.subtitle}">
-                                <li th:each="t : ${#strings.arraySplit(card.module.subtitle, '·')}" th:text="${#strings.trim(t)}">Thơ</li>
-                            </ul>
 
-                            <!-- Bấm để bung: chương này gồm những phần nào + đề luyện cùng khối -->
-                            <details class="mod-detail" th:if="${card.hasDetail}">
-                                <summary>
-                                    <span th:insert="~{fragments/icons :: ic('layers')}"></span>
-                                    <span>Xem nội dung chương</span>
-                                    <span class="mod-count"
-                                          th:text="${#lists.size(card.sectionTitles)} + ' phần · ' + ${#lists.size(card.exams)} + ' đề'">3 phần · 2 đề</span>
-                                </summary>
-                                <div class="mod-detail-body">
-                                    <div th:if="${!#lists.isEmpty(card.sectionTitles)}">
-                                        <div class="mod-detail-h">Trong chương</div>
-                                        <ol class="mod-list">
-                                            <li th:each="s : ${card.sectionTitles}" th:text="${s}">Lý thuyết trọng tâm</li>
-                                        </ol>
-                                    </div>
-                                    <div th:if="${!#lists.isEmpty(card.exams)}">
-                                        <div class="mod-detail-h">
-                                            Đề luyện<span th:if="${card.module.grade}" th:text="' · ' + ${card.module.grade}"></span>
-                                        </div>
-                                        <div class="mod-exams">
-                                            <a th:each="ex : ${card.exams}" class="chip" th:href="@{'/exam/' + ${ex.id}}">
-                                                <span th:insert="~{fragments/icons :: ic('clipboard-check')}"></span>
-                                                <span th:text="${ex.title}">Đề kiểm tra</span>
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </details>
-                            <div style="margin-top:12px" th:if="${card.module.hasContent and card.status.name() != 'LOCKED' and (!card.module.premiumContent or isPremium)}">
-                                <a th:href="@{'/module/' + ${card.module.id}}"
-                                   th:class="${card.current} ? 'btn btn-primary' : 'btn btn-soft'">
-                                    <span th:text="${card.status.name() == 'COMPLETED'} ? 'Xem lại' : 'Vào học'">Vào học</span>
-                                    <span th:insert="~{fragments/icons :: ic('arrow')}"></span>
-                                </a>
-                            </div>
-                            <div style="margin-top:12px" th:if="${card.status.name() != 'LOCKED' and card.module.premiumContent and !isPremium}">
-                                <a th:href="@{/upgrade}" class="btn btn-primary">
-                                    <span th:insert="~{fragments/icons :: ic('shield')}"></span> Nâng cấp để mở
-                                </a>
-                            </div>
-                            <div style="margin-top:10px" th:if="${card.status.name() == 'LOCKED'}">
-                                <span class="chip"><span th:insert="~{fragments/icons :: ic('lock')}"></span>Hoàn thành phần trước để mở khoá</span>
-                            </div>
-                            <div style="margin-top:10px" th:if="${!card.module.hasContent and card.status.name() != 'LOCKED'}">
-                                <span class="chip"><span th:insert="~{fragments/icons :: ic('lock')}"></span>Nội dung đang cập nhật</span>
-                            </div>
-                        </div>
-                    </div>
+                <!-- Đề chỉ gắn với MÔN + KHỐI (Exam không có FK tới chương), nên liệt kê
+                     một lần cho cả khối, không lặp lại ở từng chương. -->
+                <div class="toc-exams"
+                     th:if="${!#lists.isEmpty(card.exams) and card.module.grade != null and (stat.first or card.module.grade != summary.modules[stat.index - 1].module.grade)}">
+                    <span class="toc-exams-lab">Đề luyện</span>
+                    <a th:each="ex : ${card.exams}" th:href="@{'/exam/' + ${ex.id}}" th:text="${ex.title}">Đề kiểm tra</a>
+                </div>
+
+                <div class="toc-ch"
+                     th:classappend="${card.status.name() == 'COMPLETED'} ? 'done' : (${card.current} ? 'doing' : (${card.status.name() == 'LOCKED'} ? 'locked' : ''))">
+
+                    <!-- Dòng tiêu đề chương: bấm được khi đã mở khoá -->
+                    <a class="toc-head"
+                       th:if="${card.module.hasContent and card.status.name() != 'LOCKED' and (!card.module.premiumContent or isPremium)}"
+                       th:href="@{'/module/' + ${card.module.id}}">
+                        <span class="toc-no" th:text="${card.stepLabel}">01</span>
+                        <span class="toc-name" th:text="${card.module.title}">Mệnh đề và tập hợp</span>
+                        <span class="toc-flag" th:if="${card.status.name() == 'COMPLETED'}" th:insert="~{fragments/icons :: ic('check')}"></span>
+                        <span class="toc-flag pct" th:if="${card.status.name() == 'IN_PROGRESS'}" th:text="${card.percent} + '%'">55%</span>
+                    </a>
+
+                    <!-- Chương Premium: vẫn bấm được, nhưng dẫn sang trang nâng cấp
+                         để icon khiên không phải ngõ cụt. -->
+                    <a class="toc-head is-off" th:href="@{/upgrade}"
+                       th:if="${card.module.hasContent and card.status.name() != 'LOCKED' and card.module.premiumContent and !isPremium}">
+                        <span class="toc-no" th:text="${card.stepLabel}">01</span>
+                        <span class="toc-name" th:text="${card.module.title}">Mệnh đề và tập hợp</span>
+                        <span class="toc-flag" th:insert="~{fragments/icons :: ic('shield')}"></span>
+                    </a>
+
+                    <!-- Còn lại: chưa có nội dung, hoặc chưa mở khoá → không bấm được. -->
+                    <span class="toc-head is-off"
+                          th:if="${!card.module.hasContent or card.status.name() == 'LOCKED'}">
+                        <span class="toc-no" th:text="${card.stepLabel}">01</span>
+                        <span class="toc-name" th:text="${card.module.title}">Mệnh đề và tập hợp</span>
+                        <span class="toc-flag" th:insert="~{fragments/icons :: ic('lock')}"></span>
+                    </span>
+
+                    <!-- Các bài/phần trong chương + đề luyện -->
+                    <ul class="toc-sub">
+                        <li th:each="s : ${card.sectionTitles}">
+                            <a th:if="${card.module.hasContent and card.status.name() != 'LOCKED' and (!card.module.premiumContent or isPremium)}"
+                               th:href="@{'/module/' + ${card.module.id}}" th:text="${s}">Lý thuyết trọng tâm</a>
+                            <span th:unless="${card.module.hasContent and card.status.name() != 'LOCKED' and (!card.module.premiumContent or isPremium)}"
+                                  th:text="${s}">Lý thuyết trọng tâm</span>
+                        </li>
+                        <!-- Khoá/Premium đã có icon ở dòng tiêu đề rồi, không lặp lại
+                             chữ ở từng chương cho đỡ rối. Chỉ giữ ghi chú khi chương
+                             thật sự chưa có nội dung. -->
+                        <li class="is-note" th:if="${!card.module.hasContent}">Nội dung đang cập nhật</li>
+                    </ul>
                 </div>
               </th:block>
             </div>
