@@ -42,19 +42,27 @@
     <svg th:case="'dots'" class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="5" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.6" fill="currentColor" stroke="none"/></svg>
     <!-- Mascot pixel-art (dùng rect, không stroke) — giao diện "Blocky Cute" -->
     <svg th:case="'mascot'" class="mascot" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
-        <rect x="3" y="2" width="10" height="9" fill="#f6c89a"/>
-        <rect x="3" y="2" width="10" height="3" fill="#5a3a22"/>
-        <rect x="2" y="4" width="1" height="4" fill="#5a3a22"/>
-        <rect x="13" y="4" width="1" height="4" fill="#5a3a22"/>
-        <rect x="5" y="6" width="2" height="2" fill="#1b2430"/>
-        <rect x="9" y="6" width="2" height="2" fill="#1b2430"/>
-        <rect x="6" y="6" width="1" height="1" fill="#ffffff"/>
-        <rect x="10" y="6" width="1" height="1" fill="#ffffff"/>
-        <rect x="4" y="9" width="2" height="1" fill="#f2869b"/>
-        <rect x="10" y="9" width="2" height="1" fill="#f2869b"/>
-        <rect x="7" y="9" width="2" height="1" fill="#b85c5c"/>
-        <rect x="4" y="11" width="8" height="5" fill="#3fc06a"/>
-        <rect x="7" y="12" width="2" height="2" fill="#ffd84d"/>
+        <!-- tóc xanh lá -->
+        <rect x="4" y="1" width="8" height="3" fill="#3fb13a"/>
+        <rect x="3" y="2" width="1" height="3" fill="#3fb13a"/>
+        <rect x="12" y="2" width="1" height="3" fill="#3fb13a"/>
+        <!-- mặt -->
+        <rect x="4" y="4" width="8" height="5" fill="#f0b48a"/>
+        <rect x="5" y="5" width="2" height="2" fill="#2e1b5b"/>
+        <rect x="9" y="5" width="2" height="2" fill="#2e1b5b"/>
+        <rect x="6" y="5" width="1" height="1" fill="#ffffff"/>
+        <rect x="10" y="5" width="1" height="1" fill="#ffffff"/>
+        <rect x="6" y="8" width="4" height="1" fill="#b4654a"/>
+        <!-- tay áo cam -->
+        <rect x="2" y="9" width="2" height="5" fill="#e4622a"/>
+        <rect x="12" y="9" width="2" height="5" fill="#e4622a"/>
+        <!-- yếm tím -->
+        <rect x="4" y="9" width="8" height="5" fill="#6b4fd0"/>
+        <rect x="5" y="11" width="2" height="2" fill="#4a34a0"/>
+        <rect x="9" y="11" width="2" height="2" fill="#4a34a0"/>
+        <!-- giày xanh -->
+        <rect x="4" y="14" width="3" height="2" fill="#3fb13a"/>
+        <rect x="9" y="14" width="3" height="2" fill="#3fb13a"/>
     </svg>
     <svg th:case="*" class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8"/></svg>
 </th:block>
