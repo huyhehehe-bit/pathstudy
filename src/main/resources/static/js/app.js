@@ -44,9 +44,47 @@
             if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
+        // Bottom-nav mobile: nút "Thêm" mở tấm chứa các mục phụ + đăng xuất.
+        setupMobileNav();
+
         // Câu nhận xét/động viên sau khi xem kết quả (theo % điểm, phong cách Gen Z).
         renderEncourage();
     });
+
+    function setupMobileNav() {
+        var btn = document.querySelector('.nav-more');
+        var sidebar = document.querySelector('.sidebar');
+        if (!btn || !sidebar) return;
+
+        var lbl = btn.querySelector('.lbl');
+        var close = function () {
+            document.body.classList.remove('nav-open');
+            btn.setAttribute('aria-expanded', 'false');
+            if (lbl) lbl.textContent = 'Thêm';
+        };
+
+        btn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            var open = !document.body.classList.contains('nav-open');
+            document.body.classList.toggle('nav-open', open);
+            btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+            if (lbl) lbl.textContent = open ? 'Đóng' : 'Thêm';
+        });
+
+        // Bấm vào vùng tối bên ngoài (chính là ::before của .sidebar) thì đóng.
+        sidebar.addEventListener('click', function (e) {
+            if (e.target === sidebar) close();
+        });
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') close();
+        });
+
+        // Quay về desktop thì bỏ trạng thái mở để sidebar hiện bình thường.
+        window.addEventListener('resize', function () {
+            if (window.innerWidth > 900) close();
+        });
+    }
 
     function renderEncourage() {
         var box = document.querySelector('.encourage[data-score]');

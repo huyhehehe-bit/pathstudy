@@ -6,8 +6,9 @@
     <title th:text="${title} + ' · PathStudy'">PathStudy</title>
     <link rel="preconnect" href="https://fonts.googleapis.com"/>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <meta name="theme-color" content="#2f4bde"/>
     <link rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Lora:ital,wght@0,400;0,500;1,400;1,500&display=swap"/>
+          href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Baloo+2:wght@500;600;700;800&family=Lora:ital,wght@0,400;0,500;1,400;1,500&family=Press+Start+2P&display=swap"/>
     <link rel="stylesheet" th:href="@{/css/app.css}"/>
     <!-- Google Analytics 4 (chỉ nhúng khi có app.analytics.ga-id).
          Dùng chuỗi thường (không @{...}) để tránh response bị commit sớm làm
@@ -29,20 +30,22 @@
 <!-- ===== Sidebar ===== -->
 <aside th:fragment="sidebar(active)" class="sidebar">
     <a class="brand" th:href="@{/subjects}">
-        <span class="logo" th:insert="~{fragments/icons :: ic('route')}"></span>
+        <span class="logo" th:insert="~{fragments/icons :: ic('mascot')}"></span>
         <span>PathStudy</span>
     </a>
+    <!-- class "np" = nav primary: những mục này hiện trên bottom-bar ở mobile.
+         Các mục còn lại nằm trong tấm "Thêm" (xem .nav-more trong app.css). -->
     <nav class="nav">
-        <a th:href="@{/path}" class="nav-item" th:classappend="${active=='path'} ? 'active'">
+        <a th:href="@{/path}" class="nav-item np" th:classappend="${active=='path'} ? 'active'">
             <span th:insert="~{fragments/icons :: ic('home')}"></span><span class="lbl">Trang chủ</span>
         </a>
-        <a th:href="@{/progress}" class="nav-item" th:classappend="${active=='progress'} ? 'active'">
+        <a th:href="@{/progress}" class="nav-item np" th:classappend="${active=='progress'} ? 'active'">
             <span th:insert="~{fragments/icons :: ic('chart')}"></span><span class="lbl">Tiến độ</span>
         </a>
-        <a th:if="${currentUser != null and !isTeacher}" th:href="@{/exams}" class="nav-item" th:classappend="${active=='exams'} ? 'active'">
+        <a th:if="${currentUser != null and !isTeacher}" th:href="@{/exams}" class="nav-item np" th:classappend="${active=='exams'} ? 'active'">
             <span th:insert="~{fragments/icons :: ic('clipboard-check')}"></span><span class="lbl">Đề thi</span>
         </a>
-        <a th:href="@{/library}" class="nav-item" th:classappend="${active=='library'} ? 'active'">
+        <a th:href="@{/library}" class="nav-item np" th:classappend="${active=='library'} ? 'active'">
             <span th:insert="~{fragments/icons :: ic('library')}"></span><span class="lbl">Thư viện</span>
             <span class="nav-badge" th:if="${bookmarkCount > 0}" th:text="${bookmarkCount}">0</span>
         </a>
@@ -55,8 +58,8 @@
         <a th:href="@{/feedback}" class="nav-item" th:classappend="${active=='feedback'} ? 'active'">
             <span th:insert="~{fragments/icons :: ic('chat')}"></span><span class="lbl">Góp ý</span>
         </a>
-        <a th:if="${isTeacher}" th:href="@{/teacher}" class="nav-item" th:classappend="${active=='teacher'} ? 'active'">
-            <span th:insert="~{fragments/icons :: ic('file')}"></span><span class="lbl">Quản lý nội dung</span>
+        <a th:if="${isTeacher}" th:href="@{/teacher}" class="nav-item np" th:classappend="${active=='teacher'} ? 'active'">
+            <span th:insert="~{fragments/icons :: ic('file')}"></span><span class="lbl lbl-long">Quản lý nội dung</span><span class="lbl-sm">Nội dung</span>
         </a>
         <a th:if="${isAdmin}" th:href="@{/admin/dashboard}" class="nav-item" th:classappend="${active=='admin-dashboard'} ? 'active'">
             <span th:insert="~{fragments/icons :: ic('chart')}"></span><span class="lbl">Số liệu</span>
@@ -70,6 +73,10 @@
         <a th:if="${isAdmin}" th:href="@{/admin/feedback}" class="nav-item" th:classappend="${active=='admin-feedback'} ? 'active'">
             <span th:insert="~{fragments/icons :: ic('chart')}"></span><span class="lbl">Góp ý (admin)</span>
         </a>
+        <!-- Chỉ hiện ở mobile: mở/đóng tấm chứa các mục phụ + đăng xuất -->
+        <button type="button" class="nav-item nav-more" aria-expanded="false" aria-label="Thêm mục">
+            <span th:insert="~{fragments/icons :: ic('dots')}"></span><span class="lbl">Thêm</span>
+        </button>
     </nav>
     <div class="sidebar-foot">
         <form th:action="@{/logout}" method="post">
@@ -82,11 +89,15 @@
 
 <!-- ===== Topbar ===== -->
 <header th:fragment="topbar(title)" class="topbar">
+    <!-- Logo nhỏ: chỉ hiện ở mobile (sidebar thành bottom-bar nên brand bị ẩn) -->
+    <a class="topbar-brand" th:href="@{/subjects}" aria-label="PathStudy">
+        <span th:insert="~{fragments/icons :: ic('mascot')}"></span>
+    </a>
     <h1 th:text="${title}">Trang</h1>
     <span class="spacer"></span>
     <span class="avatar">
         <span class="dot" th:text="${currentUser != null ? #strings.substring(currentUser.fullName,0,1) : 'A'}">A</span>
-        <span th:text="${currentUser != null ? currentUser.fullName : 'Học sinh'}">Nguyễn An</span>
+        <span class="who" th:text="${currentUser != null ? currentUser.fullName : 'Học sinh'}">Nguyễn An</span>
     </span>
 </header>
 
