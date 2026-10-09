@@ -207,7 +207,7 @@ public class PlacementService {
         String studyPlan = aiStudyPlan.isEnabled()
                 ? aiStudyPlan.generatePlan(subject.getName(), score, level, weakTopics, referenceText) : null;
         if (studyPlan == null) {
-            studyPlan = rulePlan(weakTopics);
+            studyPlan = rulePlan(subject, weakTopics);
         }
 
         int attemptNo = attemptsUsed(user, subject, grade) + 1;
@@ -242,14 +242,15 @@ public class PlacementService {
                 attemptNo, attemptNo, ATTEMPTS_MAX, bestUpdated, weakTopics, studyPlan);
     }
 
-    private String rulePlan(List<String> weakTopics) {
+    private String rulePlan(Subject subject, List<String> weakTopics) {
+        String code = subject == null ? null : subject.getCode();
         if (weakTopics.isEmpty()) {
-            return "Bạn khá đều các phần. Hãy luyện đề tổng hợp để nâng điểm và bổ sung 20–30 từ vựng mỗi tuần.";
+            return "Bạn khá đều các phần. " + StudyAdvice.strongLine(code);
         }
         return "Tập trung ôn các chủ đề còn yếu: " + String.join(", ", weakTopics) + ".\n"
                 + "• Ôn kỹ lý thuyết từng chủ đề trên kèm ví dụ.\n"
                 + "• Làm 15–20 câu bài tập mỗi chủ đề để củng cố.\n"
-                + "• Bổ sung 20–30 từ vựng mỗi tuần theo chủ điểm.\n"
+                + "• " + StudyAdvice.practiceLine(code) + "\n"
                 + "• Làm lại đề sau 1 tuần để đo tiến bộ.\n"
                 + "(Bật AI Gemini để nhận giáo trình + bài tập chi tiết cho từng chủ đề yếu.)";
     }

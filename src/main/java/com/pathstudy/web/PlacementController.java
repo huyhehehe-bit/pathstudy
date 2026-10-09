@@ -3,6 +3,7 @@ package com.pathstudy.web;
 import com.pathstudy.domain.Subject;
 import com.pathstudy.domain.User;
 import com.pathstudy.repo.SubjectRepository;
+import com.pathstudy.repo.UserRepository;
 import com.pathstudy.service.CurrentUserService;
 import com.pathstudy.service.PlacementService;
 import com.pathstudy.web.dto.PlacementOutcome;
@@ -12,21 +13,30 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Controller
 @RequestMapping("/placement/{code}")
 public class PlacementController {
 
+    /** Môn có ngân hàng câu hỏi tách theo khối — phải biết khối TRƯỚC khi làm bài,
+        nếu không sẽ gộp đề cả 3 khối vào một lần test. */
+    private static final Set<String> GRADE_SCOPED = Set.of("anh", "toan");
+    private static final List<String> GRADES = List.of("Lớp 10", "Lớp 11", "Lớp 12");
+
     private final SubjectRepository subjects;
     private final PlacementService placement;
     private final CurrentUserService currentUser;
+    private final UserRepository users;
 
     public PlacementController(SubjectRepository subjects, PlacementService placement,
-                               CurrentUserService currentUser) {
+                               CurrentUserService currentUser, UserRepository users) {
         this.subjects = subjects;
         this.placement = placement;
         this.currentUser = currentUser;
+        this.users = users;
     }
 
     @GetMapping
@@ -40,7 +50,7 @@ public class PlacementController {
         }
         grade = resolveGrade(user, subject, grade);
         if (needsGrade(subject, grade)) {
-            return "redirect:/english";
+            return gradeGate(code);
         }
         int used = placement.attemptsUsed(user, subject, grade);
         model.addAttribute("subject", subject);
@@ -59,7 +69,7 @@ public class PlacementController {
         Subject subject = subjects.findByCode(code).orElseThrow();
         grade = resolveGrade(user, subject, grade);
         if (needsGrade(subject, grade)) {
-            return "redirect:/english";
+            return gradeGate(code);
         }
         if (!placement.canAttempt(user, subject, grade)) {
             ra.addFlashAttribute("toast", "Bạn đã dùng hết 3 lần làm bài.");
@@ -79,7 +89,7 @@ public class PlacementController {
         Subject subject = subjects.findByCode(code).orElseThrow();
         grade = resolveGrade(user, subject, grade);
         if (needsGrade(subject, grade)) {
-            return "redirect:/english";
+            return gradeGate(code);
         }
         if (!placement.canAttempt(user, subject, grade)) {
             ra.addFlashAttribute("toast", "Bạn đã dùng hết 3 lần làm bài.");
@@ -118,9 +128,37 @@ public class PlacementController {
         return grade;
     }
 
-    /** Tiếng Anh mà vẫn chưa xác định được khối → phải chọn khối trước (đẩy về /english). */
+    /** Môn theo khối mà vẫn chưa biết khối → phải chọn khối trước khi làm bài. */
     private boolean needsGrade(Subject subject, String grade) {
-        return "anh".equals(subject.getCode()) && grade == null;
+        return GRADE_SCOPED.contains(subject.getCode()) && grade == null;
+    }
+
+    /** Nơi đưa học sinh tới để chọn khối. Tiếng Anh đã có hub riêng lo việc này. */
+    private String gradeGate(String code) {
+        return "anh".equals(code) ? "redirect:/english" : "redirect:/placement/" + code + "/grade";
+    }
+
+    /** Chọn khối cho môn theo khối (tài khoản chưa có khối). */
+    @GetMapping("/grade")
+    public String chooseGrade(@PathVariable String code, Model model, RedirectAttributes ra) {
+        Subject subject = subjects.findByCode(code).orElse(null);
+        if (subject == null || !subject.isActive() || !GRADE_SCOPED.contains(code)) {
+            ra.addFlashAttribute("toast", "Môn này không chia theo khối.");
+            return "redirect:/subjects";
+        }
+        model.addAttribute("subject", subject);
+        model.addAttribute("grades", GRADES);
+        return "placement/choose-grade";
+    }
+
+    @PostMapping("/grade")
+    public String setGrade(@PathVariable String code, @RequestParam String grade) {
+        User user = currentUser.require();
+        if (GRADES.contains(grade)) {
+            user.setGrade(grade);
+            users.save(user);
+        }
+        return "redirect:/placement/" + code;
     }
 
     static Map<Long, Integer> parseAnswers(Map<String, String> params) {

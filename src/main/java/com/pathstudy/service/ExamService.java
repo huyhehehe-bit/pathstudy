@@ -110,20 +110,21 @@ public class ExamService {
                 ? aiStudyPlan.generatePlan(exam.getSubject().getName(), score, level, weakTopics, referenceText)
                 : null;
         if (plan == null) {
-            plan = rulePlan(weakTopics);
+            plan = rulePlan(exam.getSubject(), weakTopics);
         }
 
         return new ExamOutcome(exam, qs.size(), correct, score, level, weakTopics, plan);
     }
 
-    private String rulePlan(List<String> weakTopics) {
+    private String rulePlan(Subject subject, List<String> weakTopics) {
+        String code = subject == null ? null : subject.getCode();
         if (weakTopics.isEmpty()) {
-            return "Bạn làm tốt! Hãy luyện thêm đề để giữ phong độ và mở rộng vốn từ.";
+            return "Bạn làm tốt! " + StudyAdvice.strongLine(code);
         }
         return "Tập trung ôn các chủ đề còn yếu: " + String.join(", ", weakTopics) + ".\n"
                 + "• Ôn kỹ lý thuyết từng chủ đề (xem mục Học theo giáo trình).\n"
                 + "• Làm lại các câu sai và tìm 15–20 câu tương tự để luyện.\n"
-                + "• Bổ sung từ vựng theo chủ điểm mỗi ngày.\n"
+                + "• " + StudyAdvice.practiceLine(code) + "\n"
                 + "(Bật AI Gemini để nhận giáo trình + bài tập chi tiết cho từng chủ đề yếu.)";
     }
 }
