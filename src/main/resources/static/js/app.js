@@ -47,6 +47,9 @@
         // Bottom-nav mobile: nút "Thêm" mở tấm chứa các mục phụ + đăng xuất.
         setupMobileNav();
 
+        // Xem lại bài làm: lọc câu sai + nút nhờ AI giảng lại.
+        setupReview();
+
         // Câu nhận xét/động viên sau khi xem kết quả (theo % điểm, phong cách Gen Z).
         renderEncourage();
     });
@@ -83,6 +86,77 @@
         // Quay về desktop thì bỏ trạng thái mở để sidebar hiện bình thường.
         window.addEventListener('resize', function () {
             if (window.innerWidth > 900) close();
+        });
+    }
+
+    function setupReview() {
+        // Lọc "chỉ xem câu sai"
+        document.querySelectorAll('.rv-only-wrong').forEach(function (cb) {
+            cb.addEventListener('change', function () {
+                document.querySelectorAll('.rv-item.rv-ok').forEach(function (it) {
+                    it.hidden = cb.checked;
+                });
+            });
+        });
+
+        // Nhờ Gemini giảng lại một câu sai
+        var meta = document.querySelector('meta[name="_csrf"]');
+        var metaHeader = document.querySelector('meta[name="_csrf_header"]');
+        var token = meta ? meta.getAttribute('content') : '';
+        var header = metaHeader ? metaHeader.getAttribute('content') : 'X-CSRF-TOKEN';
+
+        document.querySelectorAll('.rv-explain').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                var box = btn.parentElement.querySelector('.rv-explain-out');
+                if (!box) return;
+
+                // Đã có lời giải rồi thì chỉ đóng/mở lại, không gọi AI lần nữa.
+                if (box.dataset.loaded === '1') {
+                    box.hidden = !box.hidden;
+                    return;
+                }
+                if (btn.disabled) return;
+
+                btn.disabled = true;
+                box.hidden = false;
+                box.className = 'rv-explain-out rv-loading';
+                box.textContent = 'Đang hỏi AI…';
+
+                var body = new URLSearchParams();
+                body.set('questionId', btn.dataset.qid);
+                body.set('chosenIndex', btn.dataset.chosen);
+
+                var headers = { 'Content-Type': 'application/x-www-form-urlencoded' };
+                if (token) headers[header] = token;
+
+                fetch('/ai/explain', {
+                    method: 'POST',
+                    headers: headers,
+                    body: body.toString(),
+                    credentials: 'same-origin'
+                })
+                    .then(function (r) {
+                        if (!r.ok) throw new Error('HTTP ' + r.status);
+                        return r.json();
+                    })
+                    .then(function (data) {
+                        if (data && data.ok) {
+                            box.className = 'rv-explain-out';
+                            box.textContent = data.explanation;
+                            box.dataset.loaded = '1';
+                            btn.disabled = false;
+                        } else {
+                            box.className = 'rv-explain-out rv-error';
+                            box.textContent = (data && data.error) || 'Không lấy được lời giải.';
+                            btn.disabled = false;
+                        }
+                    })
+                    .catch(function () {
+                        box.className = 'rv-explain-out rv-error';
+                        box.textContent = 'Không kết nối được. Kiểm tra mạng rồi thử lại nhé.';
+                        btn.disabled = false;
+                    });
+            });
         });
     }
 

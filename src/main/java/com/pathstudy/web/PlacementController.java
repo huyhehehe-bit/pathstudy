@@ -4,6 +4,7 @@ import com.pathstudy.domain.Subject;
 import com.pathstudy.domain.User;
 import com.pathstudy.repo.SubjectRepository;
 import com.pathstudy.repo.UserRepository;
+import com.pathstudy.service.AiStudyPlanService;
 import com.pathstudy.service.CurrentUserService;
 import com.pathstudy.service.PlacementService;
 import com.pathstudy.web.dto.PlacementOutcome;
@@ -30,13 +31,16 @@ public class PlacementController {
     private final PlacementService placement;
     private final CurrentUserService currentUser;
     private final UserRepository users;
+    private final AiStudyPlanService ai;
 
     public PlacementController(SubjectRepository subjects, PlacementService placement,
-                               CurrentUserService currentUser, UserRepository users) {
+                               CurrentUserService currentUser, UserRepository users,
+                               AiStudyPlanService ai) {
         this.subjects = subjects;
         this.placement = placement;
         this.currentUser = currentUser;
         this.users = users;
+        this.ai = ai;
     }
 
     @GetMapping
@@ -109,6 +113,7 @@ public class PlacementController {
             return "redirect:/placement/" + code;
         }
         model.addAttribute("grade", grade);
+        model.addAttribute("aiEnabled", ai.isEnabled());
         return "placement/result";
     }
 

@@ -37,6 +37,17 @@ public interface AiStudyPlanService {
                                                  int count, String difficulty,
                                                  byte[] fileBytes, String mimeType);
 
+    /**
+     * Giải thích MỘT câu trắc nghiệm cho học sinh vừa làm sai: vì sao đáp án đúng
+     * là đúng, và vì sao lựa chọn của em sai.
+     *
+     * @param chosenIndex lựa chọn của học sinh, -1 nếu bỏ trống.
+     * @param passage     đoạn văn dùng chung (câu đọc hiểu), có thể null.
+     * @return lời giải thích, hoặc null nếu AI tắt/lỗi — caller phải tự xử lý.
+     */
+    String explainAnswer(String subjectName, String questionText, List<String> options,
+                         int correctIndex, int chosenIndex, String passage);
+
     /** Admin diagnostic: human-readable status of the AI configuration + a live ping. */
     String diagnose();
 }

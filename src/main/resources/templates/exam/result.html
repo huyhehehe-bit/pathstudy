@@ -52,6 +52,10 @@
                     <a th:href="@{/path}" class="btn btn-primary grow">Về trang chủ</a>
                 </div>
             </div>
+
+            <div class="card card-pad" style="max-width:680px;margin:16px auto">
+                <div th:replace="~{fragments/review :: list(${outcome.reviews}, ${aiEnabled})}"></div>
+            </div>
         </div>
     </main>
 </div>

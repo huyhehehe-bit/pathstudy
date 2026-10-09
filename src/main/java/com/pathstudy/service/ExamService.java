@@ -7,6 +7,7 @@ import com.pathstudy.domain.Subject;
 import com.pathstudy.repo.ExamRepository;
 import com.pathstudy.repo.QuestionRepository;
 import com.pathstudy.repo.ReferenceMaterialRepository;
+import com.pathstudy.web.dto.AnswerReview;
 import com.pathstudy.web.dto.ExamOutcome;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -78,12 +79,16 @@ public class ExamService {
         List<Question> qs = questionsFor(exam);
         int correct = 0;
         Map<String, int[]> topicTally = new LinkedHashMap<>();
+        List<AnswerReview> reviews = new ArrayList<>();
+        int number = 0;
         for (Question q : qs) {
             Integer a = answers.get(q.getId());
             boolean ok = a != null && a == q.getCorrectIndex();
             if (ok) {
                 correct++;
             }
+            reviews.add(new AnswerReview(q.getId(), ++number, q.getText(), q.getOptions(),
+                    q.getCorrectIndex(), a == null ? -1 : a, q.getTopic(), q.getPassage()));
             String topic = q.getTopic();
             if (topic != null && !topic.isBlank()) {
                 int[] t = topicTally.computeIfAbsent(topic, k -> new int[2]);
@@ -113,7 +118,7 @@ public class ExamService {
             plan = rulePlan(exam.getSubject(), weakTopics);
         }
 
-        return new ExamOutcome(exam, qs.size(), correct, score, level, weakTopics, plan);
+        return new ExamOutcome(exam, qs.size(), correct, score, level, weakTopics, plan, reviews);
     }
 
     private String rulePlan(Subject subject, List<String> weakTopics) {

@@ -431,6 +431,46 @@ button { font-family: inherit; }
 .mod-exams { display: flex; flex-wrap: wrap; gap: 8px; }
 .mod-exams .chip:hover { border-color: var(--primary); color: var(--primary-700); }
 
+/* ===== Xem lại bài làm (câu đúng/sai + lời giải của AI) ===== */
+.rv-list { display: flex; flex-direction: column; gap: 10px; }
+.rv-item {
+    border: var(--bw) solid var(--border); border-radius: var(--r);
+    background: var(--surface); box-shadow: 0 3px 0 var(--lift); padding: 13px 15px;
+}
+.rv-item.rv-ok { border-color: var(--success-lift); box-shadow: 0 3px 0 var(--success-lift); }
+.rv-item.rv-bad, .rv-item.rv-skip { border-color: var(--danger); box-shadow: 0 3px 0 var(--danger-lift); }
+.rv-head { display: flex; align-items: flex-start; gap: 10px; }
+.rv-no {
+    width: 26px; height: 26px; flex: none; border-radius: 8px;
+    background: var(--surface-3); color: var(--ink-2);
+    display: grid; place-items: center; font-family: var(--pixel); font-size: 9px;
+}
+.rv-item.rv-ok .rv-no { background: var(--success-soft); color: var(--success); }
+.rv-item.rv-bad .rv-no, .rv-item.rv-skip .rv-no { background: var(--danger-soft); color: var(--danger); }
+.rv-q { flex: 1; min-width: 0; font-weight: 600; font-size: 14px; white-space: pre-line; }
+.rv-head .pill { flex: none; }
+.rv-ans { margin: 10px 0 0 36px; display: flex; flex-direction: column; gap: 4px; font-size: 13.5px; }
+.rv-lab {
+    display: inline-block; min-width: 92px;
+    font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3);
+}
+.rv-wrong { color: var(--danger); font-weight: 600; text-decoration: line-through; }
+.rv-right { color: var(--success); font-weight: 700; }
+.rv-ai { margin: 10px 0 0 36px; }
+.rv-explain-out {
+    margin-top: 10px; padding: 12px 14px; border-radius: var(--r-sm);
+    background: var(--primary-tint); border: var(--bw) solid var(--primary-soft);
+    font-size: 13.5px; line-height: 1.7; white-space: pre-line;
+}
+.rv-explain-out.rv-loading { color: var(--ink-2); font-style: italic; }
+.rv-explain-out.rv-error { background: var(--danger-soft); border-color: var(--danger-lift); color: var(--danger); }
+.rv-explain[disabled] { opacity: .6; cursor: wait; }
+
+@media (max-width: 640px) {
+    .rv-ans, .rv-ai { margin-left: 0; }
+    .rv-lab { min-width: 0; margin-right: 6px; }
+}
+
 /* ===== Landing: thẻ chọn mục tiêu ===== */
 .goal-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; }
 .goal-card {

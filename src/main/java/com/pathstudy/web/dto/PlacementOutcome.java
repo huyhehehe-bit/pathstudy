@@ -20,4 +20,6 @@ public class PlacementOutcome {
     private boolean bestUpdated;
     private List<String> weakTopics;
     private String studyPlan;
+    /** Xem lại từng câu: chọn gì, đúng/sai, đáp án đúng. */
+    private List<AnswerReview> reviews;
 }

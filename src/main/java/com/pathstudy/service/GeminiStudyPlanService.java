@@ -173,6 +173,60 @@ public class GeminiStudyPlanService implements AiStudyPlanService {
     }
 
     @Override
+    public String explainAnswer(String subjectName, String questionText, List<String> options,
+                                int correctIndex, int chosenIndex, String passage) {
+        if (!isEnabled() || questionText == null || options == null || options.isEmpty()) {
+            return null;
+        }
+        StringBuilder opts = new StringBuilder();
+        for (int i = 0; i < options.size(); i++) {
+            opts.append((char) ('A' + i)).append(". ").append(options.get(i)).append('\n');
+        }
+        String correct = correctIndex >= 0 && correctIndex < options.size()
+                ? (char) ('A' + correctIndex) + ". " + options.get(correctIndex) : "(không rõ)";
+        String chosen = chosenIndex < 0 ? "KHÔNG CHỌN (bỏ trống)"
+                : (chosenIndex < options.size()
+                        ? (char) ('A' + chosenIndex) + ". " + options.get(chosenIndex) : "(không rõ)");
+
+        String prompt = """
+                Bạn là gia sư %s, đang giảng lại cho một học sinh THPT Việt Nam vừa làm SAI câu này.
+                %s
+                CÂU HỎI: %s
+                CÁC LỰA CHỌN:
+                %s
+                ĐÁP ÁN ĐÚNG: %s
+                HỌC SINH ĐÃ CHỌN: %s
+
+                Hãy giải thích NGẮN GỌN (khoảng 4-6 câu), giọng thân thiện, dễ hiểu, gồm:
+                - Vì sao đáp án đúng là đúng (nêu kiến thức/công thức/quy tắc cốt lõi).
+                - Vì sao lựa chọn của học sinh sai (chỉ ra chỗ nhầm thường gặp). Nếu học
+                  sinh bỏ trống thì bỏ qua ý này.
+                - Một mẹo ngắn để lần sau không sai lại.
+
+                ĐỊNH DẠNG: văn bản thuần tiếng Việt. TUYỆT ĐỐI KHÔNG dùng ký hiệu Markdown
+                (không #, ##, *, **) và KHÔNG dùng LaTeX (không $...$, \\text, _{}).
+                Gạch đầu dòng bằng "-". Không mở đầu dài dòng, vào thẳng nội dung.
+                """.formatted(subjectName,
+                        passage == null || passage.isBlank() ? ""
+                                : "ĐOẠN VĂN KÈM THEO:\n" + passage + "\n",
+                        questionText, opts, correct, chosen);
+        try {
+            String text = extractText(generateContent(prompt));
+            lastError = text == null ? "explainAnswer: 200 nhưng không có text" : "OK";
+            return text;
+        } catch (RestClientResponseException e) {
+            lastError = "explainAnswer HTTP " + e.getStatusCode().value() + " - "
+                    + e.getResponseBodyAsString();
+            log.warn("Gemini explainAnswer error (model={}): {}", model, lastError);
+            return null;
+        } catch (RuntimeException e) {
+            lastError = "explainAnswer: " + e;
+            log.warn("Gemini explainAnswer failed (model={}): {}", model, lastError);
+            return null;
+        }
+    }
+
+    @Override
     public List<GeneratedQuestion> generateExam(String subjectName, String grade, String topic,
                                                 int count, String difficulty, String referenceMaterial) {
         if (!isEnabled()) {

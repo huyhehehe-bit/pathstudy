@@ -16,4 +16,10 @@ public class ExamOutcome {
     private String level;
     private List<String> weakTopics;
     private String studyPlan;
+    /** Xem lại từng câu: chọn gì, đúng/sai, đáp án đúng. */
+    private List<AnswerReview> reviews;
+
+    public long getWrongCount() {
+        return reviews == null ? 0 : reviews.stream().filter(r -> !r.isCorrect()).count();
+    }
 }

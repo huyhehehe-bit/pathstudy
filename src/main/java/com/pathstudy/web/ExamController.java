@@ -1,9 +1,12 @@
 package com.pathstudy.web;
 
 import com.pathstudy.domain.Exam;
+import com.pathstudy.domain.Question;
 import com.pathstudy.domain.Subject;
 import com.pathstudy.domain.User;
+import com.pathstudy.repo.QuestionRepository;
 import com.pathstudy.repo.SubjectRepository;
+import com.pathstudy.service.AiStudyPlanService;
 import com.pathstudy.service.BankTransferPaymentService;
 import com.pathstudy.service.CurrentUserService;
 import com.pathstudy.service.ExamService;
@@ -14,6 +17,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.ArrayList;
@@ -33,13 +37,18 @@ public class ExamController {
     private final BankTransferPaymentService payments;
     private final CurrentUserService currentUser;
     private final SubjectRepository subjects;
+    private final QuestionRepository questions;
+    private final AiStudyPlanService ai;
 
     public ExamController(ExamService examService, BankTransferPaymentService payments,
-                          CurrentUserService currentUser, SubjectRepository subjects) {
+                          CurrentUserService currentUser, SubjectRepository subjects,
+                          QuestionRepository questions, AiStudyPlanService ai) {
         this.examService = examService;
         this.payments = payments;
         this.currentUser = currentUser;
         this.subjects = subjects;
+        this.questions = questions;
+        this.ai = ai;
     }
 
     /**
@@ -113,6 +122,45 @@ public class ExamController {
         if (!model.containsAttribute("outcome")) {
             return "redirect:/exam/" + id;
         }
+        model.addAttribute("aiEnabled", ai.isEnabled());
         return "exam/result";
+    }
+
+    /**
+     * Gemini giảng lại MỘT câu học sinh vừa làm sai. Gọi theo yêu cầu (bấm nút)
+     * chứ không giải sẵn cả đề, để không tốn quota và không bắt chờ lâu.
+     *
+     * <p>Trả JSON cho JS ở {@code app.js}. Không nhận nội dung câu hỏi từ client —
+     * chỉ nhận id rồi đọc lại từ DB, tránh bị sửa đề để bơm prompt tuỳ ý.
+     */
+    @PostMapping("/ai/explain")
+    @ResponseBody
+    public Map<String, Object> explain(@RequestParam Long questionId,
+                                       @RequestParam(defaultValue = "-1") int chosenIndex) {
+        currentUser.require(); // phải đăng nhập
+        Map<String, Object> out = new LinkedHashMap<>();
+        Question q = questions.findById(questionId).orElse(null);
+        if (q == null) {
+            out.put("ok", false);
+            out.put("error", "Không tìm thấy câu hỏi.");
+            return out;
+        }
+        if (!ai.isEnabled()) {
+            out.put("ok", false);
+            out.put("error", "AI chưa được bật. Quản trị viên cần đặt GEMINI_API_KEY.");
+            return out;
+        }
+        String subjectName = q.getSubject() != null ? q.getSubject().getName()
+                : (q.getExam() != null ? q.getExam().getSubject().getName() : "môn học");
+        String text = ai.explainAnswer(subjectName, q.getText(), q.getOptions(),
+                q.getCorrectIndex(), chosenIndex, q.getPassage());
+        if (text == null || text.isBlank()) {
+            out.put("ok", false);
+            out.put("error", "AI chưa trả lời được, thử lại sau một chút nhé.");
+            return out;
+        }
+        out.put("ok", true);
+        out.put("explanation", text);
+        return out;
     }
 }

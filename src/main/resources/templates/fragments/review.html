@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!--
+  Xem lại bài làm: từng câu, học sinh chọn gì, đáp án đúng là gì.
+  Câu sai có nút gọi Gemini giảng lại (xử lý ở app.js → POST /ai/explain).
+  Dùng chung cho đề luyện tập và bài kiểm tra đầu vào.
+-->
+<div th:fragment="list(reviews, aiEnabled)" th:if="${reviews != null and !reviews.isEmpty()}" class="stack">
+    <div class="between" style="flex-wrap:wrap">
+        <div class="section-head" style="margin:0">
+            <h3 style="font-size:18px">Xem lại bài làm</h3>
+            <p class="muted" style="font-size:13.5px">Câu sai được đánh dấu đỏ. Bấm "Vì sao sai?" để được giảng lại.</p>
+        </div>
+        <label class="chip" style="cursor:pointer">
+            <input type="checkbox" class="rv-only-wrong" style="width:16px;height:16px;accent-color:var(--primary)"/>
+            Chỉ xem câu sai
+        </label>
+    </div>
+
+    <div class="rv-list">
+        <div th:each="r : ${reviews}" class="rv-item"
+             th:classappend="${r.correct} ? 'rv-ok' : (${r.skipped} ? 'rv-skip' : 'rv-bad')">
+            <div class="rv-head">
+                <span class="rv-no" th:text="${r.number}">1</span>
+                <span class="rv-q" th:text="${r.text}">Nội dung câu hỏi</span>
+                <span class="pill" th:classappend="${r.correct} ? 'pill-done' : 'pill-warn'"
+                      th:text="${r.correct} ? 'Đúng' : (${r.skipped} ? 'Bỏ trống' : 'Sai')">Sai</span>
+            </div>
+
+            <div class="rv-ans" th:unless="${r.correct}">
+                <div th:if="${!r.skipped}">
+                    <span class="rv-lab">Em chọn</span>
+                    <span class="rv-wrong"
+                          th:text="${r.chosenLetter} + '. ' + (${r.chosenText} ?: '')">B. ...</span>
+                </div>
+                <div th:if="${r.skipped}"><span class="rv-lab">Em chọn</span> <span class="muted">không chọn đáp án nào</span></div>
+                <div>
+                    <span class="rv-lab">Đáp án đúng</span>
+                    <span class="rv-right"
+                          th:text="${r.correctLetter} + '. ' + (${r.correctText} ?: '')">C. ...</span>
+                </div>
+                <div class="faint" style="font-size:12px" th:if="${r.topic != null}" th:text="'Chủ đề: ' + ${r.topic}">Chủ đề</div>
+            </div>
+
+            <div class="rv-ans" th:if="${r.correct}">
+                <span class="rv-lab">Đáp án</span>
+                <span class="rv-right" th:text="${r.correctLetter} + '. ' + (${r.correctText} ?: '')">A. ...</span>
+            </div>
+
+            <div th:unless="${r.correct}" class="rv-ai">
+                <button type="button" class="bm-btn rv-explain"
+                        th:if="${aiEnabled}"
+                        th:attr="data-qid=${r.questionId},data-chosen=${r.chosenIndex}">
+                    <span th:insert="~{fragments/icons :: ic('sparkles')}"></span> Vì sao sai?
+                </button>
+                <span th:unless="${aiEnabled}" class="chip" style="font-weight:600">
+                    <span th:insert="~{fragments/icons :: ic('sparkles')}"></span>
+                    Bật AI để được giảng lại câu này
+                </span>
+                <div class="rv-explain-out" hidden></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

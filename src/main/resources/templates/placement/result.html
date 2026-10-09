@@ -75,6 +75,10 @@
                    th:href="@{'/placement/' + ${outcome.subject.code} + '/test'(grade=${grade})}"
                    class="btn btn-ghost btn-block">Làm lại bài kiểm tra (còn <span th:text="${outcome.attemptsMax - outcome.attemptsUsed}">2</span> lần)</a>
             </div>
+
+            <div class="card card-pad" style="max-width:680px;margin:16px auto">
+                <div th:replace="~{fragments/review :: list(${outcome.reviews}, ${aiEnabled})}"></div>
+            </div>
         </div>
     </main>
 </div>

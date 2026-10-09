@@ -5,6 +5,7 @@ import com.pathstudy.repo.EnrollmentRepository;
 import com.pathstudy.repo.PlacementResultRepository;
 import com.pathstudy.repo.QuestionRepository;
 import com.pathstudy.repo.ReferenceMaterialRepository;
+import com.pathstudy.web.dto.AnswerReview;
 import com.pathstudy.web.dto.PlacementOutcome;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Value;
@@ -157,12 +158,16 @@ public class PlacementService {
         int correct = 0;
         Map<Competency, int[]> tally = new EnumMap<>(Competency.class); // [correct, total]
         Map<String, int[]> topicTally = new LinkedHashMap<>();          // topic -> [correct, total]
+        List<AnswerReview> reviews = new ArrayList<>();
+        int number = 0;
         for (Question q : qs) {
             Integer a = answers.get(q.getId());
             boolean ok = a != null && a == q.getCorrectIndex();
             if (ok) {
                 correct++;
             }
+            reviews.add(new AnswerReview(q.getId(), ++number, q.getText(), q.getOptions(),
+                    q.getCorrectIndex(), a == null ? -1 : a, q.getTopic(), q.getPassage()));
             int[] c = tally.computeIfAbsent(q.getCompetency(), k -> new int[2]);
             c[1]++;
             if (ok) c[0]++;
@@ -239,7 +244,7 @@ public class PlacementService {
         studyPath.ensurePathInitialized(user, subject);
 
         return new PlacementOutcome(subject, score, level, strengths, weaknesses,
-                attemptNo, attemptNo, ATTEMPTS_MAX, bestUpdated, weakTopics, studyPlan);
+                attemptNo, attemptNo, ATTEMPTS_MAX, bestUpdated, weakTopics, studyPlan, reviews);
     }
 
     private String rulePlan(Subject subject, List<String> weakTopics) {
