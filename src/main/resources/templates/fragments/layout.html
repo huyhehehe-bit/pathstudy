@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head th:fragment="head(title)">
     <meta charset="UTF-8"/>
@@ -14,6 +14,20 @@
     <link rel="stylesheet"
           href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=VT323&family=Lora:ital,wght@0,400;0,500;1,400;1,500&family=Press+Start+2P&display=swap"/>
     <link rel="stylesheet" th:href="@{/css/app.css}"/>
+    <link rel="stylesheet" th:href="@{/css/kawai.css}"/>
+    <script th:src="@{/js/kawai.js}" defer></script>
+    <script th:if="${isStudent}">
+        try {
+            var savedTheme = localStorage.getItem('pathstudy-theme') || 'pastel';
+            var savedMode = localStorage.getItem('pathstudy-mode') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            document.documentElement.setAttribute('data-mode', savedMode);
+        } catch(e) {}
+    </script>
+    <script th:unless="${isStudent}">
+        document.documentElement.setAttribute('data-theme', 'pastel');
+        document.documentElement.setAttribute('data-mode', 'light');
+    </script>
     <!-- Google Analytics 4 (chỉ nhúng khi có app.analytics.ga-id).
          Dùng chuỗi thường (không @{...}) để tránh response bị commit sớm làm
          hỏng việc tạo CSRF/session ở form phía dưới. -->
@@ -83,6 +97,7 @@
         </button>
     </nav>
     <div class="sidebar-foot">
+        <div class="sidebar-witch" th:if="${isStudent}" aria-hidden="true"></div>
         <form th:action="@{/logout}" method="post">
             <button type="submit" class="nav-item" style="width:100%;background:none;border:none;cursor:pointer">
                 <span th:insert="~{fragments/icons :: ic('logout')}"></span><span class="lbl">Đăng xuất</span>
@@ -99,6 +114,30 @@
     </a>
     <h1 th:text="${title}">Trang</h1>
     <span class="spacer"></span>
+    
+    <!-- Theme controls: Chỉ hiển thị cho học sinh, không hiện ở manager / admin -->
+    <div class="theme-controls" th:if="${isStudent}">
+        <button type="button" class="btn-theme-switch" id="btnThemeSwitch" aria-label="Đổi giao diện phong cách" title="Đổi giao diện (Kawai / Pastel)">
+            <span class="btn-theme-text">Đổi giao diện</span>
+            <svg class="btn-theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 16v5h-5"/>
+                <path d="M3 20c0-4.418 3.582-8 8-8h10"/>
+                <path d="M3 8V3h5"/>
+                <path d="M21 4c0 4.418-3.582 8-8 8H3"/>
+            </svg>
+        </button>
+        <button type="button" class="btn-mode-switch" id="btnModeSwitch" aria-label="Chuyển chế độ ngày đêm" title="Chuyển chế độ Ngày / Đêm">
+            <img class="mode-icon mode-sun" th:src="@{/theme-kawai/ban-ngay/sky/sun_radiant.png}" alt="Ban ngày" />
+            <img class="mode-icon mode-moon" th:src="@{/theme-kawai/ban-dem/sky/moon_crescent.png}" alt="Ban đêm" />
+        </button>
+    </div>
+
+    <!-- Nhân vật trang trí bối cảnh Kawai -->
+    <div class="kawai-scene-decorations" th:if="${isStudent}" aria-hidden="true">
+        <div class="kawai-char kawai-char-princess"></div>
+        <div class="kawai-char kawai-char-boxer"></div>
+    </div>
+
     <span class="avatar">
         <span class="dot" th:text="${currentUser != null ? #strings.substring(currentUser.fullName,0,1) : 'A'}">A</span>
         <span class="who" th:text="${currentUser != null ? currentUser.fullName : 'Học sinh'}">Nguyễn An</span>

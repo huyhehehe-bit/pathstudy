@@ -1,0 +1,785 @@
+/* ===== PathStudy Theme System · Kawai & Pastel =====
+   Bổ sung phong cách Kawai (Ban ngày & Ban đêm)
+   Giữ nguyên 100% phong cách gốc Pastel khi không kích hoạt theme Kawai.
+*/
+
+/* =======================================================================
+   1. THEME SWITCH CONTROLS (HEADER)
+   ======================================================================= */
+.theme-controls {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex: none;
+    margin-right: 6px;
+}
+
+/* Nút "Đổi giao diện" */
+.btn-theme-switch {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 12px;
+    font-family: var(--display);
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+    border-radius: var(--r-sm);
+    border: var(--bw) solid var(--border-strong);
+    box-shadow: 2px 2px 0 var(--lift);
+    background: var(--surface);
+    color: var(--ink);
+    transition: transform .08s ease, box-shadow .08s ease, background .15s ease;
+    white-space: nowrap;
+}
+.btn-theme-switch:hover {
+    background: var(--surface-2);
+}
+.btn-theme-switch:active {
+    transform: translate(2px, 2px);
+    box-shadow: none !important;
+}
+.btn-theme-switch .btn-theme-icon {
+    width: 17px;
+    height: 17px;
+    flex: none;
+}
+
+/* Nút chuyển chế độ Sáng / Tối (Mặt trời / Mặt trăng) */
+.btn-mode-switch {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    padding: 4px;
+    cursor: pointer;
+    border-radius: var(--r-sm);
+    border: var(--bw) solid var(--border-strong);
+    box-shadow: 2px 2px 0 var(--lift);
+    background: var(--surface);
+    transition: transform .08s ease, box-shadow .08s ease, background .15s ease;
+}
+.btn-mode-switch:hover {
+    background: var(--surface-2);
+}
+.btn-mode-switch:active {
+    transform: translate(2px, 2px);
+    box-shadow: none !important;
+}
+.btn-mode-switch .mode-icon {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+    image-rendering: pixelated;
+    display: block;
+    transition: transform .2s ease;
+}
+.btn-mode-switch:hover .mode-icon {
+    transform: scale(1.15) rotate(10deg);
+}
+.btn-mode-switch .mode-moon {
+    display: none;
+}
+
+/* Khi ở dark mode trong nút chuyển chế độ */
+html[data-mode="dark"] .btn-mode-switch .mode-sun {
+    display: none;
+}
+html[data-mode="dark"] .btn-mode-switch .mode-moon {
+    display: block;
+}
+
+/* =======================================================================
+   2. DARK MODE CHO THEME PASTEL (GIAO DIỆN CŨ)
+   ======================================================================= */
+html[data-mode="dark"]:not([data-theme="kawai"]) {
+    --bg: #140b2e;
+    --surface: #241546;
+    --surface-2: #2d1b55;
+    --surface-3: #3a2470;
+    --ink: #f2ecff;
+    --ink-2: #c3b2e8;
+    --ink-3: #9183bd;
+
+    --outline: #0b0520;
+    --border: #0b0520;
+    --border-strong: #0b0520;
+
+    --lift: #0b0520;
+    --lift-ink: #1a0f38;
+
+    --primary: #46b6ff;
+    --primary-600: #6cc6ff;
+    --primary-700: #cfe8ff;
+    --primary-lip: #0b0520;
+    --primary-edge: #0b0520;
+    --primary-soft: #1d3a63;
+    --primary-tint: #1a2c4d;
+    --on-primary: #0b0520;
+
+    --go: #10d000;
+    --go-shade: #0a8a00;
+
+    --success: #5cf24f;
+    --success-soft: #11421a;
+    --success-lift: #0b0520;
+    --warn: #ffe14d;
+    --warn-soft: #4a3a05;
+    --warn-lift: #0b0520;
+    --danger: #ff8a6b;
+    --danger-soft: #4d1708;
+    --danger-lift: #0b0520;
+
+    --ring-track: #3a2470;
+}
+
+/* =======================================================================
+   3. THEME KAWAI · BAN NGÀY (LIGHT MODE)
+   Lấy mẫu chuẩn theo "template-ban-ngay.png"
+   ======================================================================= */
+html[data-theme="kawai"]:not([data-mode="dark"]) {
+    --bg: #f7ccd7;
+    --surface: rgba(246, 230, 236, 0.95);
+    --surface-2: #f2cbd6;
+    --surface-3: #eabccb;
+    --ink: #4a102b;
+    --ink-2: #722448;
+    --ink-3: #943e65;
+
+    --outline: #6e2646;
+    --border: #6e2646;
+    --border-strong: #6e2646;
+
+    --lift: #6e2646;
+    --lift-ink: #f0a3b8;
+
+    --primary: #d64775;
+    --primary-600: #c23563;
+    --primary-700: #4a102b;
+    --primary-lip: #6e2646;
+    --primary-edge: #6e2646;
+    --primary-soft: #f5c7d5;
+    --primary-tint: #fbe0e8;
+    --on-primary: #ffffff;
+
+    --go: #d64775;
+    --go-shade: #6e2646;
+
+    --success: #388e3c;
+    --success-soft: #d0eed7;
+    --warn: #803010;
+    --warn-soft: #f7ddc7;
+
+    --ring-track: #eabccb;
+}
+
+html[data-theme="kawai"]:not([data-mode="dark"]) body {
+    background-color: #f7ccd7;
+    background-image: linear-gradient(rgba(45, 15, 30, 0.10), rgba(45, 15, 30, 0.10)), url('/theme-kawai/ban-ngay/background.png');
+    background-size: cover;
+    background-position: center top;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    color: #4a102b;
+}
+
+html[data-theme="kawai"]:not([data-mode="dark"]) .sidebar {
+    background: #f0abbc;
+    border-right: 3px solid #6e2646;
+}
+
+html[data-theme="kawai"]:not([data-mode="dark"]) .topbar {
+    background: #f0abbc;
+    border-bottom: 3px solid #6e2646;
+    color: #4a102b;
+}
+
+html[data-theme="kawai"]:not([data-mode="dark"]) .topbar h1 {
+    color: #4a102b;
+}
+
+html[data-theme="kawai"]:not([data-mode="dark"]) .brand {
+    color: #4a102b;
+}
+
+html[data-theme="kawai"]:not([data-mode="dark"]) .brand .logo {
+    background: #f2c7d4;
+    border-color: #6e2646;
+    box-shadow: 2px 2px 0 #6e2646;
+}
+
+html[data-theme="kawai"]:not([data-mode="dark"]) .brand::after {
+    content: "";
+    display: inline-block;
+    width: 32px;
+    height: 32px;
+    margin-left: 8px;
+    background-image: url('/theme-kawai/ban-ngay/decorations/heart_pink_large.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    image-rendering: pixelated;
+}
+
+html[data-theme="kawai"]:not([data-mode="dark"]) .nav-item {
+    color: #4a102b;
+}
+
+html[data-theme="kawai"]:not([data-mode="dark"]) .nav-item:hover {
+    background: #e99eb2;
+    color: #38091f;
+}
+
+html[data-theme="kawai"]:not([data-mode="dark"]) .nav-item.active {
+    background: #ed97ad;
+    color: #38091f;
+    border: 3px solid #6e2646;
+    box-shadow: 2px 2px 0 #6e2646;
+}
+
+html[data-theme="kawai"]:not([data-mode="dark"]) .avatar {
+    background: #f0cbd6;
+    border: 3px solid #6e2646;
+    box-shadow: 2px 2px 0 #6e2646;
+    color: #4a102b;
+}
+
+html[data-theme="kawai"]:not([data-mode="dark"]) .avatar .dot {
+    background: #d64775;
+    color: #ffffff;
+}
+
+html[data-theme="kawai"]:not([data-mode="dark"]) .btn-theme-switch {
+    background: #f0c2cf;
+    color: #4a102b;
+    border: 3px solid #6e2646;
+    box-shadow: 2px 2px 0 #6e2646;
+}
+
+html[data-theme="kawai"]:not([data-mode="dark"]) .btn-mode-switch {
+    background: #f0c2cf;
+    border: 3px solid #6e2646;
+    box-shadow: 2px 2px 0 #6e2646;
+}
+
+html[data-theme="kawai"]:not([data-mode="dark"]) .card {
+    background: rgba(246, 230, 236, 0.95);
+    border: 3px solid #6e2646;
+    box-shadow: 4px 4px 0 #6e2646;
+}
+
+html[data-theme="kawai"]:not([data-mode="dark"]) .section-head h2 {
+    color: #4a102b;
+}
+
+html[data-theme="kawai"]:not([data-mode="dark"]) .muted {
+    color: #722448;
+}
+
+html[data-theme="kawai"]:not([data-mode="dark"]) .banner-warn {
+    background: #f2cbd3;
+    border: 3px solid #6e2646;
+    box-shadow: 3px 3px 0 #6e2646;
+    color: #4a102b;
+}
+
+html[data-theme="kawai"]:not([data-mode="dark"]) .pill {
+    background: #f2c7d4;
+    color: #4a102b;
+    border: 2px solid #6e2646;
+}
+
+/* Nhãn cảnh báo / Chủ đề cần củng cố (Điểm yếu cần khắc phục) */
+html[data-theme="kawai"]:not([data-mode="dark"]) .pill-warn {
+    background: #fff0d4;
+    color: #8c3b00;
+    border: 2px solid #b45309;
+    box-shadow: 2px 2px 0 #b45309;
+    font-weight: 700;
+}
+html[data-theme="kawai"]:not([data-mode="dark"]) .pill-warn:hover {
+    background: #ffe4ba;
+    box-shadow: 3px 3px 0 #b45309;
+}
+
+/* Khung thông báo danh sách chủ đề cần củng cố trong thẻ kết quả */
+html[data-theme="kawai"]:not([data-mode="dark"]) .card .stack-sm:has(.pill-warn) {
+    background: rgba(254, 237, 216, 0.55);
+    border-left: 4px solid #d97706;
+    padding: 10px 14px;
+    margin: 8px 0;
+    box-shadow: inset 0 0 0 1px rgba(217, 119, 6, 0.15);
+}
+html[data-theme="kawai"]:not([data-mode="dark"]) .card .stack-sm:has(.pill-warn) > span.muted:first-child {
+    color: #9a3412;
+    font-weight: 800;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 2px;
+}
+
+html[data-theme="kawai"]:not([data-mode="dark"]) .btn-primary,
+html[data-theme="kawai"]:not([data-mode="dark"]) .btn-go {
+    background: #d64775;
+    color: #ffffff;
+    border: 3px solid #6e2646;
+    box-shadow: 3px 3px 0 #6e2646;
+}
+html[data-theme="kawai"]:not([data-mode="dark"]) .btn-primary:hover,
+html[data-theme="kawai"]:not([data-mode="dark"]) .btn-go:hover {
+    background: #e25784;
+}
+
+html[data-theme="kawai"]:not([data-mode="dark"]) .btn-ghost {
+    background: #f5d5df;
+    color: #4a102b;
+    border: 3px solid #6e2646;
+    box-shadow: 3px 3px 0 #6e2646;
+}
+
+html[data-theme="kawai"]:not([data-mode="dark"]) .btn-ghost:hover {
+    background: #f0c7d4;
+}
+
+html[data-theme="kawai"]:not([data-mode="dark"]) .tile {
+    background: #f2c7d4;
+    color: #d64775;
+    border: 2px solid #6e2646;
+    box-shadow: 2px 2px 0 #6e2646;
+}
+
+html[data-theme="kawai"]:not([data-mode="dark"]) .sidebar-witch {
+    background-image: url('/theme-kawai/ban-ngay/characters/witch.png');
+}
+
+/* =======================================================================
+   4. THEME KAWAI · BAN ĐÊM (DARK MODE)
+   Lấy mẫu chuẩn theo "template-ban-dem.png"
+   ======================================================================= */
+html[data-theme="kawai"][data-mode="dark"] {
+    --bg: #12030e;
+    --surface: rgba(44, 12, 30, 0.96);
+    --surface-2: #350b23;
+    --surface-3: #440f2e;
+    --ink: #ebd0d9;
+    --ink-2: #c78c9f;
+    --ink-3: #9e5973;
+
+    --outline: #741f45;
+    --border: #741f45;
+    --border-strong: #741f45;
+
+    --lift: #10020c;
+    --lift-ink: #240618;
+
+    --primary: #c9366a;
+    --primary-600: #df447a;
+    --primary-700: #ffd4e2;
+    --primary-lip: #10020c;
+    --primary-edge: #741f45;
+    --primary-soft: #3d102a;
+    --primary-tint: #2e0b1f;
+    --on-primary: #ffffff;
+
+    --go: #c9366a;
+    --go-shade: #10020c;
+
+    --success: #4ec268;
+    --success-soft: #173820;
+    --warn: #ffbe4d;
+    --warn-soft: #4a340a;
+
+    --ring-track: #350b23;
+}
+
+html[data-theme="kawai"][data-mode="dark"] body {
+    background-color: #12030e;
+    background-image: linear-gradient(rgba(0, 0, 0, 0.22), rgba(0, 0, 0, 0.22)), url('/theme-kawai/ban-dem/background.png');
+    background-size: cover;
+    background-position: center top;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    color: #ebd0d9;
+}
+
+html[data-theme="kawai"][data-mode="dark"] .sidebar {
+    background: #1e0616;
+    border-right: 3px solid #63193a;
+    color: #ebd0d9;
+}
+
+html[data-theme="kawai"][data-mode="dark"] .topbar {
+    background: #220719;
+    border-bottom: 3px solid #63193a;
+    color: #f7e6ec;
+}
+
+html[data-theme="kawai"][data-mode="dark"] .topbar h1 {
+    color: #f7e6ec;
+}
+
+html[data-theme="kawai"][data-mode="dark"] .brand {
+    color: #f7e6ec;
+}
+
+html[data-theme="kawai"][data-mode="dark"] .brand .logo {
+    background: #350b24;
+    border-color: #c9366a;
+    box-shadow: 2px 2px 0 #c9366a;
+}
+
+html[data-theme="kawai"][data-mode="dark"] .brand::after {
+    content: "";
+    display: inline-block;
+    width: 34px;
+    height: 34px;
+    margin-left: 8px;
+    background-image: url('/theme-kawai/ban-dem/decorations/heart_giant.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    image-rendering: pixelated;
+    filter: drop-shadow(0 0 6px #c9366a);
+}
+
+html[data-theme="kawai"][data-mode="dark"] .nav-item {
+    color: #ebafc1;
+}
+
+html[data-theme="kawai"][data-mode="dark"] .nav-item:hover {
+    background: #350b24;
+    color: #ffffff;
+}
+
+html[data-theme="kawai"][data-mode="dark"] .nav-item.active {
+    background: #4a1232;
+    color: #ffffff;
+    border: 3px solid #c9366a;
+    box-shadow: 2px 2px 0 #c9366a;
+}
+
+html[data-theme="kawai"][data-mode="dark"] .avatar {
+    background: #2e0d22;
+    border: 3px solid #7e244d;
+    box-shadow: 2px 2px 0 #10020c;
+    color: #ebd0d9;
+}
+
+html[data-theme="kawai"][data-mode="dark"] .avatar .dot {
+    background: #c9366a;
+    color: #ffffff;
+}
+
+html[data-theme="kawai"][data-mode="dark"] .btn-theme-switch {
+    background: #2e0d22;
+    color: #ebd0d9;
+    border: 3px solid #7e244d;
+    box-shadow: 2px 2px 0 #10020c;
+}
+
+html[data-theme="kawai"][data-mode="dark"] .btn-mode-switch {
+    background: #2e0d22;
+    border: 3px solid #7e244d;
+    box-shadow: 2px 2px 0 #10020c;
+}
+
+html[data-theme="kawai"][data-mode="dark"] .card {
+    background: rgba(44, 12, 30, 0.96);
+    border: 3px solid #741f45;
+    box-shadow: 4px 4px 0 #10020c;
+    color: #ebd0d9;
+}
+
+html[data-theme="kawai"][data-mode="dark"] .section-head h2 {
+    color: #f7e6ec;
+}
+
+html[data-theme="kawai"][data-mode="dark"] .muted {
+    color: #c78c9f;
+}
+
+html[data-theme="kawai"][data-mode="dark"] .banner-warn {
+    background: #350b24;
+    border: 3px solid #741f45;
+    box-shadow: 3px 3px 0 #10020c;
+    color: #ebd0d9;
+}
+
+html[data-theme="kawai"][data-mode="dark"] .pill {
+    background: #3b0f2a;
+    color: #ebd0d9;
+    border: 2px solid #741f45;
+}
+
+html[data-theme="kawai"][data-mode="dark"] .pill-warn {
+    background: #451a03;
+    color: #ffedd5;
+    border: 2px solid #f59e0b;
+    box-shadow: 2px 2px 0 #180412;
+    font-weight: 700;
+}
+html[data-theme="kawai"][data-mode="dark"] .pill-warn:hover {
+    background: #5c2405;
+}
+
+/* Vùng thông báo chủ đề cần củng cố trong Ban đêm */
+html[data-theme="kawai"][data-mode="dark"] .card .stack-sm:has(.pill-warn) {
+    background: rgba(69, 26, 3, 0.45);
+    border-left: 4px solid #f59e0b;
+    padding: 10px 14px;
+    margin: 8px 0;
+    box-shadow: inset 0 0 0 1px rgba(245, 158, 11, 0.25);
+}
+html[data-theme="kawai"][data-mode="dark"] .card .stack-sm:has(.pill-warn) > span.muted:first-child {
+    color: #fbbf24;
+    font-weight: 800;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 2px;
+}
+
+html[data-theme="kawai"][data-mode="dark"] .btn-primary,
+html[data-theme="kawai"][data-mode="dark"] .btn-go {
+    background: #c9366a;
+    color: #ffffff;
+    border: 3px solid #63193a;
+    box-shadow: 3px 3px 0 #10020c;
+}
+html[data-theme="kawai"][data-mode="dark"] .btn-primary:hover,
+html[data-theme="kawai"][data-mode="dark"] .btn-go:hover {
+    background: #df447a;
+}
+
+html[data-theme="kawai"][data-mode="dark"] .btn-ghost {
+    background: #350b24;
+    color: #ebd0d9;
+    border: 3px solid #741f45;
+    box-shadow: 3px 3px 0 #10020c;
+}
+
+html[data-theme="kawai"][data-mode="dark"] .btn-ghost:hover {
+    background: #440f2e;
+}
+
+html[data-theme="kawai"][data-mode="dark"] .tile {
+    background: #3b0f2a;
+    color: #c9366a;
+    border: 2px solid #741f45;
+    box-shadow: 2px 2px 0 #10020c;
+}
+
+html[data-theme="kawai"][data-mode="dark"] .sidebar-witch {
+    background-image: url('/theme-kawai/ban-dem/characters/witch.png');
+}
+
+/* =======================================================================
+   5. PHỤ KIỆN SPRITE & TRANG TRÍ KAWAI
+   ======================================================================= */
+/* Phù thuỷ đứng góc dưới sidebar: Mặc định ẩn, chỉ hiện khi sidebar mở ra (hover / focus-within / mobile nav-open) */
+.sidebar-witch {
+    display: none;
+    width: 68px;
+    height: 68px;
+    margin: 0 auto 6px 14px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: bottom left;
+    image-rendering: pixelated;
+    filter: drop-shadow(2px 2px 0 rgba(0,0,0,0.25));
+    transition: opacity .18s ease;
+}
+
+/* Khi kích hoạt theme Kawai:
+   - Sidebar thu gọn (mặc định desktop): ẨN phù thuỷ
+   - Sidebar mở ra (hover hoặc focus-within): HIỆN phù thuỷ */
+@media (hover: hover) and (pointer: fine) and (min-width: 901px) {
+    html[data-theme="kawai"] .sidebar-witch {
+        display: none !important;
+    }
+    html[data-theme="kawai"] .sidebar:hover .sidebar-witch,
+    html[data-theme="kawai"] .sidebar:focus-within .sidebar-witch {
+        display: block !important;
+        animation: witchSlideIn .18s ease;
+    }
+}
+
+/* Trên mobile/tablet: chỉ hiện khi mở menu "Thêm" */
+@media (max-width: 900px) {
+    html[data-theme="kawai"] .sidebar-witch {
+        display: none !important;
+    }
+    html[data-theme="kawai"] body.nav-open .sidebar-witch {
+        display: block !important;
+        margin: 8px auto;
+        animation: witchSlideIn .18s ease;
+    }
+}
+
+@keyframes witchSlideIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Dải hoa pixel trang trí đáy thẻ bài học */
+html[data-theme="kawai"] .card.between {
+    position: relative;
+    padding-bottom: 24px;
+}
+html[data-theme="kawai"] .card.between::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 12px;
+    background-image: url('/theme-kawai/ban-ngay/flowers/flower_stems_01.png');
+    background-repeat: repeat-x;
+    background-size: auto 12px;
+    background-position: left bottom;
+    image-rendering: pixelated;
+    pointer-events: none;
+    opacity: 0.85;
+}
+html[data-theme="kawai"][data-mode="dark"] .card.between::after {
+    filter: brightness(0.85) contrast(1.2) hue-rotate(280deg);
+}
+
+/* Sprite nhân vật trong thẻ bài học */
+.kawai-card-char {
+    display: none;
+    width: 32px;
+    height: 38px;
+    margin-right: 4px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center bottom;
+    image-rendering: pixelated;
+    flex: none;
+}
+html[data-theme="kawai"] .kawai-card-char {
+    display: inline-block;
+}
+
+/* Trang trí các nhân vật xung quanh khung cảnh lớn (desktop) */
+.kawai-scene-decorations {
+    display: none;
+}
+
+@media (min-width: 1300px) {
+    html[data-theme="kawai"] .kawai-scene-decorations {
+        display: block;
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 10;
+    }
+    html[data-theme="kawai"] .kawai-char {
+        position: fixed;
+        background-size: contain;
+        background-repeat: no-repeat;
+        image-rendering: pixelated;
+    }
+
+    /* Công chúa đứng bên phải gốc cây */
+    html[data-theme="kawai"]:not([data-mode="dark"]) .kawai-char-princess {
+        width: 82px;
+        height: 100px;
+        right: 32px;
+        bottom: 125px;
+        background-image: url('/theme-kawai/ban-ngay/characters/princess.png');
+    }
+    html[data-theme="kawai"][data-mode="dark"] .kawai-char-princess {
+        width: 82px;
+        height: 100px;
+        right: 32px;
+        bottom: 125px;
+        background-image: url('/theme-kawai/ban-dem/characters/princess.png');
+    }
+
+    /* Boxer đứng dưới góc phải */
+    html[data-theme="kawai"]:not([data-mode="dark"]) .kawai-char-boxer {
+        width: 80px;
+        height: 98px;
+        right: 20px;
+        bottom: 22px;
+        background-image: url('/theme-kawai/ban-ngay/characters/boxer.png');
+    }
+    html[data-theme="kawai"][data-mode="dark"] .kawai-char-boxer {
+        width: 80px;
+        height: 98px;
+        right: 20px;
+        bottom: 22px;
+        background-image: url('/theme-kawai/ban-dem/characters/boxer.png');
+    }
+}
+
+/* Nút "Học ngay" trong thẻ bài học chuẩn màu hồng pixel */
+html[data-theme="kawai"]:not([data-mode="dark"]) .card.between .center:last-child .pill:not(.pill-warn) {
+    background: #df507e;
+    color: #ffffff;
+    border: 3px solid #6e2646;
+    box-shadow: 2px 2px 0 #6e2646;
+    font-size: 14px;
+    padding: 5px 14px;
+}
+html[data-theme="kawai"][data-mode="dark"] .card.between .center:last-child .pill:not(.pill-warn) {
+    background: #df447a;
+    color: #ffffff;
+    border: 3px solid #741a41;
+    box-shadow: 2px 2px 0 #180412;
+    font-size: 14px;
+    padding: 5px 14px;
+}
+
+/* Thẻ kết quả kiểm tra đầu vào: Cụm hoa góc dưới phải */
+html[data-theme="kawai"]:not([data-mode="dark"]) .card .btn-ghost {
+    background: #df507e;
+    color: #ffffff;
+    border: 3px solid #6e2646;
+    box-shadow: 3px 3px 0 #6e2646;
+}
+html[data-theme="kawai"][data-mode="dark"] .card .btn-ghost {
+    background: #df447a;
+    color: #ffffff;
+    border: 3px solid #741a41;
+    box-shadow: 3px 3px 0 #180412;
+}
+html[data-theme="kawai"]:not([data-mode="dark"]) .card:has(.btn-ghost) {
+    position: relative;
+}
+html[data-theme="kawai"]:not([data-mode="dark"]) .card:has(.btn-ghost)::after {
+    content: "";
+    position: absolute;
+    right: 12px;
+    bottom: 0;
+    width: 140px;
+    height: 30px;
+    background-image: url('/theme-kawai/ban-ngay/flowers/flower_stems_01.png');
+    background-size: auto 24px;
+    background-repeat: repeat-x;
+    background-position: bottom right;
+    image-rendering: pixelated;
+    pointer-events: none;
+}
+html[data-theme="kawai"][data-mode="dark"] .card:has(.btn-ghost)::after {
+    content: "";
+    position: absolute;
+    right: 12px;
+    bottom: 0;
+    width: 140px;
+    height: 30px;
+    background-image: url('/theme-kawai/ban-ngay/flowers/flower_stems_01.png');
+    background-size: auto 24px;
+    background-repeat: repeat-x;
+    background-position: bottom right;
+    image-rendering: pixelated;
+    pointer-events: none;
+    filter: brightness(0.85) contrast(1.2) hue-rotate(280deg);
+}
+
