@@ -30,7 +30,11 @@ public class EstimateController {
 
     @GetMapping
     public String intro(@PathVariable Long id, Model model, RedirectAttributes ra) {
-        CourseModule module = learning.module(id);
+        CourseModule module = learning.findModule(id).orElse(null);
+        if (module == null) {
+            ra.addFlashAttribute("toast", "Không tìm thấy bài học này.");
+            return "redirect:/path";
+        }
         if (!estimate.hasEstimate(module)) {
             ra.addFlashAttribute("toast", "Module này chưa có bài kiểm tra ước lượng.");
             return "redirect:/module/" + id;
@@ -42,7 +46,10 @@ public class EstimateController {
 
     @GetMapping("/test")
     public String test(@PathVariable Long id, Model model, RedirectAttributes ra) {
-        CourseModule module = learning.module(id);
+        CourseModule module = learning.findModule(id).orElse(null);
+        if (module == null) {
+            return "redirect:/path";
+        }
         if (!estimate.hasEstimate(module)) {
             return "redirect:/module/" + id;
         }
@@ -55,7 +62,10 @@ public class EstimateController {
     public String submit(@PathVariable Long id, @RequestParam Map<String, String> params,
                          RedirectAttributes ra) {
         User user = currentUser.require();
-        CourseModule module = learning.module(id);
+        CourseModule module = learning.findModule(id).orElse(null);
+        if (module == null) {
+            return "redirect:/path";
+        }
         EstimateOutcome outcome = estimate.grade(user, module, PlacementController.parseAnswers(params));
         ra.addFlashAttribute("outcome", outcome);
         return "redirect:/module/" + id + "/estimate/result";

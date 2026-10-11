@@ -36,7 +36,11 @@ public class ModuleController {
     @GetMapping
     public String view(@PathVariable Long id, Model model, RedirectAttributes ra) {
         User user = currentUser.require();
-        CourseModule module = learning.module(id);
+        CourseModule module = learning.findModule(id).orElse(null);
+        if (module == null) {
+            ra.addFlashAttribute("toast", "Không tìm thấy bài học này.");
+            return "redirect:/path";
+        }
         if (!module.isHasContent()) {
             ra.addFlashAttribute("toast", "Nội dung \"" + module.getTitle() + "\" đang được cập nhật.");
             return "redirect:/path?subject=" + module.getSubject().getCode();

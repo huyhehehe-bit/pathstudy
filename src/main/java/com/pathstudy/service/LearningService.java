@@ -42,6 +42,16 @@ public class LearningService {
         return modules.findById(id).orElseThrow();
     }
 
+    /**
+     * Bản an toàn của {@link #module(Long)} cho id đến TỪ URL người dùng gõ.
+     * {@code module(id)} ném NoSuchElementException → Spring trả 500, tức là
+     * chỉ cần sửa số trên thanh địa chỉ là thấy trang lỗi máy chủ.
+     */
+    @Transactional(readOnly = true)
+    public Optional<CourseModule> findModule(Long id) {
+        return id == null ? Optional.empty() : modules.findById(id);
+    }
+
     @Transactional
     public ModuleDetail openModule(User user, Long moduleId) {
         CourseModule module = modules.findById(moduleId).orElseThrow();
