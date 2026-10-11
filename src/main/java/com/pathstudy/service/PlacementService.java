@@ -225,8 +225,13 @@ public class PlacementService {
         r.setLevel(level);
         r.setStrengths(String.join(", ", strengths));
         r.setWeaknesses(String.join(", ", weaknesses));
-        r.setWeakTopics(String.join(", ", weakTopics));
-        r.setStudyPlan(studyPlan);
+        // Kế hoạch do Gemini soạn (tổng hợp điểm yếu + giáo trình + 5 bài tập
+        // kèm đáp án) THƯỜNG XUYÊN dài hơn 4000 ký tự của cột studyPlan →
+        // insert vỡ và học sinh nhận HTTP 500 ngay sau khi nộp bài.
+        // Cắt bản LƯU cho vừa cột; bản hiển thị trong outcome vẫn nguyên vẹn
+        // (không chỗ nào đọc lại cột này, nó chỉ để lưu trữ).
+        r.setWeakTopics(clamp(String.join(", ", weakTopics), MAX_WEAK_TOPICS));
+        r.setStudyPlan(clamp(studyPlan, MAX_STUDY_PLAN));
         results.save(r);
 
         // The system uses the BEST attempt (within the same grade) to set the starting level.
@@ -245,6 +250,20 @@ public class PlacementService {
 
         return new PlacementOutcome(subject, score, level, strengths, weaknesses,
                 attemptNo, attemptNo, ATTEMPTS_MAX, bestUpdated, weakTopics, studyPlan, reviews);
+    }
+
+    /* Giới hạn của PlacementResult: studyPlan varchar(4000), weakTopics varchar(500).
+       Để dưới mức thật một chút cho an toàn. Nếu sau này nới cột thì nới luôn
+       hai hằng số này. */
+    private static final int MAX_STUDY_PLAN = 3900;
+    private static final int MAX_WEAK_TOPICS = 480;
+
+    /** Cắt cho vừa cột DB, kèm dấu "…" để biết là đã cắt. */
+    private static String clamp(String s, int max) {
+        if (s == null || s.length() <= max) {
+            return s;
+        }
+        return s.substring(0, max - 1) + "…";
     }
 
     private String rulePlan(Subject subject, List<String> weakTopics) {

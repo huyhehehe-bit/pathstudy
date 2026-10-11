@@ -7,6 +7,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.http.client.ClientHttpRequestFactory;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientResponseException;
 
@@ -37,7 +39,23 @@ public class GeminiStudyPlanService implements AiStudyPlanService {
     @Value("${app.ai.gemini-model:gemini-1.5-flash}")
     private String model;
 
-    private final RestClient rest = RestClient.create();
+    /**
+     * RestClient CÓ timeout. Mặc định {@code RestClient.create()} không đặt
+     * timeout nào, nên một lần Gemini chậm sẽ treo request của học sinh vô hạn
+     * (đã gặp thật: nộp bài chờ 25 giây). Đọc để rộng tay vì luồng giáo viên
+     * tải PDF lên cho AI đọc cần lâu hơn hẳn luồng soạn kế hoạch học.
+     */
+    private final RestClient rest = RestClient.builder()
+            .requestFactory(timeoutFactory())
+            .build();
+
+    private static ClientHttpRequestFactory timeoutFactory() {
+        SimpleClientHttpRequestFactory f = new SimpleClientHttpRequestFactory();
+        f.setConnectTimeout(10_000);
+        f.setReadTimeout(60_000);
+        return f;
+    }
+
     private final ObjectMapper mapper = new ObjectMapper();
 
     /** Reason the last generatePlan call produced no AI text (shown in /admin/ai-check). */
