@@ -7,6 +7,8 @@ import com.pathstudy.domain.User;
 import com.pathstudy.repo.QuestionRepository;
 import com.pathstudy.repo.SubjectRepository;
 import com.pathstudy.service.AiStudyPlanService;
+import com.pathstudy.web.dto.StudyPlanContext;
+import jakarta.servlet.http.HttpSession;
 import com.pathstudy.service.BankTransferPaymentService;
 import com.pathstudy.service.CurrentUserService;
 import com.pathstudy.service.ExamService;
@@ -103,7 +105,7 @@ public class ExamController {
 
     @PostMapping("/exam/{id}/submit")
     public String submit(@PathVariable Long id, @RequestParam Map<String, String> params,
-                         RedirectAttributes ra) {
+                         RedirectAttributes ra, HttpSession session) {
         User user = currentUser.require();
         Exam exam = examService.exam(id).orElse(null);
         if (exam == null) {
@@ -114,6 +116,10 @@ public class ExamController {
         }
         ExamOutcome outcome = examService.grade(exam, PlacementController.parseAnswers(params));
         ra.addFlashAttribute("outcome", outcome);
+        // Giáo trình AI nạp sau bằng AJAX — xem AiController.
+        ra.addFlashAttribute("planKey", AiController.stash(session, ai,
+                new StudyPlanContext(exam.getSubject().getCode(), outcome.getScore(),
+                        outcome.getLevel(), outcome.getWeakTopics())));
         return "redirect:/exam/" + id + "/result";
     }
 

@@ -549,6 +549,21 @@ button { font-family: inherit; }
 .mod-exams { display: flex; flex-wrap: wrap; gap: 8px; }
 .mod-exams .chip:hover { border-color: var(--primary); color: var(--primary-700); }
 
+/* ===== Giáo trình AI nạp sau ===== */
+.plan-loading {
+    display: flex; align-items: center; gap: 9px;
+    margin-top: 12px; padding-top: 10px; border-top: var(--bw) solid var(--border);
+    font-size: 13px; font-weight: 600; color: var(--ink-2);
+}
+.plan-spinner {
+    width: 12px; height: 12px; flex: none;
+    background: var(--primary);
+    animation: planBlink .9s steps(2, start) infinite;
+}
+@keyframes planBlink { 0%, 100% { opacity: 1; } 50% { opacity: .25; } }
+.plan-in { animation: planIn .35s ease; }
+@keyframes planIn { from { opacity: .35; } to { opacity: 1; } }
+
 /* ===== Xem lại bài làm (câu đúng/sai + lời giải của AI) ===== */
 .rv-list { display: flex; flex-direction: column; gap: 10px; }
 .rv-item {

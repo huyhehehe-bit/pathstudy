@@ -50,6 +50,9 @@
         // Xem lại bài làm: lọc câu sai + nút nhờ AI giảng lại.
         setupReview();
 
+        // Giáo trình chi tiết do AI soạn, nạp sau khi trang kết quả đã hiện.
+        loadStudyPlan();
+
         // Câu nhận xét/động viên sau khi xem kết quả (theo % điểm, phong cách Gen Z).
         renderEncourage();
     });
@@ -87,6 +90,56 @@
         window.addEventListener('resize', function () {
             if (window.innerWidth > 900) close();
         });
+    }
+
+    /** Lấy token CSRF từ <meta> ở layout. */
+    function csrf() {
+        var m = document.querySelector('meta[name="_csrf"]');
+        var h = document.querySelector('meta[name="_csrf_header"]');
+        return {
+            token: m ? m.getAttribute('content') : '',
+            header: h ? h.getAttribute('content') : 'X-CSRF-TOKEN',
+        };
+    }
+
+    /**
+     * Trang kết quả hiện ngay với kế hoạch rule-based. Nếu server gửi kèm
+     * data-plan-key thì gọi Gemini soạn giáo trình chi tiết rồi thay vào.
+     * Gọi AI mất ~20 giây — trước đây học sinh phải chờ chừng ấy mới thấy điểm.
+     */
+    function loadStudyPlan() {
+        var panel = document.querySelector('[data-plan-key]');
+        if (!panel) return;
+
+        var key = panel.getAttribute('data-plan-key');
+        if (!key) return;
+
+        var body = panel.querySelector('.plan-body');
+        var loading = panel.querySelector('.plan-loading');
+        var c = csrf();
+
+        var headers = { 'Content-Type': 'application/x-www-form-urlencoded' };
+        if (c.token) headers[c.header] = c.token;
+
+        fetch('/ai/study-plan', {
+            method: 'POST',
+            headers: headers,
+            body: new URLSearchParams({ key: key }).toString(),
+            credentials: 'same-origin',
+        })
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                if (loading) loading.remove();
+                if (data && data.ok && body) {
+                    body.textContent = data.plan;
+                    body.classList.add('plan-in');
+                }
+                // Thất bại thì im lặng giữ nguyên kế hoạch rule-based đang hiện —
+                // học sinh vẫn có nội dung dùng được, không cần báo lỗi kỹ thuật.
+            })
+            .catch(function () {
+                if (loading) loading.remove();
+            });
     }
 
     function setupReview() {

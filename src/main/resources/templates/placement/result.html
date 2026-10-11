@@ -60,9 +60,15 @@
                     </div>
                 </div>
 
-                <div th:if="${outcome.studyPlan != null and !outcome.studyPlan.isBlank()}" class="panel" style="padding:16px 18px">
-                    <div class="eyebrow" style="margin-bottom:8px">Lộ trình & giáo trình đề xuất cho bạn</div>
-                    <div style="white-space:pre-line;font-size:14px;line-height:1.7" th:text="${outcome.studyPlan}">Lộ trình…</div>
+                <div th:if="${outcome.studyPlan != null and !outcome.studyPlan.isBlank()}" class="panel" style="padding:16px 18px"
+                     th:attr="data-plan-key=${planKey}">
+                    <div class="eyebrow" style="margin-bottom:8px">Lộ trình &amp; giáo trình đề xuất cho bạn</div>
+                    <!-- Hiện ngay kế hoạch rule-based; nếu AI bật thì JS thay bằng
+                         giáo trình chi tiết khi Gemini soạn xong (app.js). -->
+                    <div class="plan-body" style="white-space:pre-line;font-size:14px;line-height:1.7" th:text="${outcome.studyPlan}">Lộ trình…</div>
+                    <div class="plan-loading" th:if="${planKey != null}">
+                        <span class="plan-spinner"></span> AI đang soạn giáo trình chi tiết cho riêng bạn…
+                    </div>
                 </div>
 
                 <div class="banner banner-info">

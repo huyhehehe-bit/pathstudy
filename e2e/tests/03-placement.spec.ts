@@ -51,6 +51,34 @@ test.describe('Bài kiểm tra đầu vào', () => {
     expectNoProblems(problems, 'luồng kiểm tra đầu vào');
   });
 
+  test('Nộp bài phải trả kết quả ngay, không chờ AI soạn giáo trình', async ({ page }) => {
+    // Lỗi thật đã gặp trên production: lời gọi Gemini nằm đồng bộ trong request
+    // nộp bài → học sinh nhìn màn hình trắng ~20 giây. Giáo trình AI giờ nạp
+    // sau bằng AJAX, nên bước nộp phải nhanh.
+    await page.goto('/placement/van/test');
+    const cards = page.locator('.q-card');
+    const total = await cards.count();
+    for (let i = 0; i < total; i++) {
+      const radios = cards.nth(i).locator('input[type=radio]');
+      if (await radios.count()) await radios.first().check();
+    }
+
+    const t0 = Date.now();
+    await page.locator('form:has(.q-card) button[type=submit]').first().click();
+    await page.waitForURL(/\/result/);
+    await expect(page.locator('.ring-value')).toContainText('%');
+    const seconds = (Date.now() - t0) / 1000;
+
+    expect(seconds,
+      `nộp bài mất ${seconds.toFixed(1)}s — nếu vượt ngưỡng này nhiều khả năng có`
+      + ' lời gọi AI đồng bộ đã quay lại trong luồng chấm bài').toBeLessThan(10);
+
+    // Kế hoạch học phải có sẵn ngay, không để trống chờ AI
+    const plan = page.locator('.plan-body');
+    await expect(plan).toBeVisible();
+    await expect(plan).not.toBeEmpty();
+  });
+
   test('Lọc "chỉ xem câu sai" ẩn hết câu đúng', async ({ page }) => {
     await page.goto('/placement/van/test');
     const cards = page.locator('.q-card');

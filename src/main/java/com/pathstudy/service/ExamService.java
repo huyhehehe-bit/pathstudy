@@ -109,14 +109,9 @@ public class ExamService {
             }
         }
 
-        String referenceText = referenceMaterials.findBySubjectOrderByIdAsc(exam.getSubject()).stream()
-                .map(ReferenceMaterial::getContent).collect(Collectors.joining("\n\n"));
-        String plan = aiStudyPlan.isEnabled()
-                ? aiStudyPlan.generatePlan(exam.getSubject().getName(), score, level, weakTopics, referenceText)
-                : null;
-        if (plan == null) {
-            plan = rulePlan(exam.getSubject(), weakTopics);
-        }
+        // Như PlacementService: không gọi Gemini đồng bộ ở đây để khỏi bắt học
+        // sinh chờ ~20 giây sau khi nộp. Giáo trình AI nạp sau bằng AJAX.
+        String plan = rulePlan(exam.getSubject(), weakTopics);
 
         return new ExamOutcome(exam, qs.size(), correct, score, level, weakTopics, plan, reviews);
     }

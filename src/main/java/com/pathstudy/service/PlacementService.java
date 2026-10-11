@@ -205,15 +205,11 @@ public class PlacementService {
             }
         }
 
-        // Personalized study plan: AI (Gemini) grounded in the teacher's reference
-        // material when enabled, else a rule-based plan.
-        String referenceText = referenceMaterials.findBySubjectOrderByIdAsc(subject).stream()
-                .map(ReferenceMaterial::getContent).collect(Collectors.joining("\n\n"));
-        String studyPlan = aiStudyPlan.isEnabled()
-                ? aiStudyPlan.generatePlan(subject.getName(), score, level, weakTopics, referenceText) : null;
-        if (studyPlan == null) {
-            studyPlan = rulePlan(subject, weakTopics);
-        }
+        // Kế hoạch rule-based, tính tức thì. KHÔNG gọi Gemini ở đây nữa: lời gọi
+        // đó mất ~20 giây và học sinh phải nhìn màn hình trắng chừng ấy sau khi
+        // bấm nộp. Giáo trình chi tiết do AI soạn được nạp sau bằng AJAX
+        // (AiController), trang kết quả hiện ngay lập tức.
+        String studyPlan = rulePlan(subject, weakTopics);
 
         int attemptNo = attemptsUsed(user, subject, grade) + 1;
         PlacementResult r = new PlacementResult();

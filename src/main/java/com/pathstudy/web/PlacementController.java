@@ -5,6 +5,8 @@ import com.pathstudy.domain.User;
 import com.pathstudy.repo.SubjectRepository;
 import com.pathstudy.repo.UserRepository;
 import com.pathstudy.service.AiStudyPlanService;
+import com.pathstudy.web.dto.StudyPlanContext;
+import jakarta.servlet.http.HttpSession;
 import com.pathstudy.service.CurrentUserService;
 import com.pathstudy.service.PlacementService;
 import com.pathstudy.web.dto.PlacementOutcome;
@@ -88,7 +90,8 @@ public class PlacementController {
 
     @PostMapping("/submit")
     public String submit(@PathVariable String code, @RequestParam(required = false) String grade,
-                         @RequestParam Map<String, String> params, RedirectAttributes ra) {
+                         @RequestParam Map<String, String> params, RedirectAttributes ra,
+                         HttpSession session) {
         User user = currentUser.require();
         Subject subject = subjects.findByCode(code).orElseThrow();
         grade = resolveGrade(user, subject, grade);
@@ -101,6 +104,10 @@ public class PlacementController {
         }
         PlacementOutcome outcome = placement.grade(user, subject, grade, parseAnswers(params));
         ra.addFlashAttribute("outcome", outcome);
+        // Giáo trình AI nạp sau bằng AJAX — xem AiController.
+        ra.addFlashAttribute("planKey", AiController.stash(session, ai,
+                new StudyPlanContext(subject.getCode(), outcome.getScore(),
+                        outcome.getLevel(), outcome.getWeakTopics())));
         String suffix = grade == null ? "" : "?grade=" + org.springframework.web.util.UriUtils
                 .encode(grade, java.nio.charset.StandardCharsets.UTF_8);
         return "redirect:/placement/" + code + "/result" + suffix;
