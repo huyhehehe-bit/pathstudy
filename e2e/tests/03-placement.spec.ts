@@ -12,10 +12,10 @@ test.describe('Bài kiểm tra đầu vào', () => {
     await registerFreshStudent(page);
   });
 
-  test('Làm trọn bài Ngữ văn: đề → nộp → kết quả → xem lại câu sai', async ({ page }, testInfo) => {
+  test('Làm trọn bài Toán: đề → nộp → kết quả → xem lại câu sai', async ({ page }, testInfo) => {
     const problems = watchProblems(page);
 
-    await page.goto('/placement/van/test');
+    await page.goto('/placement/toan/test');
     const cards = page.locator('.q-card');
     const total = await cards.count();
     expect(total, 'đề phải có câu hỏi').toBeGreaterThan(0);
@@ -28,7 +28,7 @@ test.describe('Bài kiểm tra đầu vào', () => {
     }
 
     await page.locator('form:has(.q-card) button[type=submit]').first().click();
-    await page.waitForURL(/\/placement\/van\/result/);
+    await page.waitForURL(/\/placement\/toan\/result/);
 
     // Có điểm và mức
     await expect(page.locator('.ring-value')).toContainText('%');
@@ -55,7 +55,7 @@ test.describe('Bài kiểm tra đầu vào', () => {
     // Lỗi thật đã gặp trên production: lời gọi Gemini nằm đồng bộ trong request
     // nộp bài → học sinh nhìn màn hình trắng ~20 giây. Giáo trình AI giờ nạp
     // sau bằng AJAX, nên bước nộp phải nhanh.
-    await page.goto('/placement/van/test');
+    await page.goto('/placement/toan/test');
     const cards = page.locator('.q-card');
     const total = await cards.count();
     for (let i = 0; i < total; i++) {
@@ -80,7 +80,7 @@ test.describe('Bài kiểm tra đầu vào', () => {
   });
 
   test('Lọc "chỉ xem câu sai" ẩn hết câu đúng', async ({ page }) => {
-    await page.goto('/placement/van/test');
+    await page.goto('/placement/toan/test');
     const cards = page.locator('.q-card');
     const total = await cards.count();
     for (let i = 0; i < total; i++) {
@@ -99,7 +99,7 @@ test.describe('Bài kiểm tra đầu vào', () => {
   });
 
   test('Nút nhờ AI giảng bài chỉ hiện khi AI được bật', async ({ page }) => {
-    await page.goto('/placement/van/test');
+    await page.goto('/placement/toan/test');
     const cards = page.locator('.q-card');
     const total = await cards.count();
     for (let i = 0; i < total; i++) {
@@ -126,7 +126,7 @@ test.describe('Bài kiểm tra đầu vào', () => {
   });
 
   test('API giải thích từ chối gọn gàng khi AI tắt', async ({ page }) => {
-    await page.goto('/placement/van/test');
+    await page.goto('/placement/toan/test');
     const qid = await page.locator('input[type=radio]').first().getAttribute('name');
     const questionId = (qid ?? '').replace(/^q_/, '');
     expect(questionId, 'phải lấy được id câu hỏi từ form').toMatch(/^\d+$/);

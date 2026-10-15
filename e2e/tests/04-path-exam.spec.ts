@@ -39,8 +39,8 @@ test.describe('Lộ trình & bài học', () => {
     const problems = watchProblems(page);
 
     // Lộ trình chỉ mở khoá chương đầu SAU khi chấm bài kiểm tra đầu vào.
-    await completePlacement(page, 'van');
-    await page.goto('/path?subject=van');
+    await completePlacement(page, 'toan');
+    await page.goto('/path?subject=toan');
 
     const openable = page.locator('a.toc-head[href^="/module/"]');
     expect(await openable.count(),

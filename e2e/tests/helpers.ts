@@ -139,7 +139,7 @@ export async function ensureEnrolled(page: Page) {
  * sau khi chấm bài (StudyPathService.ensurePathInitialized gọi từ
  * PlacementService.grade) — chưa làm bài thì mọi chương đều khoá.
  */
-export async function completePlacement(page: Page, subjectCode = 'van') {
+export async function completePlacement(page: Page, subjectCode = 'toan') {
   await page.goto(`/placement/${subjectCode}/test`);
   const cards = page.locator('.q-card');
   const total = await cards.count();
