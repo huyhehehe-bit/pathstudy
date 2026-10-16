@@ -57,13 +57,16 @@ public class SecurityConfig {
                         // ẩn nút trên giao diện) vì gõ thẳng địa chỉ vẫn vào được.
                         .requestMatchers(
                                 "/placement/**",   // kiểm tra đầu vào
-                                "/exam/**", "/exams",  // làm đề
                                 "/module/**",      // bài học + bài tự đánh giá
-                                "/english/**",     // hub Tiếng Anh (có đề bên trong)
+                                "/english/**",     // hub Tiếng Anh của học sinh
                                 "/path", "/progress", "/library/**",
                                 "/subjects", "/subjects/**",
-                                "/ai/**",          // AI soạn giáo trình / giảng câu sai
                                 "/upgrade/**").hasRole("STUDENT")
+                        // Đề thi thì KHÁC: giáo viên là người soạn đề nên phải
+                        // xem và làm thử được (ExamController cho họ qua cổng
+                        // Premium và không lọc theo khối). /ai/** đi kèm vì
+                        // trang kết quả có nút "Vì sao sai?".
+                        .requestMatchers("/exams", "/exam/**", "/ai/**").authenticated()
                         .anyRequest().authenticated())
                 // Bị chặn thì đẩy về đúng nhà của vai trò đó kèm lời giải thích,
                 // thay vì quăng trang 403 trắng không ai hiểu.

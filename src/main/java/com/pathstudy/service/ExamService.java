@@ -42,6 +42,21 @@ public class ExamService {
 
     /** Đề luyện tập của khối {@code grade} + đề chung (grade == null); KHÔNG gồm đề THPT. */
     @Transactional(readOnly = true)
+    /**
+     * Mọi đề luyện tập của môn, KHÔNG lọc theo khối — dùng cho giáo viên/quản
+     * trị: họ không có khối (User.grade null) nên lọc theo khối sẽ ra gần như
+     * rỗng, trong khi việc của họ là xem được hết.
+     */
+    public List<Exam> listPracticeAllGrades(Subject subject) {
+        List<Exam> result = new ArrayList<>();
+        for (Exam e : exams.findBySubjectOrderByOrderIndexAsc(subject)) {
+            if (e.getCategory() == null) {
+                result.add(e);
+            }
+        }
+        return result;
+    }
+
     public List<Exam> listExams(Subject subject, String grade) {
         List<Exam> result = new ArrayList<>();
         for (Exam e : exams.findBySubjectOrderByOrderIndexAsc(subject)) {

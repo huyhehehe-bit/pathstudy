@@ -64,7 +64,9 @@ public class ExamController {
         String grade = user.getGrade();
         List<Map<String, Object>> groups = new ArrayList<>();
         for (Subject s : subjects.findAllByOrderByOrderIndexAsc()) {
-            List<Exam> practice = examService.listExams(s, grade);
+            List<Exam> practice = ngoaiHocSinh(user)
+                    ? examService.listPracticeAllGrades(s)
+                    : examService.listExams(s, grade);
             List<Exam> national = examService.listNationalExams(s);
             if (practice.isEmpty() && national.isEmpty()) {
                 continue;
@@ -81,8 +83,16 @@ public class ExamController {
         return "exam/list";
     }
 
+    /** Giáo viên và quản trị: xem và làm được MỌI đề, khỏi cần Premium hay đúng khối. */
+    private static boolean ngoaiHocSinh(User user) {
+        return "TEACHER".equals(user.getRole()) || "ADMIN".equals(user.getRole());
+    }
+
     /** true nếu được phép làm đề (THPT miễn phí, hoặc không premium, hoặc có Premium). */
     private boolean allowed(Exam exam, User user) {
+        if (ngoaiHocSinh(user)) {
+            return true;
+        }
         boolean national = "THPT".equals(exam.getCategory());
         return national || !exam.isPremium() || payments.hasPremiumAccess(user);
     }
@@ -92,7 +102,7 @@ public class ExamController {
         User user = currentUser.require();
         Exam exam = examService.exam(id).orElse(null);
         if (exam == null) {
-            return "redirect:/path";
+            return "redirect:/exams";
         }
         if (!allowed(exam, user)) {
             ra.addFlashAttribute("toast", "Đề này dành cho học viên Premium.");
@@ -109,7 +119,7 @@ public class ExamController {
         User user = currentUser.require();
         Exam exam = examService.exam(id).orElse(null);
         if (exam == null) {
-            return "redirect:/path";
+            return "redirect:/exams";
         }
         if (!allowed(exam, user)) {
             return "redirect:/upgrade";

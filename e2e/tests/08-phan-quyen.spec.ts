@@ -13,8 +13,6 @@ import { login } from './helpers';
 const CUA_HOC_SINH = [
   '/placement/toan/test',
   '/placement/toan/result',
-  '/exams',
-  '/exam/1',
   '/module/1',
   '/path',
   '/progress',
@@ -43,7 +41,7 @@ test.describe('Phân quyền ba vai trò', () => {
 
   test('Quản trị cũng không làm bài kiểm tra được', async ({ page }) => {
     await login(page, 'admin');
-    for (const path of ['/placement/toan/test', '/exam/1', '/module/1/estimate/test']) {
+    for (const path of ['/placement/toan/test', '/path', '/module/1/estimate/test']) {
       expect(await biChan(page, path), `admin KHÔNG được vào ${path}`).toBe(true);
     }
   });
@@ -69,7 +67,7 @@ test.describe('Phân quyền ba vai trò', () => {
   test('Giáo viên không thấy mục học sinh trên thanh điều hướng', async ({ page }) => {
     await login(page, 'teacher');
     await page.goto('/teacher');
-    for (const href of ['/path', '/progress', '/library', '/subjects/add', '/exams']) {
+    for (const href of ['/path', '/progress', '/library', '/subjects/add']) {
       await expect(
         page.locator(`.sidebar a[href="${href}"]`),
         `thanh bên không được có mục ${href}`,
@@ -77,5 +75,29 @@ test.describe('Phân quyền ba vai trò', () => {
     }
     // Logo cũng trỏ /teacher cho giáo viên, nên chỉ đếm mục trong thanh nav.
     await expect(page.locator('.sidebar .nav-item[href="/teacher"]')).toHaveCount(1);
+  });
+
+  test('Giáo viên XEM và LÀM được đề (họ là người soạn đề)', async ({ page }) => {
+    await login(page, 'teacher');
+
+    await page.goto('/exams');
+    await expect(page.locator('.content')).toBeVisible();
+    const links = page.locator('a[href^="/exam/"]:visible');
+    expect(await links.count(), 'giáo viên phải thấy đề để xem').toBeGreaterThan(0);
+
+    await links.first().click();
+    await expect(page, 'không được đá sang trang mua Premium').not.toHaveURL(/\/upgrade/);
+    const cards = page.locator('.q-card');
+    const total = await cards.count();
+    expect(total, 'phải mở được nội dung đề').toBeGreaterThan(0);
+
+    for (let i = 0; i < total; i++) {
+      const radios = cards.nth(i).locator('input[type=radio]');
+      if (await radios.count()) {
+        await radios.first().check();
+      }
+    }
+    await page.locator('form:has(.q-card) button[type=submit]').first().click();
+    await expect(page, 'nộp đề xong phải ra trang kết quả').toHaveURL(/\/result/);
   });
 });
