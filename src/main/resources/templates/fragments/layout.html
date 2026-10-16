@@ -63,27 +63,27 @@
 
 <!-- ===== Sidebar ===== -->
 <aside th:fragment="sidebar(active)" class="sidebar">
-    <a class="brand" th:href="@{/subjects}">
+    <a class="brand" th:href="${isTeacher} ? @{/teacher} : @{/subjects}">
         <span class="logo" th:insert="~{fragments/icons :: ic('mascot')}"></span>
         <span>PathStudy</span>
     </a>
     <!-- class "np" = nav primary: những mục này hiện trên bottom-bar ở mobile.
          Các mục còn lại nằm trong tấm "Thêm" (xem .nav-more trong app.css). -->
     <nav class="nav">
-        <a th:href="@{/path}" class="nav-item np" th:classappend="${active=='path'} ? 'active'">
+        <a th:if="${!isTeacher}" th:href="@{/path}" class="nav-item np" th:classappend="${active=='path'} ? 'active'">
             <span th:insert="~{fragments/icons :: ic('home')}"></span><span class="lbl">Trang chủ</span>
         </a>
-        <a th:href="@{/progress}" class="nav-item np" th:classappend="${active=='progress'} ? 'active'">
+        <a th:if="${!isTeacher}" th:href="@{/progress}" class="nav-item np" th:classappend="${active=='progress'} ? 'active'">
             <span th:insert="~{fragments/icons :: ic('chart')}"></span><span class="lbl">Tiến độ</span>
         </a>
         <a th:if="${currentUser != null and !isTeacher}" th:href="@{/exams}" class="nav-item np" th:classappend="${active=='exams'} ? 'active'">
             <span th:insert="~{fragments/icons :: ic('clipboard-check')}"></span><span class="lbl">Đề thi</span>
         </a>
-        <a th:href="@{/library}" class="nav-item np" th:classappend="${active=='library'} ? 'active'">
+        <a th:if="${!isTeacher}" th:href="@{/library}" class="nav-item np" th:classappend="${active=='library'} ? 'active'">
             <span th:insert="~{fragments/icons :: ic('library')}"></span><span class="lbl">Thư viện</span>
             <span class="nav-badge" th:if="${bookmarkCount > 0}" th:text="${bookmarkCount}">0</span>
         </a>
-        <a th:href="@{/subjects/add}" class="nav-item" th:classappend="${active=='add'} ? 'active'">
+        <a th:if="${!isTeacher}" th:href="@{/subjects/add}" class="nav-item" th:classappend="${active=='add'} ? 'active'">
             <span th:insert="~{fragments/icons :: ic('plus')}"></span><span class="lbl">Thêm môn</span>
         </a>
         <a th:if="${currentUser != null and !isTeacher and !isPremium}" th:href="@{/upgrade}" class="nav-item" th:classappend="${active=='upgrade'} ? 'active'">
@@ -125,7 +125,7 @@
 <!-- ===== Topbar ===== -->
 <header th:fragment="topbar(title)" class="topbar">
     <!-- Logo nhỏ: chỉ hiện ở mobile (sidebar thành bottom-bar nên brand bị ẩn) -->
-    <a class="topbar-brand" th:href="@{/subjects}" aria-label="PathStudy">
+    <a class="topbar-brand" th:href="${isTeacher} ? @{/teacher} : @{/subjects}" aria-label="PathStudy">
         <span th:insert="~{fragments/icons :: ic('mascot')}"></span>
     </a>
     <h1 th:text="${title}">Trang</h1>

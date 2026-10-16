@@ -51,7 +51,24 @@ public class SecurityConfig {
                                 "/h2-console/**", "/error", "/payment/webhook").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/teacher/**").hasAnyRole("TEACHER", "ADMIN")
+                        // Khu vực HỌC SINH. Giáo viên và quản trị KHÔNG làm bài
+                        // kiểm tra, không ghi tiến độ, không mua gói — họ có
+                        // /teacher/** và /admin/** riêng. Chặn ở đây (không chỉ
+                        // ẩn nút trên giao diện) vì gõ thẳng địa chỉ vẫn vào được.
+                        .requestMatchers(
+                                "/placement/**",   // kiểm tra đầu vào
+                                "/exam/**", "/exams",  // làm đề
+                                "/module/**",      // bài học + bài tự đánh giá
+                                "/english/**",     // hub Tiếng Anh (có đề bên trong)
+                                "/path", "/progress", "/library/**",
+                                "/subjects", "/subjects/**",
+                                "/ai/**",          // AI soạn giáo trình / giảng câu sai
+                                "/upgrade/**").hasRole("STUDENT")
                         .anyRequest().authenticated())
+                // Bị chặn thì đẩy về đúng nhà của vai trò đó kèm lời giải thích,
+                // thay vì quăng trang 403 trắng không ai hiểu.
+                .exceptionHandling(ex -> ex.accessDeniedHandler((req, res, denied) ->
+                        res.sendRedirect(req.getContextPath() + "/start?denied")))
                 .formLogin(form -> form
                         .loginPage("/login")
                         .loginProcessingUrl("/login")

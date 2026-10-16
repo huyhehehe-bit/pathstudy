@@ -8,6 +8,8 @@ import com.pathstudy.service.CurrentUserService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
@@ -40,13 +42,24 @@ public class HomeController {
     }
 
     /** Post-login dispatcher: staff go to their tools, students to their path. */
+    /**
+     * Cửa vào sau khi đăng nhập, và cũng là nơi SecurityConfig đẩy người dùng
+     * tới khi họ vào nhầm khu vực của vai trò khác ({@code ?denied}).
+     */
     @GetMapping("/start")
-    public String start() {
+    public String start(@RequestParam(required = false) String denied, RedirectAttributes ra) {
         User user = currentUser.require();
-        if ("ADMIN".equals(user.getRole())) {
+        boolean giaoVien = "TEACHER".equals(user.getRole());
+        boolean quanTri = "ADMIN".equals(user.getRole());
+        if (denied != null) {
+            ra.addFlashAttribute("toast", giaoVien || quanTri
+                    ? "Phần đó dành cho học sinh. Tài khoản giáo viên/quản trị không làm bài kiểm tra."
+                    : "Bạn không có quyền vào phần đó.");
+        }
+        if (quanTri) {
             return "redirect:/admin/dashboard";
         }
-        if ("TEACHER".equals(user.getRole())) {
+        if (giaoVien) {
             return "redirect:/teacher";
         }
         long count = enrollments.countByUser(user);
