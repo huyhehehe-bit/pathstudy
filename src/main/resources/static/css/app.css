@@ -11,14 +11,20 @@
      Font này KHÔNG có dấu tiếng Việt — đừng đưa chữ có dấu vào.
 
    Mọi tên class giữ nguyên để không phải sửa 40+ template. */
+/* TONE SÁNG (mặc định). Bảng màu này áp dụng khi người dùng chọn "Sáng",
+   hoặc khi chưa chọn gì và máy không ở chế độ tối.
+   Xem thêm: khối [data-mode="dark"] ngay bên dưới và js/theme.js. */
 :root {
-    --bg: #dcefff;
+    --bg: #e9f2ff;
     --surface: #ffffff;
-    --surface-2: #eef7ff;
-    --surface-3: #d6e8fb;
+    --surface-2: #f3f8ff;
+    --surface-3: #d8e8fb;
     --ink: #2e1b5b;
-    --ink-2: #5a4a86;
-    --ink-3: #8a7cae;
+    --ink-2: #534578;
+    --ink-3: #726898;
+
+    /* Ô lưới nền: đậm nhạt khác nhau giữa hai tone nên phải là biến. */
+    --grid-ink: rgba(46, 27, 91, .035);
 
     /* Viền pixel: luôn là màu tím đậm, không phải xám nhạt. */
     --outline: #2e1b5b;
@@ -74,10 +80,65 @@
     --serif: "Lora", Georgia, "Times New Roman", serif;
 }
 
+/* TONE TỐI.
+   Hai selector, một bảng màu:
+   · :root[data-mode="dark"]       — người dùng tự chọn Tối (thắng mọi cài đặt máy)
+   · :root:not([data-mode]) trong @media — chưa chọn gì thì theo máy
+   KHÔNG được bỏ :not([data-mode]) ở media query: thiếu nó thì máy đang để chế độ
+   tối sẽ đè lên lựa chọn "Sáng" của người dùng và nút đổi tone trông như hỏng. */
+:root[data-mode="dark"],
+:root[data-mode="dark"] body {
+    color-scheme: dark;
+}
+
+:root[data-mode="dark"] {
+    --bg: #140b2e;
+    --surface: #241546;
+    --surface-2: #2d1b55;
+    --surface-3: #3a2470;
+    --ink: #f2ecff;
+    --ink-2: #c3b2e8;
+    --ink-3: #9183bd;
+
+    --grid-ink: rgba(255, 255, 255, .03);
+
+    --outline: #0b0520;
+    --border: #0b0520;
+    --border-strong: #0b0520;
+
+    --lift: #0b0520;
+    --lift-ink: #1a0f38;
+
+    --primary: #46b6ff;
+    --primary-600: #6cc6ff;
+    --primary-700: #cfe8ff;
+    --primary-lip: #0b0520;
+    --primary-edge: #0b0520;
+    --primary-soft: #1d3a63;
+    --primary-tint: #1a2c4d;
+    --on-primary: #0b0520;
+
+    --go: #10d000;
+    --go-shade: #0a8a00;
+
+    --success: #5cf24f;
+    --success-soft: #11421a;
+    --success-lift: #0b0520;
+    --warn: #ffe14d;
+    --warn-soft: #4a3a05;
+    --warn-lift: #0b0520;
+    --danger: #ff8a6b;
+    --danger-soft: #4d1708;
+    --danger-lift: #0b0520;
+
+    --ring-track: #3a2470;
+}
+
 @media (prefers-color-scheme: dark) {
     /* "Game night": nền tím đêm, viền vẫn là tím-đen để giữ nét pixel. */
-    :root {
+    :root:not([data-mode]) {
         --bg: #140b2e;
+        --grid-ink: rgba(255, 255, 255, .03);
         --surface: #241546;
         --surface-2: #2d1b55;
         --surface-3: #3a2470;
@@ -132,7 +193,7 @@ body {
     /* Nền ô vuông kiểu bản đồ game — để RẤT nhạt, chữ vẫn phải đọc được. */
     background-color: var(--bg);
     background-image:
-        repeating-conic-gradient(rgba(46, 27, 91, .035) 0 25%, transparent 0 50%);
+        repeating-conic-gradient(var(--grid-ink) 0 25%, transparent 0 50%);
     background-size: 24px 24px;
     color: var(--ink);
     font-size: 15px;
@@ -1070,4 +1131,139 @@ hr.sep { border: none; border-top: var(--bw) solid var(--border); margin: 0; }
     .main { padding: 0; }
     .content { max-width: none; padding: 0; }
     .card, .sec, .module-card, .q-card { box-shadow: none; border-color: #ccc; }
+}
+
+/* =======================================================================
+   HỘP CHỌN TONE SÁNG / TỐI (hiện một lần cho người mới)
+   Chỉ hiện khi <html> còn thuộc tính data-mode-pending — js/theme.js gỡ
+   thuộc tính này ngay khi người dùng bấm chọn, và không hiện lại nữa.
+   ======================================================================= */
+/* Hộp chỉ tồn tại khi cần: theme.js dựng nó lúc người mới vào, hoặc lúc bấm
+   nút "Đổi giao diện", rồi gỡ khỏi DOM khi chọn xong. KHÔNG dùng display:none
+   gắn với data-mode-pending — làm vậy thì lần bấm nút mở lại sẽ dựng được hộp
+   nhưng nó vô hình (đã chọn rồi nên không còn data-mode-pending). */
+.mode-gate {
+    position: fixed;
+    inset: 0;
+    z-index: 9000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    background: rgba(11, 5, 32, .62);
+}
+
+.mode-gate-box {
+    width: min(560px, 100%);
+    max-height: calc(100vh - 32px);
+    overflow: auto;
+    background: var(--surface);
+    border: var(--bw) solid var(--border);
+    box-shadow: var(--shadow-lg);
+    padding: 22px;
+    text-align: center;
+}
+
+.mode-gate-box h2 {
+    font-family: var(--display);
+    font-size: 30px;
+    line-height: 1.1;
+    margin: 0 0 6px;
+    color: var(--ink);
+}
+
+.mode-gate-box p {
+    margin: 0 0 18px;
+    color: var(--ink-2);
+    font-size: 14px;
+}
+
+.mode-opts {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+/* Học sinh có 3 lựa chọn (thêm bản Hồng), quản trị chỉ có 2. */
+.mode-opts[data-so="3"] { grid-template-columns: repeat(3, 1fr); }
+
+.mode-opt {
+    display: block;
+    width: 100%;
+    padding: 0 0 12px;
+    background: var(--surface);
+    border: var(--bw) solid var(--border);
+    box-shadow: var(--shadow-sm);
+    cursor: pointer;
+    font-family: var(--display);
+    font-size: 20px;
+    color: var(--ink);
+    transition: transform .08s ease, box-shadow .08s ease;
+}
+
+.mode-opt:hover { transform: translate(-1px, -1px); box-shadow: var(--shadow); }
+.mode-opt:active { transform: translate(2px, 2px); box-shadow: none; }
+
+/* Ảnh thu nhỏ: dựng bằng CSS, không tải thêm ảnh nào. */
+.mode-prev {
+    height: 92px;
+    border-bottom: var(--bw) solid var(--border);
+    padding: 8px;
+    display: grid;
+    grid-template-columns: 26px 1fr;
+    gap: 6px;
+}
+
+.mode-prev span { display: block; border: 2px solid var(--outline); }
+.mode-prev .pv-side { background: var(--surface-2); }
+.mode-prev .pv-main { display: grid; grid-template-rows: 18px 1fr; gap: 6px; border: 0; }
+.mode-prev .pv-bar { background: var(--primary); border: 2px solid var(--outline); }
+.mode-prev .pv-body { background: var(--surface-3); border: 2px solid var(--outline); }
+
+/* Bản xem trước của tone SÁNG — màu cố định, không theo tone đang dùng,
+   để hai lựa chọn nhìn khác nhau rõ ràng dù web đang ở tone nào. */
+.mode-opt[data-pick="sang"] .pv-side { background: #f3f8ff; }
+.mode-opt[data-pick="sang"] .pv-bar  { background: #179cff; }
+.mode-opt[data-pick="sang"] .pv-body { background: #d8e8fb; }
+.mode-opt[data-pick="sang"] .mode-prev { background: #e9f2ff; }
+
+.mode-opt[data-pick="toi"] .pv-side { background: #2d1b55; }
+.mode-opt[data-pick="toi"] .pv-bar  { background: #46b6ff; }
+.mode-opt[data-pick="toi"] .pv-body { background: #3a2470; }
+.mode-opt[data-pick="toi"] .mode-prev { background: #140b2e; }
+.mode-opt[data-pick="toi"] .mode-prev span { border-color: #0b0520; }
+
+/* Bản Hồng = theme Kawai, lấy đúng màu ở kawai.css mục 3. */
+.mode-opt[data-pick="hong"] .pv-side { background: #f6e6ec; }
+.mode-opt[data-pick="hong"] .pv-bar  { background: #d64775; }
+.mode-opt[data-pick="hong"] .pv-body { background: #f2cbd6; }
+.mode-opt[data-pick="hong"] .mode-prev { background: #f7ccd7; }
+.mode-opt[data-pick="hong"] .mode-prev span { border-color: #4a102b; }
+
+/* Đang dùng cái nào thì đánh dấu, để người ta biết mình đang ở đâu. */
+.mode-opt.dang-dung {
+    outline: 3px solid var(--primary);
+    outline-offset: 2px;
+}
+
+.mode-gate-huy {
+    background: none;
+    border: 0;
+    padding: 0;
+    font: inherit;
+    color: var(--ink-3);
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.mode-gate-note {
+    margin: 16px 0 0;
+    font-size: 12px;
+    color: var(--ink-3);
+}
+
+@media (max-width: 520px) {
+    .mode-opts, .mode-opts[data-so="3"] { grid-template-columns: 1fr; }
+    .mode-prev { height: 76px; }
+    .mode-gate-box h2 { font-size: 26px; }
 }

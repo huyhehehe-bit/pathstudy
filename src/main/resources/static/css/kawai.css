@@ -91,6 +91,17 @@ html[data-mode="dark"] .btn-mode-switch .mode-moon {
     display: block;
 }
 
+/* Chưa chọn tone bao giờ mà máy đang để chế độ tối: trang đã tối rồi nên
+   biểu tượng phải là mặt trăng, không thì nút nói một đằng trang một nẻo. */
+@media (prefers-color-scheme: dark) {
+    html:not([data-mode]) .btn-mode-switch .mode-sun {
+        display: none;
+    }
+    html:not([data-mode]) .btn-mode-switch .mode-moon {
+        display: block;
+    }
+}
+
 /* =======================================================================
    2. DARK MODE CHO THEME PASTEL (GIAO DIỆN CŨ)
    ======================================================================= */

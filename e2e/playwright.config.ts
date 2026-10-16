@@ -55,6 +55,10 @@ export default defineConfig({
 
   use: {
     baseURL: BASE_URL,
+    // Người mới vào web bị hỏi chọn tone Sáng/Tối (hộp .mode-gate che cả trang).
+    // Nạp sẵn lựa chọn "Sáng" cho mọi test để hộp đó không chắn thao tác.
+    // Riêng 07-tone.spec.ts tự dùng ngữ cảnh trắng để kiểm tra chính cái hộp này.
+    storageState: path.join(__dirname, 'da-chon-tone.json'),
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
     trace: 'retain-on-failure',

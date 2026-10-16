@@ -19,24 +19,25 @@
     ];
 
     function getTheme() {
-        return localStorage.getItem(STORAGE_THEME_KEY) || 'pastel';
+        return document.documentElement.getAttribute('data-theme')
+            || localStorage.getItem(STORAGE_THEME_KEY) || 'pastel';
     }
 
+    // Tone Sáng/Tối do js/theme.js quản. Đọc từ thuộc tính trên <html> chứ
+    // KHÔNG đọc thẳng localStorage: người chưa chọn bao giờ thì chưa có gì
+    // trong localStorage mà trang vẫn đang hiển thị theo cài đặt của máy.
     function getMode() {
-        return localStorage.getItem(STORAGE_MODE_KEY) || 'light';
+        var m = document.documentElement.getAttribute('data-mode');
+        if (m === 'light' || m === 'dark') {
+            return m;
+        }
+        return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
+            ? 'dark' : 'light';
     }
 
-    function setTheme(theme) {
-        localStorage.setItem(STORAGE_THEME_KEY, theme);
-        document.documentElement.setAttribute('data-theme', theme);
-        updateCardCharacters();
-    }
-
-    function setMode(mode) {
-        localStorage.setItem(STORAGE_MODE_KEY, mode);
-        document.documentElement.setAttribute('data-mode', mode);
-        updateCardCharacters();
-    }
+    // setTheme()/setMode() đã bỏ: việc chọn giao diện nằm trọn trong
+    // js/theme.js, để chỉ MỘT nơi ghi localStorage. Trước đây hai file cùng
+    // bắt sự kiện bấm nút thì một cú bấm đổi hai lượt = nhìn như không đổi.
 
     function updateCardCharacters() {
         var theme = getTheme();
@@ -66,13 +67,6 @@
         var btnTheme = document.getElementById('btnThemeSwitch');
         var btnMode = document.getElementById('btnModeSwitch');
 
-        // Nếu không có nút chuyển (trang admin / manager), cố định theme cũ và không chạy
-        if (!btnTheme) {
-            document.documentElement.setAttribute('data-theme', 'pastel');
-            document.documentElement.setAttribute('data-mode', 'light');
-            return;
-        }
-
         function updateModeTooltip(mode) {
             if (btnMode) {
                 var isDark = (mode === 'dark');
@@ -81,25 +75,20 @@
             }
         }
 
-        // Đồng bộ thuộc tính hiện tại
-        var currentTheme = getTheme();
-        var currentMode = getMode();
-        document.documentElement.setAttribute('data-theme', currentTheme);
-        document.documentElement.setAttribute('data-mode', currentMode);
-        updateModeTooltip(currentMode);
+        updateModeTooltip(getMode());
 
-        btnTheme.addEventListener('click', function () {
-            var current = getTheme();
-            var nextTheme = (current === 'kawai') ? 'pastel' : 'kawai';
-            setTheme(nextTheme);
+        // theme.js đổi tone → đổi theo bộ nhân vật ngày/đêm và chữ gợi ý.
+        document.addEventListener('pathstudy:mode', function (ev) {
+            updateModeTooltip(ev.detail);
+            updateCardCharacters();
         });
 
-        btnMode.addEventListener('click', function () {
-            var current = getMode();
-            var nextMode = (current === 'dark') ? 'light' : 'dark';
-            setMode(nextMode);
-            updateModeTooltip(nextMode);
-        });
+        // Việc chọn phong cách (pastel/kawai) và tone (ngày/đêm) nay nằm trọn
+        // trong js/theme.js — một nơi duy nhất ghi localStorage. File này chỉ
+        // còn lo phần trang trí: thay bộ nhân vật theo ngày/đêm.
+        if (!btnTheme) {
+            return;
+        }
 
         updateCardCharacters();
     });
