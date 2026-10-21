@@ -28,6 +28,14 @@ public class GlobalModelAdvice {
     @Value("${app.analytics.ga-id:}")
     private String gaId;
 
+    /** Link form khao sat trai nghiem. De trong = khong hien loi moi khao sat. */
+    @Value("${app.survey.url:}")
+    private String surveyUrl;
+
+    /** Dung web du bao nhieu mili-giay thi moi khao sat (cong don nhieu trang). */
+    @Value("${app.survey.delay-ms:300000}")
+    private long surveyDelayMs;
+
     public GlobalModelAdvice(CurrentUserService currentUser, BookmarkService bookmarks,
                              EnrollmentRepository enrollments, BankTransferPaymentService payments) {
         this.currentUser = currentUser;
@@ -49,6 +57,16 @@ public class GlobalModelAdvice {
     @ModelAttribute("gaId")
     public String gaId() {
         return gaId;
+    }
+
+    @ModelAttribute("surveyUrl")
+    public String surveyUrl() {
+        return surveyUrl;
+    }
+
+    @ModelAttribute("surveyDelayMs")
+    public long surveyDelayMs() {
+        return surveyDelayMs;
     }
 
     @ModelAttribute("currentUser")

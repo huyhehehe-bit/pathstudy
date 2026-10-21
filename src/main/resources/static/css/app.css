@@ -1267,3 +1267,71 @@ hr.sep { border: none; border-top: var(--bw) solid var(--border); margin: 0; }
     .mode-prev { height: 76px; }
     .mode-gate-box h2 { font-size: 26px; }
 }
+
+/* =======================================================================
+   LỜI MỜI KHẢO SÁT (js/khao-sat.js)
+   Nằm góc dưới phải trên desktop, trượt lên từ đáy trên điện thoại. Không
+   phủ kín màn hình: người dùng đang đọc bài vẫn đọc tiếp được, chỉ cần một
+   cú bấm để dẹp.
+   ======================================================================= */
+.ks-moi {
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    z-index: 8000;
+    width: min(340px, calc(100vw - 36px));
+    padding: 16px 18px 18px;
+    background: var(--surface);
+    border: var(--bw) solid var(--border);
+    box-shadow: var(--shadow-lg);
+    transform: translateY(18px);
+    opacity: 0;
+    transition: transform .22s ease, opacity .22s ease;
+}
+
+.ks-moi.hien { transform: translateY(0); opacity: 1; }
+
+.ks-tieu-de {
+    font-family: var(--display);
+    font-size: 22px;
+    line-height: 1.15;
+    color: var(--ink);
+    margin-bottom: 6px;
+    padding-right: 18px;
+}
+
+.ks-than {
+    margin: 0 0 14px;
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: var(--ink-2);
+}
+
+.ks-nut { display: flex; gap: 10px; flex-wrap: wrap; }
+.ks-nut .btn { padding: 9px 14px; font-size: 14px; }
+
+.ks-dong {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    width: 26px;
+    height: 26px;
+    line-height: 1;
+    font-size: 19px;
+    background: none;
+    border: 0;
+    color: var(--ink-3);
+    cursor: pointer;
+}
+
+.ks-dong:hover { color: var(--ink); }
+
+/* Trên điện thoại bám đáy màn hình, chừa chỗ cho thanh điều hướng dưới. */
+@media (max-width: 900px) {
+    .ks-moi {
+        right: 12px;
+        left: 12px;
+        bottom: calc(var(--bottom-nav-h, 64px) + 12px);
+        width: auto;
+    }
+}

@@ -17,6 +17,16 @@
     <link rel="stylesheet" th:href="@{/css/kawai.css}"/>
     <script th:src="@{/js/kawai.js}" defer></script>
     <script th:src="@{/js/theme.js}" defer></script>
+    <!-- Lời mời khảo sát: chỉ nạp cho học sinh và chỉ khi đã cấu hình link. -->
+    <script th:if="${isStudent and surveyUrl != null and !#strings.isEmpty(surveyUrl)}"
+            th:src="@{/js/khao-sat.js}" defer></script>
+    <th:block th:if="${isStudent and surveyUrl != null and !#strings.isEmpty(surveyUrl)}">
+        <script th:inline="javascript">
+            document.documentElement.setAttribute('data-khaosat', /*[[${surveyUrl}]]*/ '');
+            document.documentElement.setAttribute('data-khaosat-sau',
+                String(/*[[${surveyDelayMs}]]*/ 300000));
+        </script>
+    </th:block>
     <!-- Đặt tone NGAY, trước khi trang vẽ: để xuống dưới là người dùng thấy
          chớp một nhịp sai màu. Chưa chọn bao giờ thì KHÔNG đặt data-mode —
          lúc đó app.css để @media (prefers-color-scheme) quyết, và

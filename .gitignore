@@ -40,3 +40,6 @@ e2e/playwright-report/
 e2e/blob-report/
 e2e/.cache/
 e2e/*.log
+
+# Bản nháp báo cáo EXE201 — tài liệu, không phải mã nguồn
+bao-cao-exe201/
