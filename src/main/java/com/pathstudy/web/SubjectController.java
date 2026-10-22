@@ -51,9 +51,20 @@ public class SubjectController {
             ra.addFlashAttribute("toast", "Môn này đang được phát triển, hãy chọn Ngữ văn để trải nghiệm.");
             return "redirect:/subjects";
         }
+        // Đã học môn này rồi thì vào thẳng lộ trình, đừng bắt làm lại kiểm tra đầu vào.
+        if (enrollments.findByUserAndSubject(user, subject).isPresent()) {
+            return pathOf(subject);
+        }
         boolean primary = enrollments.countByUser(user) == 0;
         studyPath.enroll(user, subject, primary);
         return "redirect:/placement/" + subject.getCode();
+    }
+
+    /** Tiếng Anh có hub riêng (/english); các môn khác dùng trang lộ trình chung. */
+    private String pathOf(Subject subject) {
+        return "anh".equals(subject.getCode())
+                ? "redirect:/english"
+                : "redirect:/path?subject=" + subject.getCode();
     }
 
     @GetMapping("/subjects/add")
@@ -75,6 +86,9 @@ public class SubjectController {
         if (subject == null || !subject.isActive()) {
             ra.addFlashAttribute("toast", "Môn này đang được phát triển và sẽ sớm có mặt.");
             return "redirect:/subjects/add";
+        }
+        if (enrollments.findByUserAndSubject(user, subject).isPresent()) {
+            return pathOf(subject);
         }
         studyPath.enroll(user, subject, false);
         return "redirect:/placement/" + subject.getCode();

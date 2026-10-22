@@ -83,6 +83,16 @@
         <a th:if="${!isTeacher}" th:href="@{/path}" class="nav-item np" th:classappend="${active=='path'} ? 'active'">
             <span th:insert="~{fragments/icons :: ic('home')}"></span><span class="lbl">Trang chủ</span>
         </a>
+        <!-- Học nhiều môn thì phải có chỗ đổi môn: /path không tham số luôn mở
+             môn đầu tiên, nên môn thêm sau (vd Tiếng Anh) sẽ không có đường vào. -->
+        <th:block th:if="${myEnrollments != null and myEnrollments.size() > 1}">
+            <a th:each="en : ${myEnrollments}" class="nav-item nav-sub"
+               th:href="${en.subject.code == 'anh'} ? @{/english} : @{/path(subject=${en.subject.code})}"
+               th:classappend="${activeSubject != null and activeSubject == en.subject.code} ? 'active'">
+                <span th:insert="~{fragments/icons :: ic(${en.subject.iconKey})}"></span>
+                <span class="lbl" th:text="${en.subject.name}">Ngữ văn</span>
+            </a>
+        </th:block>
         <a th:if="${!isTeacher}" th:href="@{/progress}" class="nav-item np" th:classappend="${active=='progress'} ? 'active'">
             <span th:insert="~{fragments/icons :: ic('chart')}"></span><span class="lbl">Tiến độ</span>
         </a>
@@ -170,6 +180,19 @@
         <span class="who" th:text="${currentUser != null ? currentUser.fullName : 'Học sinh'}">Nguyễn An</span>
     </span>
 </header>
+
+<!-- ===== Thanh chuyển môn =====
+     Chỉ hiện khi học sinh học từ 2 môn trở lên. base = 'path' hoặc 'progress';
+     Tiếng Anh luôn về hub riêng /english. -->
+<div th:fragment="subjectTabs(base)" class="subject-tabs"
+     th:if="${myEnrollments != null and myEnrollments.size() > 1}">
+    <a th:each="en : ${myEnrollments}" class="subject-tab"
+       th:href="${en.subject.code == 'anh'} ? @{/english} : @{'/' + ${base} + '?subject=' + ${en.subject.code}}"
+       th:classappend="${activeSubject != null and activeSubject == en.subject.code} ? 'active'">
+        <span th:insert="~{fragments/icons :: ic(${en.subject.iconKey})}"></span>
+        <span th:text="${en.subject.name}">Ngữ văn</span>
+    </a>
+</div>
 
 <!-- ===== Toast ===== -->
 <div th:fragment="toast" th:if="${toast}" class="toast" th:text="${toast}"></div>

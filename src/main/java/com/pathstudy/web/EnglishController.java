@@ -61,6 +61,12 @@ public class EnglishController {
         return subjects.findByCode("anh").orElseThrow();
     }
 
+    /** Mọi trang /english đều là môn Tiếng Anh — để thanh bên tô đậm đúng môn. */
+    @ModelAttribute("activeSubject")
+    public String activeSubject() {
+        return "anh";
+    }
+
     @GetMapping
     public String hub(Model model) {
         User user = currentUser.require();

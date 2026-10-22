@@ -76,7 +76,9 @@
                     Hệ thống đã tạo lộ trình cá nhân hoá dựa trên kết quả này.
                 </div>
 
-                <a th:href="${grade != null} ? @{/english(grade=${grade})} : @{'/path?subject=' + ${outcome.subject.code}}"
+                <!-- Theo MÔN, không theo grade: Toán cũng có grade nên bản cũ đẩy
+                     học sinh vừa thi Toán sang trang Tiếng Anh. -->
+                <a th:href="${outcome.subject.code == 'anh'} ? @{/english} : @{/path(subject=${outcome.subject.code})}"
                    class="btn btn-primary btn-lg btn-block">
                     Bắt đầu lộ trình của tôi <span th:insert="~{fragments/icons :: ic('arrow')}"></span>
                 </a>

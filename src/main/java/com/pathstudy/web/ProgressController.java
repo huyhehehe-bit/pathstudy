@@ -41,6 +41,7 @@ public class ProgressController {
                 ? subjects.findByCode(subject).orElse(myEnrollments.get(0).getSubject())
                 : myEnrollments.get(0).getSubject();
 
+        model.addAttribute("activeSubject", subj.getCode());
         model.addAttribute("summary", studyPath.getPathSummary(user, subj));
         model.addAttribute("enrollments", myEnrollments);
         return "progress/index";

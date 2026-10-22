@@ -47,6 +47,7 @@ public class PathController {
             return "redirect:/english";
         }
 
+        model.addAttribute("activeSubject", subj.getCode());
         model.addAttribute("summary", studyPath.getPathSummary(user, subj));
         model.addAttribute("enrollments", myEnrollments);
         return "path/index";

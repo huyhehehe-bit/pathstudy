@@ -8,6 +8,8 @@
         <header th:replace="~{fragments/layout :: topbar('Lộ trình của tôi')}"></header>
         <div class="content stack">
 
+            <div th:replace="~{fragments/layout :: subjectTabs('path')}"></div>
+
             <div class="between" style="flex-wrap:wrap">
                 <div class="stack-sm">
                     <h2 style="font-size:24px;display:flex;align-items:center;gap:10px">

@@ -98,14 +98,19 @@ public class GlobalModelAdvice {
         return currentUser.current().map(bookmarks::count).orElse(0L);
     }
 
-    /** Code of the student's primary subject, for the sidebar "Lộ trình" link. */
-    @ModelAttribute("primarySubjectCode")
-    public String primarySubjectCode() {
+    /**
+     * Các môn học sinh đang học, cho thanh bên.
+     * /path không có tham số luôn mở môn ĐẦU TIÊN, nên học sinh thêm môn thứ hai
+     * (vd làm kiểm tra Tiếng Anh sau khi đã học Ngữ văn) không có đường nào quay
+     * lại môn mới ngoài trang kết quả — phải có danh sách môn ở thanh bên.
+     * Giáo viên/quản trị không học nên bỏ qua (khỏi query vô ích).
+     */
+    @ModelAttribute("myEnrollments")
+    public List<Enrollment> myEnrollments() {
         Optional<User> u = currentUser.current();
-        if (u.isEmpty()) {
-            return null;
+        if (u.isEmpty() || "TEACHER".equals(u.get().getRole()) || "ADMIN".equals(u.get().getRole())) {
+            return List.of();
         }
-        List<Enrollment> list = enrollments.findByUserOrderByCreatedAtAsc(u.get());
-        return list.isEmpty() ? null : list.get(0).getSubject().getCode();
+        return enrollments.findByUserOrderByCreatedAtAsc(u.get());
     }
 }

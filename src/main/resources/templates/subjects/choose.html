@@ -22,6 +22,8 @@
                                 <span class="tile" th:classappend="'tile-' + ${s.colorKey}" th:insert="~{fragments/icons :: ic(${s.iconKey})}"></span>
                                 <span><span style="font-weight:700;display:block" th:text="${s.name}">Ngữ văn</span>
                                     <span class="faint" style="font-size:12px" th:text="${s.grade}">THPT</span></span>
+                                <span th:if="${enrolledCodes.contains(s.code)}" class="faint"
+                                      style="margin-left:auto;font-size:11px;font-weight:700">Đang học</span>
                             </span>
                         </label>
                         <label th:unless="${s.active}" class="pick disabled">

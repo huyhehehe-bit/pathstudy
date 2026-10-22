@@ -7,6 +7,7 @@
     <main class="main">
         <header th:replace="~{fragments/layout :: topbar('Tổng quan lộ trình')}"></header>
         <div class="content stack">
+            <div th:replace="~{fragments/layout :: subjectTabs('progress')}"></div>
             <div class="section-head">
                 <h2 style="font-size:24px">Hành trình <span th:text="${summary.subject.name}">Ngữ văn</span> của bạn</h2>
                 <p class="muted" th:if="${summary.hasPlacement}">Trình độ hiện tại: <strong th:text="${summary.level}">Khá</strong></p>
