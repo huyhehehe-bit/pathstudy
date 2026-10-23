@@ -794,3 +794,114 @@ html[data-theme="kawai"][data-mode="dark"] .card:has(.btn-ghost)::after {
     filter: brightness(0.85) contrast(1.2) hue-rotate(280deg);
 }
 
+/* =======================================================================
+   10. TOC CHƯƠNG MÔN HỌC (LỘ TRÌNH TOÁN, VĂN,...)
+   Đảm bảo các thẻ chương nổi bật rõ ràng trên hình nền pixel,
+   không bị chìm vào background.
+   ======================================================================= */
+
+/* --- Kawai Ban Ngày --- */
+html[data-theme="kawai"]:not([data-mode="dark"]) .toc-ch {
+    background: #fff5f8;
+    border: 2.5px solid #6e2646;
+    box-shadow: 3px 3px 0 #6e2646;
+}
+html[data-theme="kawai"]:not([data-mode="dark"]) .toc-ch:hover {
+    box-shadow: 4px 4px 0 #6e2646;
+    transform: translate(-1px, -1px);
+}
+html[data-theme="kawai"]:not([data-mode="dark"]) .toc-ch.doing {
+    background: #ffe8f0;
+    border: 2.5px solid #b8336a;
+    box-shadow: 3px 3px 0 #b8336a;
+}
+html[data-theme="kawai"]:not([data-mode="dark"]) .toc-ch.doing .toc-head {
+    color: #b8336a;
+}
+html[data-theme="kawai"]:not([data-mode="dark"]) .toc-ch.done {
+    background: #f2faf5;
+    border: 2.5px solid #16a34a;
+}
+html[data-theme="kawai"]:not([data-mode="dark"]) .toc-ch.done .toc-head {
+    color: #15803d;
+}
+html[data-theme="kawai"]:not([data-mode="dark"]) .toc-ch.locked {
+    background: rgba(250, 230, 237, 0.82);
+    border: 2px dashed #9e5374;
+    box-shadow: none;
+}
+html[data-theme="kawai"]:not([data-mode="dark"]) .toc-ch .toc-head {
+    color: #4a102b;
+}
+html[data-theme="kawai"]:not([data-mode="dark"]) .toc-ch .toc-head.is-off {
+    color: #722448;
+}
+html[data-theme="kawai"]:not([data-mode="dark"]) .toc-ch .toc-no {
+    color: #8c3b5d;
+}
+html[data-theme="kawai"]:not([data-mode="dark"]) .toc-ch .toc-sub li {
+    color: #4a102b;
+}
+html[data-theme="kawai"]:not([data-mode="dark"]) .toc-ch .toc-sub a {
+    color: #4a102b;
+}
+html[data-theme="kawai"]:not([data-mode="dark"]) .toc-ch .toc-sub a:hover {
+    color: #b8336a;
+}
+html[data-theme="kawai"]:not([data-mode="dark"]) .toc-ch .toc-sub .is-note {
+    color: #8c3b5d;
+}
+
+/* --- Kawai Ban Đêm --- */
+html[data-theme="kawai"][data-mode="dark"] .toc-ch {
+    background: #2a1625;
+    border: 2.5px solid #d47a9e;
+    box-shadow: 3px 3px 0 #180915;
+}
+html[data-theme="kawai"][data-mode="dark"] .toc-ch:hover {
+    box-shadow: 4px 4px 0 #180915;
+    transform: translate(-1px, -1px);
+}
+html[data-theme="kawai"][data-mode="dark"] .toc-ch.doing {
+    background: #3d1d36;
+    border: 2.5px solid #ff75a0;
+    box-shadow: 3px 3px 0 #ff75a0;
+}
+html[data-theme="kawai"][data-mode="dark"] .toc-ch.doing .toc-head {
+    color: #ff75a0;
+}
+html[data-theme="kawai"][data-mode="dark"] .toc-ch.done {
+    background: #172c21;
+    border: 2.5px solid #22c55e;
+}
+html[data-theme="kawai"][data-mode="dark"] .toc-ch.done .toc-head {
+    color: #4ade80;
+}
+html[data-theme="kawai"][data-mode="dark"] .toc-ch.locked {
+    background: rgba(38, 18, 33, 0.82);
+    border: 2px dashed #824765;
+    box-shadow: none;
+}
+html[data-theme="kawai"][data-mode="dark"] .toc-ch .toc-head {
+    color: #ffd6e7;
+}
+html[data-theme="kawai"][data-mode="dark"] .toc-ch .toc-head.is-off {
+    color: #c98ba8;
+}
+html[data-theme="kawai"][data-mode="dark"] .toc-ch .toc-no {
+    color: #d47a9e;
+}
+html[data-theme="kawai"][data-mode="dark"] .toc-ch .toc-sub li {
+    color: #ffd6e7;
+}
+html[data-theme="kawai"][data-mode="dark"] .toc-ch .toc-sub a {
+    color: #ffd6e7;
+}
+html[data-theme="kawai"][data-mode="dark"] .toc-ch .toc-sub a:hover {
+    color: #ff75a0;
+}
+html[data-theme="kawai"][data-mode="dark"] .toc-ch .toc-sub .is-note {
+    color: #c48ba4;
+}
+
+
