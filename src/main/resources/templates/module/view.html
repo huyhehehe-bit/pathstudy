@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/layout :: head(${detail.lesson != null ? detail.lesson.title : detail.module.title})}"></head>
 <body>
@@ -112,6 +112,23 @@
                 </div>
                 <a th:href="@{'/module/' + ${detail.module.id} + '/estimate'}" class="btn btn-primary">
                     Làm bài kiểm tra <span th:insert="~{fragments/icons :: ic('arrow')}"></span></a>
+            </div>
+
+            <!-- Complete CTA khi module không có bài kiểm tra riêng -->
+            <div class="card card-pad between" th:unless="${detail.hasEstimate}" style="flex-wrap:wrap;gap:14px">
+                <div class="center" style="gap:14px">
+                    <span class="tile tile-green" th:insert="~{fragments/icons :: ic('check')}"></span>
+                    <div>
+                        <strong>Đã hoàn thành phần lý thuyết?</strong>
+                        <div class="muted" style="font-size:13px">Xác nhận để chuyển sang bài học tiếp theo trên lộ trình.</div>
+                    </div>
+                </div>
+                <form th:action="@{'/module/' + ${detail.module.id} + '/complete'}" method="post">
+                    <button type="submit" class="btn btn-primary" style="display:inline-flex;align-items:center;gap:6px">
+                        <span>Đã hiểu bài &amp; Tiếp tục</span>
+                        <span th:insert="~{fragments/icons :: ic('arrow')}"></span>
+                    </button>
+                </form>
             </div>
         </div>
     </main>

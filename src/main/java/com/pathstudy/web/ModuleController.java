@@ -77,4 +77,19 @@ public class ModuleController {
         }
         return "redirect:/module/" + id;
     }
+
+    @PostMapping("/complete")
+    public String complete(@PathVariable Long id, RedirectAttributes ra) {
+        User user = currentUser.require();
+        CourseModule module = learning.findModule(id).orElse(null);
+        if (module == null) {
+            return "redirect:/path";
+        }
+        CourseModule next = studyPath.completeModule(user, module);
+        ra.addFlashAttribute("toast", "Đã hoàn thành: " + module.getTitle());
+        if (next != null) {
+            return "redirect:/module/" + next.getId();
+        }
+        return "redirect:/path?subject=" + module.getSubject().getCode();
+    }
 }
