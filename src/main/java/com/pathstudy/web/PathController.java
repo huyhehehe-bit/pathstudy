@@ -35,7 +35,7 @@ public class PathController {
         User user = currentUser.require();
         List<Enrollment> myEnrollments = enrollments.findByUserOrderByCreatedAtAsc(user);
         if (myEnrollments.isEmpty()) {
-            return "redirect:/subjects";
+            return "redirect:/home";
         }
 
         Subject subj = (subject != null)

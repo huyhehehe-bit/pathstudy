@@ -59,6 +59,7 @@ public class SecurityConfig {
                                 "/placement/**",   // kiểm tra đầu vào
                                 "/module/**",      // bài học + bài tự đánh giá
                                 "/english/**",     // hub Tiếng Anh của học sinh
+                                "/home",           // trang chu sau dang nhap cua hoc sinh
                                 "/path", "/progress", "/library/**",
                                 "/subjects", "/subjects/**",
                                 "/upgrade/**").hasRole("STUDENT")

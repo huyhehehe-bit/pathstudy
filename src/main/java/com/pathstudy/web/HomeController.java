@@ -1,5 +1,6 @@
 package com.pathstudy.web;
 
+import com.pathstudy.domain.Enrollment;
 import com.pathstudy.domain.Subject;
 import com.pathstudy.domain.User;
 import com.pathstudy.repo.EnrollmentRepository;
@@ -41,11 +42,32 @@ public class HomeController {
         return "landing";
     }
 
-    /** Post-login dispatcher: staff go to their tools, students to their path. */
-    /**
-     * Cửa vào sau khi đăng nhập, và cũng là nơi SecurityConfig đẩy người dùng
-     * tới khi họ vào nhầm khu vực của vai trò khác ({@code ?denied}).
-     */
+    /** Trang chủ nội bộ của học sinh sau khi đăng nhập */
+    @GetMapping("/home")
+    public String home(Model model) {
+        User user = currentUser.require();
+        if ("ADMIN".equals(user.getRole())) {
+            return "redirect:/admin/dashboard";
+        }
+        if ("TEACHER".equals(user.getRole())) {
+            return "redirect:/teacher";
+        }
+
+        List<Enrollment> myEnrollments = enrollments.findByUserOrderByCreatedAtAsc(user);
+        boolean hasEnrolled = !myEnrollments.isEmpty();
+
+        List<Subject> list = subjects.findAllByOrderByOrderIndexAsc();
+        model.addAttribute("subjects", list);
+        model.addAttribute("hasEnrolled", hasEnrolled);
+        model.addAttribute("enrolledCount", myEnrollments.size());
+        model.addAttribute("enrollments", myEnrollments);
+        model.addAttribute("goals", StudyGoal.ALL);
+        model.addAttribute("blurbs", StudyGoal.BLURB);
+        model.addAttribute("goalIcons", StudyGoal.ICON);
+        return "home/index";
+    }
+
+    /** Post-login dispatcher: staff go to their tools, students to their home. */
     @GetMapping("/start")
     public String start(@RequestParam(required = false) String denied, RedirectAttributes ra) {
         User user = currentUser.require();
@@ -62,7 +84,6 @@ public class HomeController {
         if (giaoVien) {
             return "redirect:/teacher";
         }
-        long count = enrollments.countByUser(user);
-        return count == 0 ? "redirect:/subjects" : "redirect:/path";
+        return "redirect:/home";
     }
 }

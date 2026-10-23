@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Trang chủ')}"></head>
+<body>
+<div class="shell">
+    <aside th:replace="~{fragments/layout :: sidebar('home')}"></aside>
+    <main class="main">
+        <header th:replace="~{fragments/layout :: topbar('Trang chủ')}"></header>
+        <div class="content stack" style="gap:26px">
+
+            <!-- Hero Banner: Phong cách Landing Page trong Layout chính -->
+            <div class="card card-pad stack" style="gap:20px;background:var(--surface);border:1px solid var(--border);border-radius:18px;position:relative;overflow:hidden">
+                <div style="position:absolute;top:-40px;right:-40px;width:200px;height:200px;background:radial-gradient(circle, var(--primary-soft) 0%, transparent 70%);opacity:0.6;pointer-events:none"></div>
+
+                <div class="between" style="align-items:flex-start;flex-wrap:wrap;gap:20px">
+                    <div class="stack-sm" style="max-width:640px">
+                        <span class="eyebrow" style="color:var(--primary)">Lộ trình học cá nhân hoá · THPT</span>
+                        <h1 style="font-size:28px;line-height:1.28;margin:6px 0 10px">Học đúng hướng.<br/>Đạt mục tiêu của bạn.</h1>
+                        <p class="lead" style="font-size:15px;line-height:1.6;color:var(--muted);margin:0">
+                            Hệ thống xác định năng lực thực tế, xây dựng lộ trình học riêng biệt cho từng môn, giúp bạn lấp lỗ hổng kiến thức và tự tin bứt phá điểm số.
+                        </p>
+                    </div>
+
+                    <!-- Pixel mascot decoration -->
+                    <div class="px-scene" aria-hidden="true" style="padding-top:10px">
+                        <span class="px-lg px-float" th:insert="~{fragments/icons :: ic('px-cloud')}"></span>
+                        <span class="px-lg" th:insert="~{fragments/icons :: ic('mascot')}"></span>
+                        <span class="px-lg" th:insert="~{fragments/icons :: ic('mascot2')}"></span>
+                        <span class="px-md px-float" th:insert="~{fragments/icons :: ic('px-star')}"></span>
+                    </div>
+                </div>
+
+                <!-- TRƯỜNG HỢP 1: ĐÃ THAM GIA LỘ TRÌNH (hasEnrolled == true) -->
+                <div th:if="${hasEnrolled}" class="stack-sm" style="background:var(--card-soft, rgba(47,75,222,0.04));padding:20px 22px;border-radius:14px;border:1px solid var(--primary-soft)">
+                    <div class="between" style="flex-wrap:wrap;gap:14px;align-items:center">
+                        <div>
+                            <div style="font-weight:700;font-size:16px;display:flex;align-items:center;gap:8px">
+                                <span class="tile tile-indigo" style="width:30px;height:30px" th:insert="~{fragments/icons :: ic('route')}"></span>
+                                <span>Chào mừng bạn trở lại, <span th:text="${currentUser.fullName != null && !currentUser.fullName.isEmpty() ? currentUser.fullName : currentUser.username}">Học sinh</span>!</span>
+                            </div>
+                            <p class="muted" style="margin:4px 0 0;font-size:14px">
+                                Bạn đang theo học <strong th:text="${enrolledCount}">1</strong> môn với lộ trình được cá nhân hóa. Nhấn nút bên dưới để xem chi tiết tiến độ và tiếp tục bài học.
+                            </p>
+                        </div>
+                        <div class="row" style="gap:10px;align-items:center;flex-wrap:wrap">
+                            <a th:href="@{/progress}" class="btn btn-primary btn-lg" style="display:inline-flex;align-items:center;gap:8px">
+                                <span th:insert="~{fragments/icons :: ic('chart')}"></span>
+                                <span>Tiếp tục học (Xem tiến độ)</span>
+                                <span th:insert="~{fragments/icons :: ic('arrow')}"></span>
+                            </a>
+                            <a th:href="@{/subjects/add}" class="btn btn-ghost btn-lg">
+                                <span th:insert="~{fragments/icons :: ic('plus')}"></span> Thêm môn học
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TRƯỜNG HỢP 2: CHƯA THAM GIA LỘ TRÌNH (hasEnrolled == false) -->
+                <!-- Container box chứa các môn để chọn làm bài test tạo lộ trình học -->
+                <div th:unless="${hasEnrolled}" class="stack" style="gap:16px;background:var(--card-soft, rgba(47,75,222,0.04));padding:22px 24px;border-radius:16px;border:2px solid var(--primary-soft)">
+                    <div>
+                        <div class="eyebrow" style="color:var(--primary);margin-bottom:4px">Bắt đầu ngay hôm nay</div>
+                        <h2 style="font-size:20px;margin:0 0 6px">Chọn môn học để làm bài test &amp; tạo lộ trình học</h2>
+                        <p class="muted" style="font-size:14px;margin:0">
+                            Tài khoản của bạn chưa tham gia lộ trình của môn học nào. Hãy chọn một môn dưới đây để làm bài kiểm tra đầu vào miễn phí và tạo lộ trình học tập tối ưu cho riêng bạn:
+                        </p>
+                    </div>
+
+                    <form th:action="@{/subjects/choose}" method="post" class="stack" style="gap:16px">
+                        <div class="pick-grid">
+                            <th:block th:each="s, it : ${subjects}">
+                                <label th:if="${s.active}" class="pick">
+                                    <input type="radio" name="code" th:value="${s.code}" th:checked="${it.first}"/>
+                                    <span class="check-dot" th:insert="~{fragments/icons :: ic('check')}"></span>
+                                    <span class="pick-inner">
+                                        <span class="tile" th:classappend="'tile-' + ${s.colorKey}" th:insert="~{fragments/icons :: ic(${s.iconKey})}"></span>
+                                        <span>
+                                            <span style="font-weight:700;display:block" th:text="${s.name}">Ngữ văn</span>
+                                            <span class="faint" style="font-size:12px" th:text="${s.grade}">THPT</span>
+                                        </span>
+                                    </span>
+                                </label>
+                                <label th:unless="${s.active}" class="pick disabled">
+                                    <span class="pick-inner">
+                                        <span class="tile" th:classappend="'tile-' + ${s.colorKey}" th:insert="~{fragments/icons :: ic(${s.iconKey})}"></span>
+                                        <span>
+                                            <span style="font-weight:700;display:block" th:text="${s.name}">Toán</span>
+                                            <span style="font-size:12px;color:var(--warn)">Sắp ra mắt</span>
+                                        </span>
+                                    </span>
+                                </label>
+                            </th:block>
+                        </div>
+
+                        <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap">
+                            <button type="submit" class="btn btn-primary btn-lg" style="min-width:280px;display:inline-flex;align-items:center;justify-content:center;gap:8px">
+                                <span>Bắt đầu làm bài test tạo lộ trình</span>
+                                <span th:insert="~{fragments/icons :: ic('arrow')}"></span>
+                            </button>
+                            <span class="faint" style="font-size:13px">Miễn phí bài test · Định vị năng lực chính xác</span>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Mục tiêu: Bạn đang cần gì? -->
+            <div class="stack" style="gap:14px">
+                <div class="section-head">
+                    <span class="eyebrow">Định hướng</span>
+                    <h2 style="font-size:22px">Bạn đang cần gì?</h2>
+                    <p class="muted">Xác định mục tiêu rõ ràng để PathStudy định hướng các chuyên đề trọng tâm cho bạn.</p>
+                </div>
+                <div class="goal-grid">
+                    <div th:each="g : ${goals}" class="goal-card" style="cursor:default">
+                        <span class="px-badge" th:insert="~{fragments/icons :: ic(${goalIcons.get(g.key)})}"></span>
+                        <strong th:text="${g.value}">Mình đang mất gốc</strong>
+                        <span class="muted" style="font-size:13.5px" th:text="${blurbs.get(g.key)}">Mô tả ngắn</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cách hoạt động -->
+            <div class="stack" style="gap:14px">
+                <div class="section-head">
+                    <span class="eyebrow">Quy trình đào tạo</span>
+                    <h2 style="font-size:22px">Cách PathStudy giúp bạn tiến bộ</h2>
+                </div>
+                <div class="grid-3">
+                    <div class="card card-pad stack-sm">
+                        <span class="tile tile-indigo" th:insert="~{fragments/icons :: ic('clipboard-check')}"></span>
+                        <h3 style="margin:10px 0 4px;font-size:16px">1 · Test đầu vào</h3>
+                        <p class="muted" style="font-size:14px;line-height:1.55;margin:0">Xác định chuẩn xác trình độ, điểm mạnh và các chủ đề cần cải thiện. Tối đa 3 lần test, lấy kết quả tốt nhất.</p>
+                    </div>
+                    <div class="card card-pad stack-sm">
+                        <span class="tile tile-sky" th:insert="~{fragments/icons :: ic('route')}"></span>
+                        <h3 style="margin:10px 0 4px;font-size:16px">2 · Lộ trình riêng</h3>
+                        <p class="muted" style="font-size:14px;line-height:1.55;margin:0">Hệ thống tạo lộ trình phù hợp với bạn: từng module bám sát kiến thức trọng tâm, phương pháp giải và đề luyện tương ứng.</p>
+                    </div>
+                    <div class="card card-pad stack-sm">
+                        <span class="tile tile-green" th:insert="~{fragments/icons :: ic('chart')}"></span>
+                        <h3 style="margin:10px 0 4px;font-size:16px">3 · Tự điều chỉnh</h3>
+                        <p class="muted" style="font-size:14px;line-height:1.55;margin:0">Sau mỗi chương bài có bài đánh giá (Estimate Test). Đạt chuẩn thì đi tiếp, còn yếu thì được hệ thống nhắc ôn lại đúng phần thiếu sót.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Danh sách các môn học -->
+            <div class="stack" style="gap:14px">
+                <div class="between" style="align-items:flex-end;flex-wrap:wrap">
+                    <div class="section-head" style="margin:0">
+                        <span class="eyebrow">Hệ thống môn học</span>
+                        <h2 style="font-size:22px;margin:0">Các môn học trên PathStudy</h2>
+                    </div>
+                    <a th:if="${hasEnrolled}" th:href="@{/subjects/add}" class="btn btn-ghost" style="display:inline-flex;align-items:center;gap:6px">
+                        <span th:insert="~{fragments/icons :: ic('plus')}"></span> Thêm môn vào lộ trình
+                    </a>
+                </div>
+                <div class="subject-grid">
+                    <th:block th:each="s : ${subjects}">
+                        <div th:if="${s.active}" class="subject-tile" style="cursor:default">
+                            <span class="tile" th:classappend="'tile-' + ${s.colorKey}" th:insert="~{fragments/icons :: ic(${s.iconKey})}"></span>
+                            <div>
+                                <div class="name" th:text="${s.name}">Ngữ văn</div>
+                                <div class="grade" th:text="${s.grade}">THPT</div>
+                            </div>
+                        </div>
+                        <div th:unless="${s.active}" class="subject-tile soon">
+                            <span class="tile" th:classappend="'tile-' + ${s.colorKey}" th:insert="~{fragments/icons :: ic(${s.iconKey})}"></span>
+                            <div>
+                                <div class="name" th:text="${s.name}">Toán</div>
+                                <div class="grade">THPT · <span style="color:var(--warn)">Sắp ra mắt</span></div>
+                            </div>
+                        </div>
+                    </th:block>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+<div th:replace="~{fragments/layout :: toast}"></div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>
