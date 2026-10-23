@@ -242,7 +242,7 @@ public class PlacementService {
         enrollments.save(e);
 
         // Build the personalized path now that we know the starting point.
-        studyPath.ensurePathInitialized(user, subject);
+        studyPath.adaptPathFromPlacement(user, subject, grade, best);
 
         return new PlacementOutcome(subject, score, level, strengths, weaknesses,
                 attemptNo, attemptNo, ATTEMPTS_MAX, bestUpdated, weakTopics, studyPlan, reviews);
