@@ -7,11 +7,13 @@ import com.pathstudy.repo.EnrollmentRepository;
 import com.pathstudy.repo.SubjectRepository;
 import com.pathstudy.service.CurrentUserService;
 import com.pathstudy.service.StudyPathService;
+import com.pathstudy.web.dto.PathSummary;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -34,15 +36,15 @@ public class ProgressController {
     public String progress(@RequestParam(required = false) String subject, Model model) {
         User user = currentUser.require();
         List<Enrollment> myEnrollments = enrollments.findByUserOrderByCreatedAtAsc(user);
-        if (myEnrollments.isEmpty()) {
-            return "redirect:/subjects";
-        }
-        Subject subj = (subject != null)
-                ? subjects.findByCode(subject).orElse(myEnrollments.get(0).getSubject())
-                : myEnrollments.get(0).getSubject();
 
-        model.addAttribute("activeSubject", subj.getCode());
-        model.addAttribute("summary", studyPath.getPathSummary(user, subj));
+        List<PathSummary> summaries = new ArrayList<>();
+        for (Enrollment e : myEnrollments) {
+            studyPath.ensurePathInitialized(user, e.getSubject());
+            summaries.add(studyPath.getPathSummary(user, e.getSubject()));
+        }
+
+        model.addAttribute("summaries", summaries);
+        model.addAttribute("hasEnrollments", !myEnrollments.isEmpty());
         model.addAttribute("enrollments", myEnrollments);
         return "progress/index";
     }

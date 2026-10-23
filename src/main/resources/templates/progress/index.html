@@ -1,71 +1,124 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/layout :: head('Tổng quan lộ trình')}"></head>
+<head th:replace="~{fragments/layout :: head('Tiến độ học tập')}"></head>
 <body>
 <div class="shell">
     <aside th:replace="~{fragments/layout :: sidebar('progress')}"></aside>
     <main class="main">
-        <header th:replace="~{fragments/layout :: topbar('Tổng quan lộ trình')}"></header>
-        <div class="content stack">
-            <div th:replace="~{fragments/layout :: subjectTabs('progress')}"></div>
-            <div class="section-head">
-                <h2 style="font-size:24px">Hành trình <span th:text="${summary.subject.name}">Ngữ văn</span> của bạn</h2>
-                <p class="muted" th:if="${summary.hasPlacement}">Trình độ hiện tại: <strong th:text="${summary.level}">Khá</strong></p>
-            </div>
+        <header th:replace="~{fragments/layout :: topbar('Tiến độ học tập')}"></header>
+        <div class="content stack" style="gap:24px">
 
-            <div class="card card-pad stack-sm">
-                <div class="between">
-                    <strong th:text="'Đã hoàn thành ' + ${summary.completedCount} + '/' + ${summary.totalCount} + ' module'">Đã hoàn thành 3/7 module</strong>
-                    <span class="pill pill-doing tnum" th:text="${summary.overallPercent} + '%'">35%</span>
+            <!-- Tiêu đề trang tiến độ -->
+            <div class="between" style="flex-wrap:wrap;gap:14px;align-items:flex-end">
+                <div class="stack-sm">
+                    <h2 style="font-size:24px;display:flex;align-items:center;gap:10px;margin:0">
+                        <span class="px-md" th:insert="~{fragments/icons :: ic('chart')}" aria-hidden="true"></span>
+                        <span>Tiến độ các môn học</span>
+                    </h2>
+                    <p class="muted" style="margin:0;font-size:14px">
+                        Theo dõi mức độ hoàn thành bài học trên từng lộ trình. Nhấp vào môn học để mở lộ trình chi tiết.
+                    </p>
                 </div>
-                <div class="bar" style="height:12px"><span th:style="'width:' + ${summary.overallPercent} + '%'"></span></div>
+                <a th:href="@{/subjects/add}" class="btn btn-ghost" style="display:inline-flex;align-items:center;gap:6px">
+                    <span th:insert="~{fragments/icons :: ic('plus')}"></span> Thêm môn học mới
+                </a>
             </div>
 
-            <div class="grid-2" style="align-items:start">
-                <div class="card card-pad stack" style="gap:14px">
-                    <div class="eyebrow">Các module</div>
-                    <div class="stack-sm" style="gap:14px">
-                        <div class="between" th:each="card : ${summary.modules}" style="gap:12px">
-                            <div class="center" style="gap:10px">
-                                <span class="tile" style="width:34px;height:34px;border-radius:10px"
-                                      th:classappend="${card.status.name()=='COMPLETED'} ? 'tile-green' : (${card.current} ? 'tile-indigo' : '')"
-                                      th:insert="~{fragments/icons :: ic(${card.module.iconKey})}"></span>
+            <!-- Trường hợp chưa có môn học nào -->
+            <div th:unless="${hasEnrollments}" class="card card-pad stack" style="text-align:center;align-items:center;padding:48px 24px;gap:16px;max-width:580px;margin:20px auto">
+                <span class="px-xl" th:insert="~{fragments/icons :: ic('px-chest')}" aria-hidden="true"></span>
+                <h3 style="font-size:20px;margin:0">Bạn chưa tham gia lộ trình môn học nào</h3>
+                <p class="muted" style="margin:0;max-width:440px;font-size:14px;line-height:1.5">
+                    Hãy làm bài kiểm tra đầu vào để xác định trình độ và nhận lộ trình học cá nhân hóa cho môn học bạn muốn cải thiện.
+                </p>
+                <a th:href="@{/home}" class="btn btn-primary btn-lg" style="margin-top:6px;display:inline-flex;align-items:center;gap:8px">
+                    <span>Về trang chủ chọn môn học</span>
+                    <span th:insert="~{fragments/icons :: ic('arrow')}"></span>
+                </a>
+            </div>
+
+            <!-- Danh sách các môn học đang có lộ trình -->
+            <div th:if="${hasEnrollments}" class="grid-2" style="align-items:stretch;gap:20px">
+                <div th:each="s : ${summaries}" class="card card-pad stack" style="gap:16px;border-radius:16px;display:flex;flex-direction:column;justify-content:space-between;border:1px solid var(--border)">
+                    <div class="stack" style="gap:14px">
+                        <!-- Thông tin môn học & % tiến độ -->
+                        <div class="between" style="align-items:flex-start">
+                            <div class="center" style="gap:12px">
+                                <span class="tile" style="width:44px;height:44px;border-radius:12px"
+                                      th:classappend="'tile-' + ${s.subject.colorKey}"
+                                      th:insert="~{fragments/icons :: ic(${s.subject.iconKey})}"></span>
                                 <div>
-                                    <div style="font-weight:600" th:text="${card.module.title}">Nền tảng</div>
-                                    <div class="faint" style="font-size:12px" th:text="${card.status.label}">Hoàn thành</div>
+                                    <div style="font-weight:700;font-size:18px" th:text="${s.subject.name}">Ngữ văn</div>
+                                    <div class="faint" style="font-size:12.5px" th:text="${s.subject.grade}">THPT</div>
                                 </div>
                             </div>
-                            <div class="center" style="gap:10px;min-width:120px;justify-content:flex-end">
-                                <span class="bar" style="width:70px" th:classappend="${card.status.name()=='COMPLETED'} ? 'green' : ''">
-                                    <span th:style="'width:' + (${card.status.name()=='COMPLETED'} ? 100 : ${card.percent}) + '%'"></span></span>
-                                <span class="tnum" style="font-weight:700;font-size:13px;width:40px;text-align:right"
-                                      th:text="(${card.status.name()=='COMPLETED'} ? 100 : ${card.percent}) + '%'">100%</span>
-                            </div>
+                            <span class="pill tnum"
+                                  th:classappend="${s.overallPercent == 100} ? 'pill-done' : (${s.overallPercent > 0} ? 'pill-doing' : 'pill-todo')"
+                                  th:text="${s.overallPercent} + '%'">35%</span>
                         </div>
-                    </div>
-                </div>
 
-                <div class="card card-pad stack" style="gap:14px">
-                    <div class="eyebrow">Bước tiếp theo</div>
-                    <div th:if="${summary.currentModule != null}" class="stack-sm">
-                        <div class="center" style="gap:12px">
-                            <span class="tile tile-indigo" th:insert="~{fragments/icons :: ic(${summary.currentModule.iconKey})}"></span>
-                            <div>
-                                <strong th:text="${summary.currentModule.title}">Phân tích tác phẩm</strong>
-                                <div class="faint" style="font-size:12px" th:if="${summary.currentLessonTitle}" th:text="${summary.currentLessonTitle}">Sóng – Xuân Quỳnh</div>
+                        <!-- Trình độ & Số lượng module hoàn thành -->
+                        <div class="between" style="flex-wrap:wrap;gap:8px;align-items:center">
+                            <div class="row" style="gap:8px;align-items:center">
+                                <span th:if="${s.hasPlacement}" class="chip" style="font-size:12px;padding:3px 10px">
+                                    Trình độ: <strong th:text="${s.level}" style="margin-left:4px">Khá</strong>
+                                </span>
+                                <span th:unless="${s.hasPlacement}" class="chip" style="font-size:12px;padding:3px 10px;color:var(--warn);background:var(--warn-soft)">
+                                    Chưa làm test đầu vào
+                                </span>
+                            </div>
+                            <span class="muted tnum" style="font-size:13px" th:text="'Đã hoàn thành ' + ${s.completedCount} + '/' + ${s.totalCount} + ' module'">
+                                Đã hoàn thành 3/7 module
+                            </span>
+                        </div>
+
+                        <!-- Thanh tiến độ -->
+                        <div class="bar" style="height:10px" th:classappend="${s.overallPercent == 100} ? 'green' : ''">
+                            <span th:style="'width:' + ${s.overallPercent} + '%'"></span>
+                        </div>
+
+                        <!-- Trạng thái bài học tiếp theo -->
+                        <div class="stack-sm" style="padding:12px 14px;border-radius:10px;background:var(--card-soft, rgba(0,0,0,0.02));border:1px solid var(--border)">
+                            <div class="eyebrow" style="font-size:11px;margin-bottom:2px">Bước tiếp theo trong lộ trình</div>
+                            <div th:if="${s.currentModule != null}" class="center" style="gap:10px">
+                                <span class="tile tile-indigo" style="width:28px;height:28px;border-radius:8px" th:insert="~{fragments/icons :: ic(${s.currentModule.iconKey})}"></span>
+                                <div style="font-size:13.5px">
+                                    <strong th:text="${s.currentModule.title}">Phân tích tác phẩm</strong>
+                                    <span class="faint" th:if="${s.currentLessonTitle}" th:text="' · ' + ${s.currentLessonTitle}"> · Sóng</span>
+                                </div>
+                            </div>
+                            <div th:if="${s.currentModule == null and s.totalCount > 0 and s.completedCount == s.totalCount}" style="font-size:13px;color:var(--success);display:flex;align-items:center;gap:6px">
+                                <span th:insert="~{fragments/icons :: ic('check')}"></span>
+                                <span>Bạn đã hoàn thành xuất sắc tất cả các bài học!</span>
+                            </div>
+                            <div th:if="${s.currentModule == null and (s.totalCount == 0 or s.completedCount < s.totalCount)}" class="muted" style="font-size:13px;display:flex;align-items:center;gap:6px">
+                                <span th:insert="~{fragments/icons :: ic('book')}"></span>
+                                <span>Lộ trình đang được cập nhật các bài học mới.</span>
                             </div>
                         </div>
-                        <a th:href="@{'/module/' + ${summary.currentModule.id}}" class="btn btn-primary btn-block"
-                           th:if="${summary.currentModule.hasContent}">Tiếp tục học <span th:insert="~{fragments/icons :: ic('arrow')}"></span></a>
                     </div>
-                    <div th:unless="${summary.currentModule != null}" class="banner banner-success">
-                        <span th:insert="~{fragments/icons :: ic('check')}"></span> Bạn đã hoàn thành lộ trình hiện tại!
+
+                    <!-- Nút mở lộ trình của môn đó -->
+                    <div style="margin-top:8px">
+                        <a th:href="${s.subject.code == 'anh'} ? @{/english} : @{'/path?subject=' + ${s.subject.code}}" class="btn btn-primary btn-block" style="display:flex;align-items:center;justify-content:center;gap:8px">
+                            <span>Mở lộ trình <span th:text="${s.subject.name}">Ngữ văn</span></span>
+                            <span th:insert="~{fragments/icons :: ic('arrow')}"></span>
+                        </a>
                     </div>
-                    <hr class="sep"/>
-                    <a th:href="@{/subjects/add}" class="chip" style="align-self:flex-start">
-                        <span th:insert="~{fragments/icons :: ic('plus')}"></span> Thêm môn học mới</a>
                 </div>
             </div>
+
+            <!-- Gợi ý thêm môn học -->
+            <div th:if="${hasEnrollments}" class="card card-pad between" style="background:var(--surface);border:1px dashed var(--border);border-radius:14px;flex-wrap:wrap;gap:12px;align-items:center">
+                <div>
+                    <div style="font-weight:700;font-size:15px">Muốn học thêm môn học khác?</div>
+                    <div class="muted" style="font-size:13px">Làm bài test đầu vào để cá nhân hóa thêm lộ trình mới cho mục tiêu ôn thi của bạn.</div>
+                </div>
+                <a th:href="@{/subjects/add}" class="btn btn-ghost" style="display:inline-flex;align-items:center;gap:6px">
+                    <span th:insert="~{fragments/icons :: ic('plus')}"></span> Thêm môn học
+                </a>
+            </div>
+
         </div>
     </main>
 </div>
