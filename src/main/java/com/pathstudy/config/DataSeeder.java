@@ -24,7 +24,7 @@ import java.util.List;
 @Component
 public class DataSeeder implements CommandLineRunner {
 
-    private static final String SEED_VERSION = "2026-10-08-toan-full";
+    private static final String SEED_VERSION = "2026-10-23-english-modules";
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -563,6 +563,7 @@ public class DataSeeder implements CommandLineRunner {
     private static final String T12_REPORTED = "Câu tường thuật: mệnh lệnh, yêu cầu, đề nghị, lời khuyên";
 
     private void seedEnglish(Subject anh) {
+        order = 0;
         // ---- Đề khảo sát ĐẦU VÀO 30 câu, đủ dạng như đề KSCL đầu năm (mỗi lớp một đề) ----
         seedEnglish10Placement(anh);
         seedEnglish11Placement(anh);
@@ -1959,6 +1960,25 @@ public class DataSeeder implements CommandLineRunner {
         l.setExamples(examples);
         l.setOrderIndex(order);
         englishLessons.save(l);
+
+        Subject anh = subjects.findByCode("anh").orElse(null);
+        if (anh != null) {
+            CourseModule m = module(anh, grade, "Unit " + unitNo + ": " + unitTitle, grammarName, "flag", 60);
+            Lesson les = lesson(m, topic, null, "Ngữ pháp & Từ vựng", 30, grammarName,
+                    "Lý thuyết trọng tâm, ngữ pháp và từ vựng Unit " + unitNo + " (" + grade + ").");
+            if (theory != null && !theory.isBlank()) {
+                section(les, 1, SectionType.VOCAB, "Ngữ pháp trọng tâm", theory);
+            }
+            if (examples != null && !examples.isBlank()) {
+                section(les, 2, SectionType.EXAMPLE, "Ví dụ minh hoạ", examples);
+            }
+            if (vocabulary != null && !vocabulary.isBlank()) {
+                section(les, 3, SectionType.VOCAB, "Từ vựng trọng tâm", vocabulary);
+            }
+            if (pronunciation != null && !pronunciation.isBlank()) {
+                section(les, 4, SectionType.GUIDE, "Phát âm", pronunciation);
+            }
+        }
     }
 
     /** Gom nội dung bài học của 1 lớp thành tài liệu nguồn để AI (Gemini) bám vào soạn giáo trình. */
@@ -2752,6 +2772,7 @@ public class DataSeeder implements CommandLineRunner {
      * dụ + câu hỏi tự đánh giá. Kèm ngân hàng câu kiểm tra đầu vào (placement).
      */
     private void seedToanContent(Subject toan) {
+        order = 0;
         toanChapter(toan, "Mệnh đề và tập hợp", "Logic · Tập hợp", "layers", "Đại số",
                 """
                 MỆNH ĐỀ là câu khẳng định có tính đúng hoặc sai (không vừa đúng vừa sai).
