@@ -794,3 +794,87 @@ html[data-theme="kawai"][data-mode="dark"] .card:has(.btn-ghost)::after {
     filter: brightness(0.85) contrast(1.2) hue-rotate(280deg);
 }
 
+
+/* ====== CHỮ TRÊN NỀN TRANH ======
+   Nền Kawai là tranh pixel nhiều chi tiết. Chữ đặt thẳng lên đó bị chìm —
+   nhất là mục lục chương ở /path, vốn không nằm trong .card nào. Cách chữa:
+   mỗi khối chữ ngoài card được đặt trên một tấm nền gần đục, tiêu đề trần thì
+   thêm quầng sáng quanh chữ. Vẫn thấy tranh ở khoảng trống giữa các tấm. */
+
+/* --- Mục lục chương: mỗi chương là một tấm riêng --- */
+html[data-theme="kawai"] .toc { gap: 12px 24px; }
+html[data-theme="kawai"] .toc-ch {
+    padding: 10px 14px 12px;
+    border: 3px solid #6e2646;
+    background: rgba(250, 238, 243, 0.94);
+    box-shadow: 3px 3px 0 #6e2646;
+}
+/* Chương đang học: app.css dùng box-shadow tràn hai bên để tô nền — ở đây đã
+   có tấm nền riêng nên bỏ nó đi, chỉ làm tấm sáng hơn một chút. */
+html[data-theme="kawai"] .toc-ch.doing {
+    background: rgba(255, 247, 250, 0.97);
+    box-shadow: 3px 3px 0 #6e2646;
+}
+html[data-theme="kawai"] .toc-exams {
+    padding: 8px 14px;
+    border: 3px solid #6e2646;
+    background: rgba(250, 238, 243, 0.94);
+    box-shadow: 3px 3px 0 #6e2646;
+}
+/* Chương chưa mở khoá: vẫn mờ hơn chương mở được, nhưng phải đọc ra chữ. */
+html[data-theme="kawai"]:not([data-mode="dark"]) .toc-head.is-off { color: #8a4867; }
+html[data-theme="kawai"]:not([data-mode="dark"]) .toc-no { color: #8a4867; }
+
+/* --- Khối tiêu đề trang (/path, /progress, /exams, /subjects): đặt lên tấm
+       nền thay vì để chữ nằm trần trên tranh --- */
+html[data-theme="kawai"] .content > .section-head,
+html[data-theme="kawai"] .content > .between > .stack-sm {
+    padding: 10px 14px;
+    border: 3px solid #6e2646;
+    background: rgba(250, 238, 243, 0.94);
+    box-shadow: 3px 3px 0 #6e2646;
+}
+
+/* --- Nhãn nhỏ nằm ngoài card (tên môn ở /exams, "Đề luyện tập"...): đậm màu
+       và thêm quầng sáng. Trong card thì trả lại như cũ vì nền đã sáng sẵn. --- */
+html[data-theme="kawai"]:not([data-mode="dark"]) .content h3,
+html[data-theme="kawai"]:not([data-mode="dark"]) .content .eyebrow,
+html[data-theme="kawai"]:not([data-mode="dark"]) .content .toc-exams-lab {
+    color: #6e1b3f;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, .95), 0 0 7px rgba(255, 255, 255, .95);
+}
+html[data-theme="kawai"]:not([data-mode="dark"]) .card h3,
+html[data-theme="kawai"]:not([data-mode="dark"]) .card .eyebrow {
+    color: var(--primary);
+    text-shadow: none;
+}
+
+/* --- Bản ban đêm: cùng cách làm, đổi sang tấm tối --- */
+html[data-theme="kawai"][data-mode="dark"] .toc-ch,
+html[data-theme="kawai"][data-mode="dark"] .toc-exams {
+    border-color: #63193a;
+    background: rgba(26, 7, 19, 0.92);
+    box-shadow: 3px 3px 0 #63193a;
+}
+html[data-theme="kawai"][data-mode="dark"] .toc-ch.doing {
+    background: rgba(40, 11, 29, 0.95);
+}
+html[data-theme="kawai"][data-mode="dark"] .toc-head.is-off,
+html[data-theme="kawai"][data-mode="dark"] .toc-no { color: #c08aa3; }
+html[data-theme="kawai"][data-mode="dark"] .content > .section-head,
+html[data-theme="kawai"][data-mode="dark"] .content > .between > .stack-sm {
+    border-color: #63193a;
+    background: rgba(26, 7, 19, 0.92);
+    box-shadow: 3px 3px 0 #63193a;
+}
+html[data-theme="kawai"][data-mode="dark"] .content h3,
+html[data-theme="kawai"][data-mode="dark"] .content .eyebrow,
+html[data-theme="kawai"][data-mode="dark"] .content .toc-exams-lab {
+    color: #f3b9cd;
+    text-shadow: 0 1px 0 rgba(10, 2, 7, .95), 0 0 8px rgba(10, 2, 7, .95);
+}
+html[data-theme="kawai"][data-mode="dark"] .card h3,
+html[data-theme="kawai"][data-mode="dark"] .card .eyebrow {
+    color: var(--primary);
+    text-shadow: none;
+}

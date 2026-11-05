@@ -121,14 +121,17 @@ export async function registerFreshStudent(
 }
 
 /**
- * Bảo đảm tài khoản đã ghi danh ít nhất một môn, vì /path sẽ đá về /subjects
- * nếu chưa. Không phụ thuộc test nào chạy trước.
+ * Bảo đảm tài khoản đã ghi danh ít nhất một môn, vì /path đá đi nơi khác nếu
+ * chưa. Nhận biết hộp chọn môn bằng NỘI DUNG trang, không bằng URL: trước kia
+ * /path đá về /subjects, từ bản 28/10 đá về /home — vẫn đúng hộp chọn môn ấy,
+ * nhưng dò theo URL thì hàm này lặng lẽ bỏ qua việc ghi danh và mọi test sau
+ * đó thấy lộ trình rỗng. Không phụ thuộc test nào chạy trước.
  */
 export async function ensureEnrolled(page: Page) {
   await page.goto('/path');
-  if (!page.url().includes('/subjects')) return;
 
   const radio = page.locator('.pick input[type=radio]:not([disabled])').first();
+  if (!(await radio.count())) return;   // không có hộp chọn → đã ghi danh rồi
   await radio.check();
   await page.locator('form:has(.pick) button[type=submit]').first().click();
   await page.waitForURL((u) => !u.pathname.endsWith('/subjects'));

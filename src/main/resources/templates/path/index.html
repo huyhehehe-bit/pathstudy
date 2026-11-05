@@ -18,7 +18,7 @@
                     </h2>
                     <p class="muted" th:if="${summary.hasPlacement}">
                         Trình độ hiện tại: <strong th:text="${summary.level}">Khá</strong> ·
-                        Mục tiêu: nâng cao kỹ năng phân tích và nghị luận văn học.</p>
+                        Mục tiêu: <span th:text="${mucTieu}">nâng cao kỹ năng phân tích</span>.</p>
                 </div>
                 <div class="stat-tile" style="min-width:200px">
                     <div class="ring" style="--size:66px" th:style="'--size:66px;--p:' + ${summary.overallPercent}">
@@ -33,6 +33,15 @@
                 <span class="px-md" th:insert="~{fragments/icons :: ic('px-chest')}" aria-hidden="true"></span>
                 Hãy làm bài kiểm tra đầu vào để định vị trình độ.
                 <a th:href="@{'/placement/' + ${summary.subject.code}}" style="margin-left:auto;font-weight:700">Làm bài →</a>
+            </div>
+
+            <!-- Môn mới mở (Lý, Hoá, Sinh) có ngân hàng đề nhưng chưa soạn chương.
+                 Không có khối này thì trang trống trơn, học sinh tưởng web hỏng. -->
+            <div th:if="${summary.totalCount == 0}" class="banner banner-info">
+                <span class="px-md" th:insert="~{fragments/icons :: ic('px-chest')}" aria-hidden="true"></span>
+                Môn này chưa có bài học theo chương — phần luyện đề thì đã sẵn sàng,
+                vào làm thử để biết mình đang ở đâu nhé.
+                <a th:href="@{/exams}" style="margin-left:auto;font-weight:700">Luyện đề →</a>
             </div>
 
             <!-- Mục lục gọn kiểu sách giáo khoa: chương + các bài bên dưới, 2 cột.

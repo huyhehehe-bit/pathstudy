@@ -36,6 +36,33 @@ public final class StudyAdvice {
         }
     }
 
+    /**
+     * Mục tiêu ngắn gọn in ở đầu trang lộ trình. Trước đây câu này viết cứng
+     * "nâng cao kỹ năng phân tích và nghị luận văn học" cho MỌI môn, nên học
+     * sinh mở lộ trình Vật lý vẫn thấy mục tiêu môn Văn.
+     */
+    public static String goalLine(String subjectCode) {
+        if (subjectCode == null) {
+            return "nắm chắc kiến thức nền và luyện đề đều đặn";
+        }
+        switch (subjectCode) {
+            case "van":
+                return "nâng cao kỹ năng phân tích và nghị luận văn học";
+            case "anh":
+                return "mở rộng vốn từ, chắc ngữ pháp và luyện kỹ năng đọc";
+            case "toan":
+                return "nắm chắc công thức và trình bày lời giải chặt chẽ";
+            case "ly":
+                return "hiểu bản chất hiện tượng và thạo bài tập tính toán";
+            case "hoa":
+                return "nắm chắc phương trình phản ứng và bài tập tính theo phương trình";
+            case "sinh":
+                return "hệ thống kiến thức và làm tốt câu hỏi vận dụng";
+            default:
+                return "nắm chắc kiến thức nền và luyện đề đều đặn";
+        }
+    }
+
     /** Gợi ý khi học sinh không có chủ đề nào yếu. Không kèm dấu "•". */
     public static String strongLine(String subjectCode) {
         if ("anh".equals(subjectCode)) {
